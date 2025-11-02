@@ -5,6 +5,26 @@
              RequestedThemeVariant="Default">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
+    <NativeMenu.Menu>
+        <NativeMenu>
+            <!-- Application menu (automatically named "Bref" from Name property) -->
+            <NativeMenuItem>
+                <NativeMenu>
+                    <NativeMenuItem Header="About Bref" Click="AboutMenuItem_Click" />
+                    <NativeMenuItemSeparator />
+                    <NativeMenuItem Header="Quit Bref" Gesture="Cmd+Q" Click="QuitMenuItem_Click" />
+                </NativeMenu>
+            </NativeMenuItem>
+
+            <!-- File menu -->
+            <NativeMenuItem Header="File">
+                <NativeMenu>
+                    <NativeMenuItem Header="Open Video..." Gesture="Cmd+O" Click="OpenVideoMenuItem_Click" />
+                </NativeMenu>
+            </NativeMenuItem>
+        </NativeMenu>
+    </NativeMenu.Menu>
+
     <Application.Styles>
         <FluentTheme />
     </Application.Styles>
