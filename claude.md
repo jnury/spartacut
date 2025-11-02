@@ -1,14 +1,12 @@
 # Claude Code Context - Bref
 
-Quick reference for AI-assisted development. See `docs/plans/` for complete specifications.
-
 ## Project Overview
 
 **Bref** is a Windows video editor for removing unwanted segments from MP4/H.264 videos.
 
 **Primary Use Case:** Trim Teams meeting recordings, screen captures, and other recordings.
 
-**Target:** Microsoft Store release, 3-month MVP timeline.
+**Target:** Microsoft Store release
 
 ## Core Design Decision
 
@@ -25,7 +23,7 @@ Quick reference for AI-assisted development. See `docs/plans/` for complete spec
 UI:       Avalonia UI 11.x (XAML + MVVM)
 Language: C# (.NET 8)
 Video:    FFmpeg 7.x (hardware acceleration)
-Platform: Windows 10/11 (64-bit)
+Platform: Windows 11 (64-bit)
 Package:  MSIX (Microsoft Store)
 ```
 
@@ -98,39 +96,6 @@ SegmentList Redo(SegmentList currentState);
 - **ThumbnailGenerator** - Pre-generate timeline thumbnails
 - **ExportService** - FFmpeg export with hardware acceleration
 
-## Performance Targets
-
-```
-Load 1hr video:    < 30 seconds
-Timeline scrub:    60 fps
-Deletion:          < 100ms (instant)
-Export (hardware): 2-5 min for 30min result
-Memory usage:      < 500MB typical
-```
-
-## Hardware Acceleration
-
-**Priority Order:**
-1. `h264_nvenc` (NVIDIA GPU)
-2. `h264_qsv` (Intel Quick Sync)
-3. `h264_amf` (AMD GPU)
-4. `libx264` (Software fallback)
-
-Detect once, cache result, display in status bar.
-
-## Export Strategy
-
-Use FFmpeg `filter_complex` to concatenate segments:
-
-```bash
-# Example for 2 segments:
--filter_complex "[0:v]trim=start=0:end=5,setpts=PTS-STARTPTS[v0];
-                 [0:a]atrim=start=0:end=5,asetpts=PTS-STARTPTS[a0];
-                 [0:v]trim=start=10:end=60,setpts=PTS-STARTPTS[v1];
-                 [0:a]atrim=start=10:end=60,asetpts=PTS-STARTPTS[a1];
-                 [v0][a0][v1][a1]concat=n=2:v=1:a=1[outv][outa]"
-```
-
 ## Development Principles
 
 1. **YAGNI** - Resist feature creep, defer complexity
@@ -158,20 +123,21 @@ Use FFmpeg `filter_complex` to concatenate segments:
 ## Documentation Locations
 
 **Detailed Specs:**
-- Architecture: `docs/plans/2025-11-01-architecture.md`
-- User Flow: `docs/plans/2025-11-01-user-flow.md`
-- Technical: `docs/plans/2025-11-01-technical-specification.md`
-- Roadmap: `docs/plans/2025-11-01-mvp-scope-roadmap.md`
+- Architecture: `docs/plans/architecture.md`
+- User Flow: `docs/plans/user-flow.md`
+- Technical: `docs/plans/technical-specification.md`
+- Roadmap: `docs/plans/mvp-scope-roadmap.md`
 
-**Reference:**
-- Full C# code samples in technical specification
-- Weekly milestones in roadmap (12 weeks, ~330 hours)
+## Critical Rules (Never Violate)
+- Keep evything simple so a beginer/medium experimented developer can understand and maintain the code.
+- No external library except if it greatly simplify the code and it's a very well maintened library. Always ask me if you want to add a library and expose the pros/cons of building your own code vs adding a library.
+- Each time you touch the code, update package version with the following rule: if you just implemented a new important feature, increment the minor version digit; else increment the patch version digit.
+- Commit the repository only when I ask. When you create a commit, tag it with the current app verion. Always push after you commited.
+- If you learn something interesting and usefull for the rest of the project, update this CLAUDE.md file in section "Today I learned". But before, ask me if your new knowledge is correct.
+- If you made a mistake in your interpretation of the specs, architecture, features etc. update this CLAUDE.md file in section "Never again". But before, ask me if your new knowledge is correct.
+- Always ask questions when you need clarification or if you have the choice between multiple solutions.
+- Always ask for validation before commiting changes
+- Never add features that weren't explicitly requested (like the Auto-save toggle I added to Settings). Always implement exactly what was asked for, but DO propose good ideas as suggestions for the user to accept or decline. Frame additional features as questions: "Would you also like me to add [feature], or should we keep it as-is for now?"
 
-## Current Phase
-
-**Week 0:** Design complete ✅
-**Next:** Week 1 - Project setup, FFmpeg POC
-
----
-
-*Keep this file lightweight - full details in docs/plans/*
+## Always Think Step by Step
+- Read specification → Check dependencies → Validate data flow → Implement incrementally → Test immediately

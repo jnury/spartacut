@@ -88,7 +88,7 @@ This document defines the exact scope for Bref's Minimum Viable Product (MVP) - 
 - Memory usage: <500MB typical
 
 **Platform:**
-- Windows 10 (version 1809+) and Windows 11
+- Windows 11
 - 64-bit only
 - Minimum 8GB RAM, 16GB recommended
 
@@ -367,7 +367,7 @@ This document defines the exact scope for Bref's Minimum Viable Product (MVP) - 
 - Test MSIX installation/uninstallation
 - Write Store listing (description, screenshots)
 - Create user documentation (README)
-- Final testing on clean Windows 10 and 11 machines
+- Final testing on clean Windows 11 machines
 - Submit to Microsoft Store for review
 
 **Deliverable:** Application published on Microsoft Store
@@ -547,7 +547,7 @@ This document defines the exact scope for Bref's Minimum Viable Product (MVP) - 
 ## Resource Requirements
 
 ### Development Environment
-- Windows 10/11 PC (primary dev machine)
+- Windows 11 PC (primary dev machine)
 - Visual Studio 2022 Community Edition (free)
 - Visual Studio Code (for documentation)
 - Git + GitHub (version control)

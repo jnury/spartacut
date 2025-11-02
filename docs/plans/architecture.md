@@ -347,7 +347,7 @@ Success notification to user
 
 ## Deployment
 
-**Platform:** Windows 10/11 (64-bit)
+**Platform:** Windows 11 (64-bit)
 
 **Distribution:** Microsoft Store (MSIX package)
 - Single-project MSIX packaging
@@ -360,7 +360,7 @@ Success notification to user
 - Total: ~100MB download
 
 **Requirements:**
-- OS: Windows 10 version 1809 or later
+- OS: Windows 11 24H2 or later
 - RAM: 8GB minimum, 16GB recommended
 - CPU: Modern multi-core (hardware acceleration preferred)
 - GPU: NVIDIA/Intel/AMD for hardware encoding (optional)

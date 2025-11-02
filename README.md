@@ -22,7 +22,7 @@ Bref is a Windows desktop application designed for quickly trimming videos by re
 
 **Runtime:** .NET 8.0
 - C# 12 language features
-- Windows 10+ target platform
+- Windows 11+ target platform
 
 **Video Processing:** FFmpeg 7.x
 - Hardware-accelerated encoding/decoding
@@ -39,16 +39,17 @@ Bref is a Windows desktop application designed for quickly trimming videos by re
 ```
 Bref/
 ├── docs/
+│   ├── stack-analysis.md              # Technology evaluation research
 │   └── plans/                     # Design documentation
-│       ├── 2025-11-01-architecture.md
-│       ├── 2025-11-01-user-flow.md
-│       ├── 2025-11-01-technical-specification.md
-│       └── 2025-11-01-mvp-scope-roadmap.md
+│       ├── architecture.md
+│       ├── user-flow.md
+│       ├── technical-specification.md
+│       └── mvp-scope-roadmap.md
 ├── src/
 │   ├── Bref/                      # Main application (to be created)
 │   └── Bref.Tests/                # Unit tests (to be created)
 ├── assets/                         # Icons, FFmpeg binaries (to be created)
-├── stack_analysis.md              # Technology evaluation research
+
 ├── claude.md                       # Claude Code context reference
 └── README.md                       # This file
 ```
@@ -105,7 +106,7 @@ dotnet test
 
 ## Target Platform
 
-- **OS:** Windows 10 (1809+) / Windows 11
+- **OS:** Windows 11
 - **Architecture:** 64-bit only
 - **RAM:** 8GB minimum, 16GB recommended
 - **GPU:** NVIDIA/Intel/AMD for hardware encoding (optional)
