@@ -1,10 +1,8 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using System;
-using System.Runtime.InteropServices;
 
 namespace Bref;
 
@@ -20,59 +18,35 @@ public partial class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.MainWindow = new Views.MainWindow();
-
-            // Setup macOS menu bar
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                SetupMacOSMenu(desktop);
-            }
         }
 
         base.OnFrameworkInitializationCompleted();
     }
 
-    private void SetupMacOSMenu(IClassicDesktopStyleApplicationLifetime desktop)
+    private void AboutMenuItem_Click(object? sender, EventArgs e)
     {
-        var menu = new NativeMenu();
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            ShowAboutDialog(desktop.MainWindow);
+        }
+    }
 
-        // Application menu (will be named "Bref" automatically from App.axaml Name property)
-        var appMenu = new NativeMenuItem();
-        var appSubMenu = new NativeMenu();
+    private void QuitMenuItem_Click(object? sender, EventArgs e)
+    {
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            desktop.Shutdown();
+        }
+    }
 
-        var aboutItem = new NativeMenuItem("About Bref");
-        aboutItem.Click += (sender, args) => ShowAboutDialog(desktop.MainWindow);
-        appSubMenu.Add(aboutItem);
-
-        appSubMenu.Add(new NativeMenuItemSeparator());
-
-        var quitItem = new NativeMenuItem("Quit Bref") { Gesture = KeyGesture.Parse("Cmd+Q") };
-        quitItem.Click += (sender, args) => desktop.Shutdown();
-        appSubMenu.Add(quitItem);
-
-        appMenu.Menu = appSubMenu;
-        menu.Add(appMenu);
-
-        // File menu
-        var fileMenu = new NativeMenuItem("File");
-        var fileSubMenu = new NativeMenu();
-
-        var openItem = new NativeMenuItem("Open Video...") { Gesture = KeyGesture.Parse("Cmd+O") };
-        openItem.Click += (sender, args) =>
+    private void OpenVideoMenuItem_Click(object? sender, EventArgs e)
+    {
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             if (desktop.MainWindow is Views.MainWindow mainWindow)
             {
-                // Trigger the load button click programmatically
                 mainWindow.TriggerLoadVideo();
             }
-        };
-        fileSubMenu.Add(openItem);
-
-        fileMenu.Menu = fileSubMenu;
-        menu.Add(fileMenu);
-
-        if (desktop.MainWindow != null)
-        {
-            NativeMenu.SetMenu(desktop.MainWindow, menu);
         }
     }
 
