@@ -25,7 +25,10 @@ public partial class MainWindow : Window
         catch (Exception ex)
         {
             Log.Error(ex, "Failed to initialize FFmpeg");
-            VideoInfoTextBlock.Text = $"ERROR: Failed to initialize FFmpeg\n\n{ex.Message}\n\nPlease ensure FFmpeg is installed via Homebrew:\nbrew install ffmpeg";
+            if (VideoInfoTextBlock != null)
+            {
+                VideoInfoTextBlock.Text = $"ERROR: Failed to initialize FFmpeg\n\n{ex.Message}\n\nPlease ensure FFmpeg is installed via Homebrew:\nbrew install ffmpeg";
+            }
         }
     }
 
