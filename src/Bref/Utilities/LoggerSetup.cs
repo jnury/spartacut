@@ -48,7 +48,7 @@ public static class LoggerSetup
         if (!Directory.Exists(logDirectory))
         {
             Directory.CreateDirectory(logDirectory);
-            Log.Debug("Created log directory: {LogDirectory}", logDirectory);
+            // Don't log here - logger isn't initialized yet
         }
 
         return logDirectory;
