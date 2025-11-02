@@ -32,6 +32,14 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>
+    /// Public method to trigger video loading from menu or keyboard shortcut.
+    /// </summary>
+    public void TriggerLoadVideo()
+    {
+        LoadVideoButton_Click(null, null!);
+    }
+
     private async void LoadVideoButton_Click(object? sender, RoutedEventArgs e)
     {
         try
