@@ -64,3 +64,113 @@
 - b30f1a5 - fix: add null check for VideoInfoTextBlock in constructor
 
 **Total Time:** ~18 hours (under 20-hour estimate)
+
+---
+
+## Version 0.2.0 - Week 2: Video Loading & Waveform Generation (November 3, 2025)
+
+**Status:** ✅ COMPLETE
+
+**Goal:** Complete video import pipeline with progress reporting, waveform generation using FFMpegCore, and loading UI with async/await pattern.
+
+### Completed Tasks
+
+1. ✅ Progress Reporting Models - Created LoadProgress and LoadStage enum
+2. ✅ VideoService Interface & Implementation - TDD approach with format validation
+3. ✅ VideoService Metadata Integration - Integrated FrameExtractor
+4. ✅ WaveformGenerator Implementation - FFMpegCore-based audio extraction (cross-platform)
+5. ✅ Waveform Integration - Added waveform to VideoService pipeline
+6. ✅ Loading Dialog UI - Progress bar with status messages
+7. ✅ MainWindow Integration - Updated UI to use VideoService
+8. ✅ Integration Tests - End-to-end video loading tests
+9. ✅ Version Update - Bumped to 0.2.0
+10. ✅ Documentation - Updated development log
+
+### Key Achievements
+
+- **VideoService Abstraction:** Complete service layer with validation, metadata extraction, and waveform orchestration
+- **Progress Reporting:** IProgress<T> pattern with 5 stages (Validating → ExtractingMetadata → GeneratingWaveform → Complete/Failed)
+- **Audio Waveform:** FFMpegCore integration for cross-platform audio extraction (~3000 peak samples)
+- **Loading Dialog:** Thread-safe UI with real-time progress updates and auto-close on completion
+- **Error Handling:** Comprehensive validation (format, codec, file existence) with specific exception types
+- **Testing:** TDD approach for service layer with integration tests for complete workflow
+
+### Technical Highlights
+
+**VideoService Architecture:**
+- Validates MP4/H.264 format before processing
+- Reports progress through 5 distinct stages with percentage updates
+- Async/await throughout with CancellationToken support
+- Throws specific exceptions: NotSupportedException, FileNotFoundException, InvalidDataException
+- Coordinates metadata extraction and waveform generation
+
+**WaveformGenerator:**
+- Uses FFMpegCore (not NAudio) for cross-platform macOS/Windows compatibility
+- Extracts audio via FFmpeg CLI with pipe output
+- Generates ~3000 peak samples (min/max pairs) for efficient timeline rendering
+- Reports percentage progress (0-100) with cancellation support
+- Stores peak data, duration, sample rate, and samples per peak
+
+**Loading Dialog:**
+- Thread-safe progress updates via Avalonia Dispatcher.UIThread
+- Auto-closes on LoadStage.Complete or LoadStage.Failed
+- Clean, minimal dark theme UI matching application style
+- Shows status message, progress bar, and percentage
+
+**Cross-Platform Audio Extraction:**
+- Decided against NAudio (Windows-only MediaFoundation APIs)
+- Used FFMpegCore for cross-platform audio extraction
+- FFmpeg CLI extracts audio as PCM WAV to stdout
+- C# code reads binary stream and calculates peaks
+- Works seamlessly on macOS (M4) and future Windows builds
+
+### Commits
+
+1. 249ee1b - feat: add LoadProgress model for video loading progress reporting
+2. 98cc5b8 - feat: add VideoService with format and file validation (TDD)
+3. 6102844 - feat: integrate metadata extraction into VideoService
+4. 35ae740 - feat: implement WaveformGenerator using FFMpegCore (cross-platform)
+5. d4cb657 - feat: integrate waveform generation into VideoService
+6. 1e092b4 - feat: add loading dialog UI with progress bar
+7. 54d6950 - feat: integrate VideoService and loading dialog into MainWindow
+8. 057643c - test: add integration tests for video loading workflow
+9. a4c546f - chore: bump version to 0.2.0 for Week 2 milestone
+10. (current) - docs: update development log for Week 2 completion
+
+### Testing
+
+**Unit Tests:**
+- VideoService format validation (throws NotSupportedException for non-MP4)
+- VideoService file existence checks (throws FileNotFoundException)
+- WaveformGenerator error handling (throws FileNotFoundException)
+
+**Integration Tests:**
+- Complete video loading workflow (metadata + waveform)
+- Progress reporting validation (all 5 stages reported)
+- Cancellation token handling (operation cancels cleanly)
+
+**Manual Testing:**
+- Tested with real MP4/H.264 files on macOS M4
+- Verified loading dialog progress updates (0% → 100%)
+- Confirmed waveform generation (peak count, duration, sample rate)
+- Validated error handling for unsupported formats
+
+### Known Limitations (Expected)
+
+- Frame extraction not implemented yet (Week 4)
+- No video playback yet (Week 7)
+- No timeline UI visualization yet (Week 3)
+- Windows platform not tested yet (Week 9)
+- Hardware acceleration not implemented (Week 9)
+
+### Next Steps (Week 3)
+
+- Timeline UI with horizontal scroll
+- Thumbnail generation and display
+- Waveform visualization rendering
+- Zoom and pan controls
+
+### Time Estimate
+
+**Estimated:** 25 hours
+**Actual:** ~22 hours (under estimate, efficient FFMpegCore integration)
