@@ -5,7 +5,7 @@ namespace Bref.Models;
 /// <summary>
 /// Metadata extracted from a video file.
 /// </summary>
-public class VideoMetadata
+public record VideoMetadata
 {
     /// <summary>
     /// Full path to the video file.
@@ -51,6 +51,11 @@ public class VideoMetadata
     /// File size in bytes.
     /// </summary>
     public long FileSizeBytes { get; init; }
+
+    /// <summary>
+    /// Audio waveform data (null if not yet generated).
+    /// </summary>
+    public WaveformData? Waveform { get; init; }
 
     /// <summary>
     /// Check if this is a supported format (MP4/H.264 for MVP).

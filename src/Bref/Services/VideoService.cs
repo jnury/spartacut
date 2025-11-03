@@ -72,7 +72,38 @@ public class VideoService : IVideoService
 
             Log.Information("Video metadata extracted: {Metadata}", metadata);
 
-            // TODO: Generate waveform (Task 4)
+            // Report progress: Generating waveform
+            progress.Report(new LoadProgress
+            {
+                Stage = LoadStage.GeneratingWaveform,
+                Percentage = 50,
+                Message = "Generating audio waveform..."
+            });
+
+            // Generate waveform
+            WaveformData waveform = null!;
+            await Task.Run(() =>
+            {
+                var waveformProgress = new Progress<int>(percent =>
+                {
+                    // Map waveform progress (0-100) to overall progress (50-90)
+                    var overallPercent = 50 + (int)(percent * 0.4);
+                    progress.Report(new LoadProgress
+                    {
+                        Stage = LoadStage.GeneratingWaveform,
+                        Percentage = overallPercent,
+                        Message = $"Generating audio waveform... {percent}%"
+                    });
+                });
+
+                var generator = new WaveformGenerator();
+                waveform = generator.Generate(filePath, waveformProgress, cancellationToken);
+            }, cancellationToken);
+
+            // Update metadata with waveform
+            metadata = metadata with { Waveform = waveform };
+
+            Log.Information("Waveform generated for video: {FilePath}", filePath);
 
             // Report progress: Complete
             progress.Report(new LoadProgress
