@@ -2,6 +2,8 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using Bref.FFmpeg;
+using Bref.Models;
+using Bref.Services;
 using Serilog;
 using System;
 using System.Linq;
@@ -60,23 +62,34 @@ public partial class MainWindow : Window
             var filePath = files.First().Path.LocalPath;
             Log.Information("User selected file: {FilePath}", filePath);
 
-            // Extract metadata
-            VideoInfoTextBlock.Text = "Loading video metadata...";
+            // Show loading dialog
+            var loadingDialog = new LoadingDialog();
 
-            using var extractor = new FrameExtractor();
-            var metadata = extractor.ExtractMetadata(filePath);
+            // Create progress reporter
+            var progress = new Progress<LoadProgress>(p =>
+            {
+                loadingDialog.UpdateProgress(p);
+            });
 
-            // Check if supported
-            var supportedStatus = metadata.IsSupported()
-                ? "✓ SUPPORTED (H.264)"
-                : "✗ NOT SUPPORTED (MVP requires H.264)";
+            // Start loading in background
+            var loadTask = Task.Run(async () =>
+            {
+                var videoService = new VideoService();
+                return await videoService.LoadVideoAsync(filePath, progress);
+            });
+
+            // Show dialog (will close when progress reports Complete/Failed)
+            _ = loadingDialog.ShowDialog(this);
+
+            // Wait for loading to complete
+            var metadata = await loadTask;
 
             // Build info display
             var info = new StringBuilder();
             info.AppendLine("=== VIDEO METADATA ===");
             info.AppendLine();
             info.AppendLine($"File: {metadata.FilePath}");
-            info.AppendLine($"Status: {supportedStatus}");
+            info.AppendLine($"Status: {(metadata.IsSupported() ? "✓ SUPPORTED (H.264)" : "✗ NOT SUPPORTED")}");
             info.AppendLine();
             info.AppendLine($"Duration: {metadata.Duration:hh\\:mm\\:ss\\.fff}");
             info.AppendLine($"Resolution: {metadata.Width} x {metadata.Height}");
@@ -86,22 +99,38 @@ public partial class MainWindow : Window
             info.AppendLine($"Bitrate: {metadata.Bitrate / 1000:N0} kbps");
             info.AppendLine($"File Size: {metadata.GetFileSizeFormatted()}");
             info.AppendLine();
+
+            if (metadata.Waveform != null)
+            {
+                info.AppendLine("=== WAVEFORM DATA ===");
+                info.AppendLine();
+                info.AppendLine($"Peak Count: {metadata.Waveform.Peaks.Length}");
+                info.AppendLine($"Sample Rate: {metadata.Waveform.SampleRate} Hz");
+                info.AppendLine($"Duration: {metadata.Waveform.Duration:hh\\:mm\\:ss\\.fff}");
+                info.AppendLine();
+            }
+
             info.AppendLine("=== FFmpeg VERSION ===");
             info.AppendLine();
             info.AppendLine(FFmpegSetup.GetFFmpegVersion());
             info.AppendLine();
-            info.AppendLine("=== POC SUCCESS ===");
+            info.AppendLine("=== WEEK 2 SUCCESS ===");
             info.AppendLine();
-            info.AppendLine("✓ Avalonia UI working");
-            info.AppendLine("✓ FFmpeg.AutoGen integrated");
-            info.AppendLine("✓ Video metadata extraction working");
-            info.AppendLine("✓ File picker functional");
+            info.AppendLine("✓ VideoService implemented");
+            info.AppendLine("✓ Progress reporting working");
+            info.AppendLine("✓ Waveform generation complete");
+            info.AppendLine("✓ Loading dialog functional");
             info.AppendLine();
-            info.AppendLine("Week 1 POC: COMPLETE");
+            info.AppendLine("Week 2: COMPLETE");
 
             VideoInfoTextBlock.Text = info.ToString();
 
-            Log.Information("Successfully loaded video metadata: {Metadata}", metadata);
+            Log.Information("Successfully loaded video with waveform: {Metadata}", metadata);
+        }
+        catch (NotSupportedException ex)
+        {
+            Log.Warning(ex, "Unsupported video format");
+            VideoInfoTextBlock.Text = $"UNSUPPORTED FORMAT\n\n{ex.Message}\n\nPlease select an MP4 file with H.264 codec.";
         }
         catch (Exception ex)
         {
