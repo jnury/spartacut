@@ -58,7 +58,13 @@
       "Bash(git -C /Users/jnury-perso/Repositories/Bref show --stat 83f479e)",
       "Bash(git show:*)",
       "Bash(git checkout:*)",
-      "Bash(git show-ref:*)"
+      "Bash(git show-ref:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(/usr/local/share/dotnet/dotnet test /Users/jnury-perso/Repositories/Bref/src/Bref.Tests/Bref.Tests.csproj --filter \"FullyQualifiedName~VideoServiceTests.LoadVideo_WithInvalidExtension\")",
+      "Bash(/usr/local/share/dotnet/dotnet test /Users/jnury-perso/Repositories/Bref/src/Bref.Tests/Bref.Tests.csproj --filter \"FullyQualifiedName~VideoServiceTests.LoadVideo_WithMissingFile\")",
+      "Bash(/usr/local/share/dotnet/dotnet test /Users/jnury-perso/Repositories/Bref/src/Bref.Tests/Bref.Tests.csproj --filter \"FullyQualifiedName~VideoServiceTests\")",
+      "Bash(/usr/local/share/dotnet/dotnet test /Users/jnury-perso/Repositories/Bref/src/Bref.Tests/Bref.Tests.csproj)",
+      "Bash(/usr/local/share/dotnet/dotnet test --filter \"FullyQualifiedName~VideoServiceTests\" --verbosity normal)"
     ],
     "deny": [],
     "ask": []
