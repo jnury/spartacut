@@ -6,7 +6,15 @@
       "Bash(git init:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git ls-tree:*)"
+      "Bash(git ls-tree:*)",
+      "Bash(pkill:*)",
+      "Bash(dotnet build:*)",
+      "Bash(/usr/local/share/dotnet/dotnet build)",
+      "Bash(git push:*)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "Bash(killall:*)",
+      "Bash(git tag:*)"
     ],
     "deny": [],
     "ask": []

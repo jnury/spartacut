@@ -7,10 +7,8 @@
 
     <NativeMenu.Menu>
         <NativeMenu>
-            <!-- Application menu - About and Quit at root level -->
+            <!-- Application menu - About Bref -->
             <NativeMenuItem Header="About Bref" Click="AboutMenuItem_Click" />
-            <NativeMenuItemSeparator />
-            <NativeMenuItem Header="Quit Bref" Gesture="Cmd+Q" Click="QuitMenuItem_Click" />
         </NativeMenu>
     </NativeMenu.Menu>
 
