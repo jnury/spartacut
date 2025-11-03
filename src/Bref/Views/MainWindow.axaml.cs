@@ -40,6 +40,11 @@ public partial class MainWindow : Window
         LoadVideoButton_Click(null, null!);
     }
 
+    private void OpenVideoMenuItem_Click(object? sender, EventArgs e)
+    {
+        LoadVideoButton_Click(null, null!);
+    }
+
     private async void LoadVideoButton_Click(object? sender, RoutedEventArgs e)
     {
         try

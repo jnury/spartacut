@@ -7,21 +7,10 @@
 
     <NativeMenu.Menu>
         <NativeMenu>
-            <!-- Application menu (automatically named "Bref" from Name property) -->
-            <NativeMenuItem>
-                <NativeMenu>
-                    <NativeMenuItem Header="About Bref" Click="AboutMenuItem_Click" />
-                    <NativeMenuItemSeparator />
-                    <NativeMenuItem Header="Quit Bref" Gesture="Cmd+Q" Click="QuitMenuItem_Click" />
-                </NativeMenu>
-            </NativeMenuItem>
-
-            <!-- File menu -->
-            <NativeMenuItem Header="File">
-                <NativeMenu>
-                    <NativeMenuItem Header="Open Video..." Gesture="Cmd+O" Click="OpenVideoMenuItem_Click" />
-                </NativeMenu>
-            </NativeMenuItem>
+            <!-- Application menu - About and Quit at root level -->
+            <NativeMenuItem Header="About Bref" Click="AboutMenuItem_Click" />
+            <NativeMenuItemSeparator />
+            <NativeMenuItem Header="Quit Bref" Gesture="Cmd+Q" Click="QuitMenuItem_Click" />
         </NativeMenu>
     </NativeMenu.Menu>
 

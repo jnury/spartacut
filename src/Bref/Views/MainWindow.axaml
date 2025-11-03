@@ -8,6 +8,17 @@
         Width="800" Height="600"
         Background="#1E1E1E">
 
+    <!-- macOS menu bar - File menu -->
+    <NativeMenu.Menu>
+        <NativeMenu>
+            <NativeMenuItem Header="File">
+                <NativeMenu>
+                    <NativeMenuItem Header="Open Video..." Gesture="Cmd+O" Click="OpenVideoMenuItem_Click" />
+                </NativeMenu>
+            </NativeMenuItem>
+        </NativeMenu>
+    </NativeMenu.Menu>
+
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
