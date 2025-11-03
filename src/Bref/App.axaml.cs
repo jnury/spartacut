@@ -62,7 +62,7 @@ public partial class App : Application
 
         content.Children.Add(new TextBlock
         {
-            Text = "Version 0.1.2 - Week 1 POC",
+            Text = "Version 0.2.0 - Week 2 Complete",
             FontSize = 14,
             Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#CCCCCC")),
             HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center
