@@ -9,10 +9,10 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
     <!-- Version Information -->
-    <Version>0.1.2</Version>
-    <AssemblyVersion>0.1.2</AssemblyVersion>
-    <FileVersion>0.1.2</FileVersion>
-    <InformationalVersion>0.1.2</InformationalVersion>
+    <Version>0.1.3</Version>
+    <AssemblyVersion>0.1.3</AssemblyVersion>
+    <FileVersion>0.1.3</FileVersion>
+    <InformationalVersion>0.1.3</InformationalVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,7 +28,6 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
     <PackageReference Include="FFmpeg.AutoGen" Version="7.1.1" />
     <PackageReference Include="FFMpegCore" Version="5.1.0" />
-    <PackageReference Include="NAudio" Version="2.2.1" />
     <PackageReference Include="Serilog" Version="3.1.1" />
     <PackageReference Include="Serilog.Sinks.Console" Version="5.0.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
