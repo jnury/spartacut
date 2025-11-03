@@ -35,19 +35,67 @@ public class VideoService : IVideoService
                 $"Video format '{extension}' is not supported. Only MP4/H.264 videos are supported in the MVP.");
         }
 
-        // Report progress: Validating
-        progress.Report(new LoadProgress
+        try
         {
-            Stage = LoadStage.Validating,
-            Percentage = 10,
-            Message = "Validating video format..."
-        });
+            // Report progress: Validating
+            progress.Report(new LoadProgress
+            {
+                Stage = LoadStage.Validating,
+                Percentage = 10,
+                Message = "Validating video format..."
+            });
 
-        await Task.Delay(1, cancellationToken); // Make it actually async
+            await Task.Run(() => Thread.Sleep(100), cancellationToken); // Simulate validation work
 
-        // TODO: Extract metadata
-        // TODO: Generate waveform
+            // Report progress: Extracting metadata
+            progress.Report(new LoadProgress
+            {
+                Stage = LoadStage.ExtractingMetadata,
+                Percentage = 30,
+                Message = "Extracting video metadata..."
+            });
 
-        throw new NotImplementedException("LoadVideoAsync not fully implemented yet");
+            // Extract metadata using FrameExtractor
+            VideoMetadata metadata = null!;
+            await Task.Run(() =>
+            {
+                using var extractor = new FrameExtractor();
+                metadata = extractor.ExtractMetadata(filePath);
+            }, cancellationToken);
+
+            // Validate codec
+            if (!metadata.IsSupported())
+            {
+                throw new NotSupportedException(
+                    $"Video codec '{metadata.CodecName}' is not supported. Only H.264 is supported in the MVP.");
+            }
+
+            Log.Information("Video metadata extracted: {Metadata}", metadata);
+
+            // TODO: Generate waveform (Task 4)
+
+            // Report progress: Complete
+            progress.Report(new LoadProgress
+            {
+                Stage = LoadStage.Complete,
+                Percentage = 100,
+                Message = "Video loaded successfully"
+            });
+
+            return metadata;
+        }
+        catch (Exception ex) when (ex is not NotSupportedException and not FileNotFoundException)
+        {
+            Log.Error(ex, "Failed to load video: {FilePath}", filePath);
+
+            progress.Report(new LoadProgress
+            {
+                Stage = LoadStage.Failed,
+                Percentage = 0,
+                Message = $"Failed to load video: {ex.Message}"
+            });
+
+            throw new InvalidDataException($"Failed to load video: {ex.Message}", ex);
+        }
     }
 }
