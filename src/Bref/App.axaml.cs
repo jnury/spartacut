@@ -31,25 +31,6 @@ public partial class App : Application
         }
     }
 
-    private void QuitMenuItem_Click(object? sender, EventArgs e)
-    {
-        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-        {
-            desktop.Shutdown();
-        }
-    }
-
-    private void OpenVideoMenuItem_Click(object? sender, EventArgs e)
-    {
-        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-        {
-            if (desktop.MainWindow is Views.MainWindow mainWindow)
-            {
-                mainWindow.TriggerLoadVideo();
-            }
-        }
-    }
-
     private async void ShowAboutDialog(Window? owner)
     {
         if (owner == null) return;
@@ -81,7 +62,7 @@ public partial class App : Application
 
         content.Children.Add(new TextBlock
         {
-            Text = "Version 0.1.0 - Week 1 POC",
+            Text = "Version 0.1.2 - Week 1 POC",
             FontSize = 14,
             Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#CCCCCC")),
             HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center
