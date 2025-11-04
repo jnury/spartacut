@@ -1,9 +1,11 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
+using Bref.Controls;
 using Bref.FFmpeg;
 using Bref.Models;
 using Bref.Services;
+using Bref.ViewModels;
 using Serilog;
 using System;
 using System.Linq;
@@ -126,6 +128,35 @@ public partial class MainWindow : Window
             VideoInfoTextBlock.Text = info.ToString();
 
             Log.Information("Successfully loaded video with waveform: {Metadata}", metadata);
+
+            // After displaying video info, generate thumbnails and show timeline
+            try
+            {
+                VideoInfoTextBlock.Text += "\n\nGenerating thumbnails for timeline...";
+
+                var thumbnailGenerator = new ThumbnailGenerator();
+                var thumbnails = await Task.Run(() =>
+                    thumbnailGenerator.Generate(filePath, TimeSpan.FromSeconds(5), 160, 90));
+
+                // Create timeline viewmodel
+                var timelineViewModel = new TimelineViewModel();
+                timelineViewModel.LoadVideo(metadata, thumbnails);
+
+                // Set timeline datacontext and show
+                TimelineControl.DataContext = timelineViewModel;
+                TimelineControl.IsVisible = true;
+
+                VideoInfoTextBlock.Text = VideoInfoTextBlock.Text.Replace(
+                    "\n\nGenerating thumbnails for timeline...",
+                    $"\n\nTimeline ready with {thumbnails.Count} thumbnails");
+
+                Log.Information("Timeline populated with {Count} thumbnails", thumbnails.Count);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Failed to generate thumbnails for timeline");
+                VideoInfoTextBlock.Text += $"\n\nWarning: Could not generate timeline thumbnails: {ex.Message}";
+            }
         }
         catch (NotSupportedException ex)
         {
