@@ -10,7 +10,6 @@ using Serilog;
 using System;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Bref.Views;
@@ -19,7 +18,6 @@ public partial class MainWindow : Window
 {
     private FrameCache? _frameCache;
     private TimelineViewModel? _timelineViewModel;
-    private CancellationTokenSource? _preloadCancellation;
 
     public MainWindow()
     {
@@ -46,8 +44,6 @@ public partial class MainWindow : Window
         base.OnClosing(e);
 
         // Cleanup resources
-        _preloadCancellation?.Cancel();
-        _preloadCancellation?.Dispose();
         _frameCache?.Dispose();
         VideoPlayer?.Clear();
 
@@ -134,31 +130,12 @@ public partial class MainWindow : Window
                         if (_frameCache != null)
                         {
                             // Get and display current frame immediately
+                            // With smart seeking, forward scrubbing is fast without preloading
                             var frame = _frameCache.GetFrame(newTime);
                             VideoPlayer.DisplayFrame(frame);
 
-                            // Cancel previous preload and start new one
-                            // This prevents queueing frames for obsolete positions
-                            _preloadCancellation?.Cancel();
-                            _preloadCancellation?.Dispose();
-                            _preloadCancellation = new CancellationTokenSource();
-
-                            var token = _preloadCancellation.Token;
-                            _ = Task.Run(async () =>
-                            {
-                                try
-                                {
-                                    // Wait longer before preloading to ensure user stopped scrubbing
-                                    await Task.Delay(300, token);
-
-                                    // Smaller preload radius to avoid thread explosion
-                                    await _frameCache.PreloadFramesAsync(newTime, frameRadius: 10, token);
-                                }
-                                catch (OperationCanceledException)
-                                {
-                                    // Expected when user moves timeline rapidly
-                                }
-                            }, token);
+                            // No preloading - rely on smart seeking + natural LRU cache
+                            // This prevents thread explosion and simplifies the system
                         }
                     }
                     catch (Exception ex)
