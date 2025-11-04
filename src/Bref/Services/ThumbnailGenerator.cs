@@ -237,14 +237,14 @@ public unsafe class ThumbnailGenerator
 
     private byte[] FrameToJpeg(AVFrame* frame, int width, int height)
     {
-        // JPEG encoding using SkiaSharp - convert RGB24 to RGBX format
-        using var bitmap = new SkiaSharp.SKBitmap(width, height, SkiaSharp.SKColorType.Rgb888x, SkiaSharp.SKAlphaType.Opaque);
+        // JPEG encoding using SkiaSharp - convert RGB24 to BGRA8888 format
+        using var bitmap = new SkiaSharp.SKBitmap(width, height, SkiaSharp.SKColorType.Bgra8888, SkiaSharp.SKAlphaType.Opaque);
 
         var ptr = (byte*)bitmap.GetPixels();
         var dataPtr = (byte*)frame->data[0];
         var linesize = frame->linesize[0];
 
-        // Convert RGB24 (3 bytes/pixel) to RGBX (4 bytes/pixel)
+        // Convert RGB24 (3 bytes/pixel) to BGRA (4 bytes/pixel)
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
@@ -252,10 +252,10 @@ public unsafe class ThumbnailGenerator
                 int srcOffset = (y * linesize) + (x * 3);
                 int dstOffset = (y * width * 4) + (x * 4);
 
-                ptr[dstOffset + 0] = dataPtr[srcOffset + 0]; // R
+                ptr[dstOffset + 0] = dataPtr[srcOffset + 2]; // B (from R)
                 ptr[dstOffset + 1] = dataPtr[srcOffset + 1]; // G
-                ptr[dstOffset + 2] = dataPtr[srcOffset + 2]; // B
-                ptr[dstOffset + 3] = 255; // X (padding/alpha)
+                ptr[dstOffset + 2] = dataPtr[srcOffset + 0]; // R (from B)
+                ptr[dstOffset + 3] = 255; // A (alpha)
             }
         }
 
