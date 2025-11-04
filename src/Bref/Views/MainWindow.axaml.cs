@@ -43,11 +43,14 @@ public partial class MainWindow : Window
     {
         base.OnClosing(e);
 
-        // Cleanup resources
-        _frameCache?.Dispose();
+        // Clear video player (disposes SKBitmaps)
         VideoPlayer?.Clear();
 
-        Log.Information("MainWindow closing, resources disposed");
+        // Don't dispose FrameCache/Decoder on shutdown to avoid FFmpeg race conditions
+        // The OS will reclaim all resources when process terminates
+        // Disposing native FFmpeg contexts during active decoding causes crashes
+
+        Log.Information("MainWindow closing");
     }
 
     /// <summary>
