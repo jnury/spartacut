@@ -10,6 +10,7 @@ using Serilog;
 using System;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Bref.Views;
@@ -18,6 +19,7 @@ public partial class MainWindow : Window
 {
     private FrameCache? _frameCache;
     private TimelineViewModel? _timelineViewModel;
+    private CancellationTokenSource? _preloadCancellation;
 
     public MainWindow()
     {
@@ -44,6 +46,8 @@ public partial class MainWindow : Window
         base.OnClosing(e);
 
         // Cleanup resources
+        _preloadCancellation?.Cancel();
+        _preloadCancellation?.Dispose();
         _frameCache?.Dispose();
         VideoPlayer?.Clear();
 
@@ -125,20 +129,41 @@ public partial class MainWindow : Window
                 // Wire timeline to video player
                 timelineViewModel.CurrentTimeChanged += (sender, newTime) =>
                 {
-                    if (_frameCache != null)
+                    try
                     {
-                        try
+                        if (_frameCache != null)
                         {
+                            // Get and display current frame immediately
                             var frame = _frameCache.GetFrame(newTime);
                             VideoPlayer.DisplayFrame(frame);
 
-                            // Preload nearby frames asynchronously
-                            _ = Task.Run(() => _frameCache.PreloadFramesAsync(newTime, frameRadius: 5));
+                            // Cancel previous preload and start new one
+                            // This prevents queueing frames for obsolete positions
+                            _preloadCancellation?.Cancel();
+                            _preloadCancellation?.Dispose();
+                            _preloadCancellation = new CancellationTokenSource();
+
+                            var token = _preloadCancellation.Token;
+                            _ = Task.Run(async () =>
+                            {
+                                try
+                                {
+                                    // Small delay to avoid preloading during very fast dragging
+                                    await Task.Delay(50, token);
+
+                                    // Preload larger radius for smoother scrubbing
+                                    await _frameCache.PreloadFramesAsync(newTime, frameRadius: 30, token);
+                                }
+                                catch (OperationCanceledException)
+                                {
+                                    // Expected when user moves timeline rapidly
+                                }
+                            }, token);
                         }
-                        catch (Exception ex)
-                        {
-                            Log.Error(ex, "Failed to update video frame for time {Time}", newTime);
-                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex, "Failed to update video frame for time {Time}", newTime);
                     }
                 };
 
