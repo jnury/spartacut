@@ -174,3 +174,101 @@
 
 **Estimated:** 25 hours
 **Actual:** ~22 hours (under estimate, efficient FFMpegCore integration)
+
+---
+
+## Week 3: Timeline UI & Thumbnails
+
+**Date:** 2025-11-04
+**Status:** ✅ Complete
+**Version:** 0.3.0
+
+### Objectives
+- Implement ThumbnailGenerator for video frame extraction
+- Create custom TimelineControl with SkiaSharp rendering
+- Display waveform visualization on timeline
+- Display video thumbnails at 5-second intervals
+- Render time ruler with markers
+- Implement playhead with click-to-seek
+- Integrate timeline into MainWindow
+
+### Completed Tasks
+
+1. **Thumbnail Data Models** - ThumbnailData and TimelineMetrics
+2. **ThumbnailGenerator Service (TDD)** - FFmpeg-based thumbnail extraction
+3. **TimelineViewModel** - MVVM state management for timeline
+4. **TimelineControl XAML** - Custom control structure
+5. **TimelineControl Rendering** - SkiaSharp graphics (waveform, thumbnails, ruler, playhead)
+6. **MainWindow Integration** - Timeline display below video info
+7. **Timeline Unit Tests** - ViewModel and metrics tests
+8. **Version Update** - Bumped to 0.3.0
+9. **Documentation** - Updated development log
+
+### Key Achievements
+
+- ✅ Custom Avalonia control with SkiaSharp rendering
+- ✅ Video thumbnail extraction at 5-second intervals
+- ✅ Waveform visualization overlaid on timeline
+- ✅ Time ruler with adaptive tick marks
+- ✅ Interactive playhead with click-and-drag seeking
+- ✅ MVVM architecture with TimelineViewModel
+- ✅ Unit tests for coordinate conversion logic
+
+### Technical Highlights
+
+**ThumbnailGenerator:**
+- Uses FFmpeg.AutoGen to seek and extract frames
+- Scales frames to 160x90 thumbnails
+- Converts RGB24 frames to JPEG using SkiaSharp
+- Generates thumbnails at 5-second intervals
+
+**TimelineControl:**
+- Custom rendering using SkiaSharp canvas
+- Three visual layers: waveform (top 30%), thumbnails (middle 50%), ruler (bottom 20%)
+- Playhead overlay with red line and triangle handle
+- Click-to-seek and drag interactions
+
+**TimelineViewModel:**
+- Observable properties for CurrentTime, Thumbnails, VideoMetadata
+- TimelineMetrics for pixel/time coordinate conversion
+- RelayCommand for SeekToPixel with bounds clamping
+- MVVM pattern using CommunityToolkit.Mvvm
+
+**Coordinate System:**
+- PixelsPerSecond = TimelineWidth / TotalDuration
+- TimeToPixel(time) = time.TotalSeconds * PixelsPerSecond
+- PixelToTime(pixel) = TimeSpan.FromSeconds(pixel / PixelsPerSecond)
+
+### Commits
+
+1. `feat: add ThumbnailData and TimelineMetrics models`
+2. `feat: implement ThumbnailGenerator using FFmpeg and SkiaSharp`
+3. `feat: add TimelineViewModel for timeline state management`
+4. `feat: add TimelineControl XAML structure`
+5. `feat: implement TimelineControl rendering with SkiaSharp`
+6. `feat: integrate TimelineControl into MainWindow`
+7. `test: add unit tests for TimelineViewModel and TimelineMetrics`
+8. `chore: bump version to 0.3.0 for Week 3 milestone`
+9. `docs: update development log for Week 3 completion`
+
+### Testing
+
+**Unit Tests:**
+- TimelineMetrics coordinate conversion tests
+- TimelineViewModel seek and clamp tests
+- All tests passing
+
+**Manual Testing:**
+- Verified timeline renders waveform correctly
+- Confirmed thumbnails display at proper intervals
+- Tested click-to-seek functionality
+- Verified playhead position updates
+
+### Time Estimate vs Actual
+
+- **Estimated:** 30 hours
+- **Actual:** TBD (to be filled after completion)
+
+### Next Steps
+
+Week 4: Frame Cache & Preview (see roadmap)
