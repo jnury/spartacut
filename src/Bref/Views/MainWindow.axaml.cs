@@ -86,6 +86,10 @@ public partial class MainWindow : Window
             // Wait for loading to complete
             var metadata = await loadTask;
 
+            // Update window title with video info
+            var fileName = System.IO.Path.GetFileName(metadata.FilePath);
+            Title = $"Bref - {fileName} - {metadata.Width}x{metadata.Height} - {metadata.Duration:hh\\:mm\\:ss}";
+
             // Build info display
             var info = new StringBuilder();
             info.AppendLine("=== VIDEO METADATA ===");

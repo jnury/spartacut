@@ -80,7 +80,8 @@ public partial class TimelineControl : UserControl
         if (_viewModel?.VideoMetadata == null || _viewModel.Metrics == null)
             return;
 
-        context.Custom(new TimelineRenderOperation(Bounds, _viewModel));
+        var renderBounds = new Rect(0, 0, Bounds.Width, Bounds.Height);
+        context.Custom(new TimelineRenderOperation(renderBounds, _viewModel));
     }
 
     private class TimelineRenderOperation : ICustomDrawOperation

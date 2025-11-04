@@ -4,21 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="200"
              x:Class="Bref.Controls.TimelineControl"
-             Background="#2D2D2D">
-
-    <Grid>
-        <!-- Canvas for SkiaSharp rendering -->
-        <Panel Name="RenderPanel"
-               PointerPressed="OnPointerPressed"
-               PointerMoved="OnPointerMoved"
-               PointerReleased="OnPointerReleased">
-
-            <!-- Placeholder for visual feedback during development -->
-            <TextBlock Text="Timeline Control"
-                       Foreground="White"
-                       HorizontalAlignment="Center"
-                       VerticalAlignment="Center"
-                       FontSize="16"/>
-        </Panel>
-    </Grid>
+             PointerPressed="OnPointerPressed"
+             PointerMoved="OnPointerMoved"
+             PointerReleased="OnPointerReleased">
+    <!-- SkiaSharp rendering happens in code-behind Render method -->
+    <!-- Background is drawn via SkiaSharp canvas.Clear() to avoid covering custom drawing -->
 </UserControl>

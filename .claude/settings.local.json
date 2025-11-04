@@ -64,7 +64,10 @@
       "Bash(/usr/local/share/dotnet/dotnet test /Users/jnury-perso/Repositories/Bref/src/Bref.Tests/Bref.Tests.csproj --filter \"FullyQualifiedName~VideoServiceTests.LoadVideo_WithMissingFile\")",
       "Bash(/usr/local/share/dotnet/dotnet test /Users/jnury-perso/Repositories/Bref/src/Bref.Tests/Bref.Tests.csproj --filter \"FullyQualifiedName~VideoServiceTests\")",
       "Bash(/usr/local/share/dotnet/dotnet test /Users/jnury-perso/Repositories/Bref/src/Bref.Tests/Bref.Tests.csproj)",
-      "Bash(/usr/local/share/dotnet/dotnet test --filter \"FullyQualifiedName~VideoServiceTests\" --verbosity normal)"
+      "Bash(/usr/local/share/dotnet/dotnet test --filter \"FullyQualifiedName~VideoServiceTests\" --verbosity normal)",
+      "Bash(git diff-tree:*)",
+      "Skill(superpowers:systematic-debugging)",
+      "Bash(git restore:*)"
     ],
     "deny": [],
     "ask": []
