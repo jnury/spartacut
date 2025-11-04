@@ -237,16 +237,26 @@ public unsafe class ThumbnailGenerator
 
     private byte[] FrameToJpeg(AVFrame* frame, int width, int height)
     {
-        // Simple JPEG encoding using SkiaSharp
+        // JPEG encoding using SkiaSharp - convert RGB24 to RGBX format
         using var bitmap = new SkiaSharp.SKBitmap(width, height, SkiaSharp.SKColorType.Rgb888x, SkiaSharp.SKAlphaType.Opaque);
 
-        var ptr = bitmap.GetPixels();
+        var ptr = (byte*)bitmap.GetPixels();
         var dataPtr = (byte*)frame->data[0];
         var linesize = frame->linesize[0];
 
+        // Convert RGB24 (3 bytes/pixel) to RGBX (4 bytes/pixel)
         for (int y = 0; y < height; y++)
         {
-            Buffer.MemoryCopy(dataPtr + (y * linesize), (byte*)ptr + (y * width * 3), width * 3, width * 3);
+            for (int x = 0; x < width; x++)
+            {
+                int srcOffset = (y * linesize) + (x * 3);
+                int dstOffset = (y * width * 4) + (x * 4);
+
+                ptr[dstOffset + 0] = dataPtr[srcOffset + 0]; // R
+                ptr[dstOffset + 1] = dataPtr[srcOffset + 1]; // G
+                ptr[dstOffset + 2] = dataPtr[srcOffset + 2]; // B
+                ptr[dstOffset + 3] = 255; // X (padding/alpha)
+            }
         }
 
         using var image = SkiaSharp.SKImage.FromBitmap(bitmap);
