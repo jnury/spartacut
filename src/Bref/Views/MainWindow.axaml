@@ -23,15 +23,16 @@
 
     <Grid Margin="20">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/> <!-- New row for timeline -->
+            <RowDefinition Height="Auto"/> <!-- Header -->
+            <RowDefinition Height="Auto"/> <!-- Load Button -->
+            <RowDefinition Height="*"/>    <!-- Video Player -->
+            <RowDefinition Height="Auto"/> <!-- Status -->
+            <RowDefinition Height="Auto"/> <!-- Timeline -->
         </Grid.RowDefinitions>
 
         <!-- Header -->
         <TextBlock Grid.Row="0"
-                   Text="Bref Video Editor - Week 1 POC"
+                   Text="Bref Video Editor - Week 4 Preview"
                    FontSize="24"
                    FontWeight="Bold"
                    Foreground="White"
@@ -47,28 +48,27 @@
                 Margin="0,0,0,20"
                 Click="LoadVideoButton_Click"/>
 
-        <!-- Video Info Display -->
-        <Border Grid.Row="2"
-                BorderBrush="#333333"
-                BorderThickness="1"
-                CornerRadius="4"
-                Padding="15"
-                Background="#252525">
-            <ScrollViewer>
-                <TextBlock Name="VideoInfoTextBlock"
-                          Text="No video loaded. Click 'Load MP4 Video' to begin."
-                          Foreground="#CCCCCC"
-                          FontFamily="Consolas,Monaco,Menlo,monospace"
-                          FontSize="14"
-                          TextWrapping="Wrap"/>
-            </ScrollViewer>
-        </Border>
+        <!-- Video Player -->
+        <controls:VideoPlayerControl Grid.Row="2"
+                                     Name="VideoPlayer"
+                                     MinHeight="300"
+                                     Margin="0,0,0,20"
+                                     IsVisible="False"/>
+
+        <!-- Status Line (minimal info) -->
+        <TextBlock Grid.Row="3"
+                   Name="StatusTextBlock"
+                   Text="No video loaded"
+                   Foreground="#CCCCCC"
+                   FontSize="12"
+                   Margin="0,0,0,10"
+                   TextTrimming="CharacterEllipsis"/>
 
         <!-- Timeline Control -->
-        <controls:TimelineControl Grid.Row="3"
+        <controls:TimelineControl Grid.Row="4"
                                   Name="TimelineControl"
                                   Height="200"
-                                  Margin="0,20,0,0"
+                                  Margin="0,0,0,0"
                                   IsVisible="False"/>
     </Grid>
 </Window>

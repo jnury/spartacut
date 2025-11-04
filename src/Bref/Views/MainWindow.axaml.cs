@@ -16,6 +16,9 @@ namespace Bref.Views;
 
 public partial class MainWindow : Window
 {
+    private FrameCache? _frameCache;
+    private TimelineViewModel? _timelineViewModel;
+
     public MainWindow()
     {
         InitializeComponent();
@@ -24,16 +27,27 @@ public partial class MainWindow : Window
         try
         {
             FFmpegSetup.Initialize();
-            Log.Information("FFmpeg initialized for POC");
+            Log.Information("FFmpeg initialized successfully");
         }
         catch (Exception ex)
         {
             Log.Error(ex, "Failed to initialize FFmpeg");
-            if (VideoInfoTextBlock != null)
+            if (StatusTextBlock != null)
             {
-                VideoInfoTextBlock.Text = $"ERROR: Failed to initialize FFmpeg\n\n{ex.Message}\n\nPlease ensure FFmpeg is installed via Homebrew:\nbrew install ffmpeg";
+                StatusTextBlock.Text = $"ERROR: Failed to initialize FFmpeg - {ex.Message}";
             }
         }
+    }
+
+    protected override void OnClosing(WindowClosingEventArgs e)
+    {
+        base.OnClosing(e);
+
+        // Cleanup resources
+        _frameCache?.Dispose();
+        VideoPlayer?.Clear();
+
+        Log.Information("MainWindow closing, resources disposed");
     }
 
     /// <summary>
@@ -88,55 +102,17 @@ public partial class MainWindow : Window
 
             // Update window title with video info
             var fileName = System.IO.Path.GetFileName(metadata.FilePath);
-            Title = $"Bref - {fileName} - {metadata.Width}x{metadata.Height} - {metadata.Duration:hh\\:mm\\:ss}";
+            Title = $"Bref - {fileName}";
 
-            // Build info display
-            var info = new StringBuilder();
-            info.AppendLine("=== VIDEO METADATA ===");
-            info.AppendLine();
-            info.AppendLine($"File: {metadata.FilePath}");
-            info.AppendLine($"Status: {(metadata.IsSupported() ? "✓ SUPPORTED (H.264)" : "✗ NOT SUPPORTED")}");
-            info.AppendLine();
-            info.AppendLine($"Duration: {metadata.Duration:hh\\:mm\\:ss\\.fff}");
-            info.AppendLine($"Resolution: {metadata.Width} x {metadata.Height}");
-            info.AppendLine($"Frame Rate: {metadata.FrameRate:F2} fps");
-            info.AppendLine($"Codec: {metadata.CodecName}");
-            info.AppendLine($"Pixel Format: {metadata.PixelFormat}");
-            info.AppendLine($"Bitrate: {metadata.Bitrate / 1000:N0} kbps");
-            info.AppendLine($"File Size: {metadata.GetFileSizeFormatted()}");
-            info.AppendLine();
+            // Update status line
+            StatusTextBlock.Text = $"Loaded: {fileName} | {metadata.Width}x{metadata.Height} @ {metadata.FrameRate:F0}fps | {metadata.Duration:hh\\:mm\\:ss}";
 
-            if (metadata.Waveform != null)
-            {
-                info.AppendLine("=== WAVEFORM DATA ===");
-                info.AppendLine();
-                info.AppendLine($"Peak Count: {metadata.Waveform.Peaks.Length}");
-                info.AppendLine($"Sample Rate: {metadata.Waveform.SampleRate} Hz");
-                info.AppendLine($"Duration: {metadata.Waveform.Duration:hh\\:mm\\:ss\\.fff}");
-                info.AppendLine();
-            }
+            Log.Information("Successfully loaded video: {Metadata}", metadata);
 
-            info.AppendLine("=== FFmpeg VERSION ===");
-            info.AppendLine();
-            info.AppendLine(FFmpegSetup.GetFFmpegVersion());
-            info.AppendLine();
-            info.AppendLine("=== WEEK 2 SUCCESS ===");
-            info.AppendLine();
-            info.AppendLine("✓ VideoService implemented");
-            info.AppendLine("✓ Progress reporting working");
-            info.AppendLine("✓ Waveform generation complete");
-            info.AppendLine("✓ Loading dialog functional");
-            info.AppendLine();
-            info.AppendLine("Week 2: COMPLETE");
-
-            VideoInfoTextBlock.Text = info.ToString();
-
-            Log.Information("Successfully loaded video with waveform: {Metadata}", metadata);
-
-            // After displaying video info, generate thumbnails and show timeline
+            // Generate thumbnails for timeline
             try
             {
-                VideoInfoTextBlock.Text += "\n\nGenerating thumbnails for timeline...";
+                StatusTextBlock.Text = "Generating thumbnails...";
 
                 var thumbnailGenerator = new ThumbnailGenerator();
                 var thumbnails = await Task.Run(() =>
@@ -146,31 +122,65 @@ public partial class MainWindow : Window
                 var timelineViewModel = new TimelineViewModel();
                 timelineViewModel.LoadVideo(metadata, thumbnails);
 
+                // Wire timeline to video player
+                timelineViewModel.CurrentTimeChanged += (sender, newTime) =>
+                {
+                    if (_frameCache != null)
+                    {
+                        try
+                        {
+                            var frame = _frameCache.GetFrame(newTime);
+                            VideoPlayer.DisplayFrame(frame);
+
+                            // Preload nearby frames asynchronously
+                            _ = Task.Run(() => _frameCache.PreloadFramesAsync(newTime, frameRadius: 5));
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Error(ex, "Failed to update video frame for time {Time}", newTime);
+                        }
+                    }
+                };
+
+                _timelineViewModel = timelineViewModel;
+
                 // Set timeline datacontext and show
                 TimelineControl.DataContext = timelineViewModel;
                 TimelineControl.IsVisible = true;
 
-                VideoInfoTextBlock.Text = VideoInfoTextBlock.Text.Replace(
-                    "\n\nGenerating thumbnails for timeline...",
-                    $"\n\nTimeline ready with {thumbnails.Count} thumbnails");
-
                 Log.Information("Timeline populated with {Count} thumbnails", thumbnails.Count);
+
+                // Initialize frame cache
+                StatusTextBlock.Text = "Initializing frame cache...";
+
+                _frameCache?.Dispose();
+                _frameCache = new FrameCache(filePath, capacity: 60);
+
+                // Display first frame
+                var firstFrame = _frameCache.GetFrame(TimeSpan.Zero);
+                VideoPlayer.DisplayFrame(firstFrame);
+                VideoPlayer.IsVisible = true;
+
+                // Update final status
+                StatusTextBlock.Text = $"{fileName} | {metadata.Width}x{metadata.Height} @ {metadata.FrameRate:F0}fps | {metadata.Duration:hh\\:mm\\:ss} | Ready";
+
+                Log.Information("Frame cache initialized and first frame displayed");
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Failed to generate thumbnails for timeline");
-                VideoInfoTextBlock.Text += $"\n\nWarning: Could not generate timeline thumbnails: {ex.Message}";
+                Log.Error(ex, "Failed to initialize video player");
+                StatusTextBlock.Text = $"Error: {ex.Message}";
             }
         }
         catch (NotSupportedException ex)
         {
             Log.Warning(ex, "Unsupported video format");
-            VideoInfoTextBlock.Text = $"UNSUPPORTED FORMAT\n\n{ex.Message}\n\nPlease select an MP4 file with H.264 codec.";
+            StatusTextBlock.Text = $"Error: Unsupported format - {ex.Message}";
         }
         catch (Exception ex)
         {
             Log.Error(ex, "Failed to load video");
-            VideoInfoTextBlock.Text = $"ERROR: {ex.Message}\n\nSee logs for details.";
+            StatusTextBlock.Text = $"Error: {ex.Message}";
         }
     }
 

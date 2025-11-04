@@ -18,6 +18,16 @@ public partial class TimelineViewModel : ObservableObject
     [ObservableProperty]
     private TimeSpan _currentTime;
 
+    /// <summary>
+    /// Event raised when CurrentTime changes.
+    /// </summary>
+    public event EventHandler<TimeSpan>? CurrentTimeChanged;
+
+    partial void OnCurrentTimeChanged(TimeSpan value)
+    {
+        CurrentTimeChanged?.Invoke(this, value);
+    }
+
     [ObservableProperty]
     private double _timelineWidth = 1000;
 
