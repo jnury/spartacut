@@ -265,6 +265,12 @@ public unsafe class PersistentFrameDecoder : IDisposable
         if (_isDisposed)
             return;
 
+        // Mark as disposed FIRST to prevent new decode operations
+        _isDisposed = true;
+
+        // Note: Caller (FrameCache) must hold _decodeLock to ensure
+        // no decode operations are in progress during disposal
+
         if (_swsContext != null)
         {
             ffmpeg.sws_freeContext(_swsContext);
@@ -284,8 +290,6 @@ public unsafe class PersistentFrameDecoder : IDisposable
             ffmpeg.avformat_close_input(&ctx);
             _formatContext = null;
         }
-
-        _isDisposed = true;
 
         Log.Information("PersistentFrameDecoder disposed for {FilePath}", _videoFilePath);
     }

@@ -159,9 +159,13 @@ public class FrameCache : IDisposable
         if (_isDisposed)
             return;
 
-        _cache.Dispose();
-        _decoder.Dispose();
-        _isDisposed = true;
+        // Acquire decode lock to ensure no decode operations are in progress
+        lock (_decodeLock)
+        {
+            _cache.Dispose();
+            _decoder.Dispose();
+            _isDisposed = true;
+        }
 
         Log.Information("FrameCache disposed");
     }
