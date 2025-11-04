@@ -1,0 +1,24 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="200"
+             x:Class="Bref.Controls.TimelineControl"
+             Background="#2D2D2D">
+
+    <Grid>
+        <!-- Canvas for SkiaSharp rendering -->
+        <Panel Name="RenderPanel"
+               PointerPressed="OnPointerPressed"
+               PointerMoved="OnPointerMoved"
+               PointerReleased="OnPointerReleased">
+
+            <!-- Placeholder for visual feedback during development -->
+            <TextBlock Text="Timeline Control"
+                       Foreground="White"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       FontSize="16"/>
+        </Panel>
+    </Grid>
+</UserControl>
