@@ -11,13 +11,14 @@ namespace Bref.Services;
 
 /// <summary>
 /// High-performance frame cache with LRU eviction and intelligent preloading.
-/// Thread-safe for single-threaded access.
+/// Thread-safe: Multiple threads can call GetFrame() and PreloadFramesAsync() concurrently.
 /// </summary>
 public class FrameCache : IDisposable
 {
     private readonly string _videoFilePath;
     private readonly LRUCache<long, VideoFrame> _cache;
-    private readonly FrameDecoder _decoder;
+    private readonly PersistentFrameDecoder _decoder;
+    private readonly object _decodeLock = new object();
     private bool _isDisposed;
 
     // Frame granularity: Cache frames at 33ms intervals (30fps)
@@ -31,7 +32,7 @@ public class FrameCache : IDisposable
 
         _videoFilePath = videoFilePath;
         _cache = new LRUCache<long, VideoFrame>(capacity);
-        _decoder = new FrameDecoder();
+        _decoder = new PersistentFrameDecoder(videoFilePath);
 
         Log.Information("FrameCache initialized for {FilePath} with capacity {Capacity}", videoFilePath, capacity);
     }
@@ -51,18 +52,26 @@ public class FrameCache : IDisposable
         var cachedFrame = _cache.Get(cacheKey);
         if (cachedFrame != null)
         {
-            Log.Debug("Frame cache HIT for {Time}", timePosition);
             return cachedFrame;
         }
 
-        // Cache miss - decode frame
-        Log.Debug("Frame cache MISS for {Time}, decoding...", timePosition);
-        var frame = _decoder.DecodeFrame(_videoFilePath, TimeSpan.FromTicks(cacheKey));
+        // Cache miss - decode frame (thread-safe)
+        lock (_decodeLock)
+        {
+            // Double-check cache after acquiring lock (another thread might have added it)
+            cachedFrame = _cache.Get(cacheKey);
+            if (cachedFrame != null)
+            {
+                return cachedFrame;
+            }
 
-        // Add to cache
-        _cache.Add(cacheKey, frame);
+            var frame = _decoder.DecodeFrameAt(TimeSpan.FromTicks(cacheKey));
 
-        return frame;
+            // Add to cache
+            _cache.Add(cacheKey, frame);
+
+            return frame;
+        }
     }
 
     /// <summary>
@@ -92,21 +101,25 @@ public class FrameCache : IDisposable
             if (_cache.ContainsKey(cacheKey))
                 continue;
 
-            // Decode asynchronously
+            // Decode asynchronously using GetFrame (thread-safe)
             tasks.Add(Task.Run(() =>
             {
+                // Check cancellation before decoding
+                if (cancellationToken.IsCancellationRequested)
+                    return;
+
                 try
                 {
-                    if (!cancellationToken.IsCancellationRequested)
-                    {
-                        var frame = _decoder.DecodeFrame(_videoFilePath, TimeSpan.FromTicks(cacheKey));
-                        _cache.Add(cacheKey, frame);
-                        Log.Debug("Preloaded frame at {Time}", targetTime);
-                    }
+                    // Use GetFrame instead of direct decoder call - it's thread-safe
+                    GetFrame(targetTime);
                 }
                 catch (Exception ex)
                 {
-                    Log.Warning(ex, "Failed to preload frame at {Time}", targetTime);
+                    // Don't log if operation was cancelled
+                    if (!cancellationToken.IsCancellationRequested)
+                    {
+                        Log.Warning(ex, "Failed to preload frame at {Time}", targetTime);
+                    }
                 }
             }, cancellationToken));
         }
