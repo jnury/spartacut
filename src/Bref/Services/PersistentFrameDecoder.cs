@@ -25,6 +25,9 @@ public unsafe class PersistentFrameDecoder : IDisposable
     private double _timeBase;
     private bool _isDisposed;
 
+    // Track current decoder position to avoid unnecessary seeks
+    private double _currentPositionSeconds = -1.0;
+
     /// <summary>
     /// Opens video file and initializes decoder contexts.
     /// Throws if file cannot be opened or decoded.
@@ -110,6 +113,7 @@ public unsafe class PersistentFrameDecoder : IDisposable
 
     /// <summary>
     /// Decodes frame at specified timestamp, always returning 640×360 resolution.
+    /// Smart seeking: only seeks if going backward or jumping far forward.
     /// </summary>
     public VideoFrame DecodeFrameAt(TimeSpan timePosition)
     {
@@ -118,22 +122,36 @@ public unsafe class PersistentFrameDecoder : IDisposable
         if (timePosition < TimeSpan.Zero)
             throw new ArgumentException("Time position cannot be negative", nameof(timePosition));
 
-        var stream = _formatContext->streams[_videoStreamIndex];
+        var targetSeconds = timePosition.TotalSeconds;
+        var timeDelta = targetSeconds - _currentPositionSeconds;
 
-        // Seek to target time
-        long timestamp = (long)(timePosition.TotalSeconds / _timeBase);
-        if (ffmpeg.av_seek_frame(_formatContext, _videoStreamIndex, timestamp, ffmpeg.AVSEEK_FLAG_BACKWARD) < 0)
+        // Only seek if:
+        // 1. Going backward (timeDelta < 0)
+        // 2. Jumping far forward (> 2 seconds)
+        // 3. First frame (_currentPositionSeconds < 0)
+        bool needsSeek = _currentPositionSeconds < 0 || timeDelta < 0 || timeDelta > 2.0;
+
+        if (needsSeek)
         {
-            Log.Warning("Seek failed for {Time}, returning closest available frame", timePosition);
+            // Seek to target time
+            long timestamp = (long)(targetSeconds / _timeBase);
+            if (ffmpeg.av_seek_frame(_formatContext, _videoStreamIndex, timestamp, ffmpeg.AVSEEK_FLAG_BACKWARD) < 0)
+            {
+                Log.Warning("Seek failed for {Time}, returning closest available frame", timePosition);
+            }
+
+            ffmpeg.avcodec_flush_buffers(_codecContext);
+            _currentPositionSeconds = -1.0; // Will be updated by DecodeClosestFrame
         }
 
-        ffmpeg.avcodec_flush_buffers(_codecContext);
-
-        // Decode frame at position
+        // Decode frame at position (will decode forward from current position if no seek)
         var frame = DecodeClosestFrame(timePosition);
 
         if (frame == null)
             throw new InvalidDataException($"Failed to decode frame at {timePosition}");
+
+        // Update current position
+        _currentPositionSeconds = frame.TimePosition.TotalSeconds;
 
         return frame;
     }
