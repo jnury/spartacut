@@ -148,11 +148,11 @@ public partial class MainWindow : Window
                             {
                                 try
                                 {
-                                    // Small delay to avoid preloading during very fast dragging
-                                    await Task.Delay(50, token);
+                                    // Wait longer before preloading to ensure user stopped scrubbing
+                                    await Task.Delay(300, token);
 
-                                    // Preload larger radius for smoother scrubbing
-                                    await _frameCache.PreloadFramesAsync(newTime, frameRadius: 30, token);
+                                    // Smaller preload radius to avoid thread explosion
+                                    await _frameCache.PreloadFramesAsync(newTime, frameRadius: 10, token);
                                 }
                                 catch (OperationCanceledException)
                                 {
