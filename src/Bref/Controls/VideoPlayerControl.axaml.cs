@@ -28,6 +28,8 @@ public partial class VideoPlayerControl : UserControl
     /// <summary>
     /// Displays a video frame.
     /// Thread-safe - can be called from any thread.
+    /// NOTE: Frame ownership remains with the caller (e.g., FrameCache).
+    /// Only the bitmap created from the frame is disposed by this control.
     /// </summary>
     public void DisplayFrame(VideoFrame frame)
     {
@@ -35,8 +37,7 @@ public partial class VideoPlayerControl : UserControl
 
         Dispatcher.UIThread.Post(() =>
         {
-            // Dispose previous frame and bitmap
-            _currentFrame?.Dispose();
+            // Dispose previous bitmap only (frame is owned by cache)
             _currentBitmap?.Dispose();
 
             _currentFrame = frame;
@@ -54,7 +55,7 @@ public partial class VideoPlayerControl : UserControl
     {
         Dispatcher.UIThread.Post(() =>
         {
-            _currentFrame?.Dispose();
+            // Only dispose bitmap, not the frame (frame is owned by cache)
             _currentBitmap?.Dispose();
 
             _currentFrame = null;
@@ -80,9 +81,10 @@ public partial class VideoPlayerControl : UserControl
     {
         base.OnDetachedFromVisualTree(e);
 
-        // Cleanup on detach
-        _currentFrame?.Dispose();
+        // Cleanup on detach (only dispose bitmap, not frame)
         _currentBitmap?.Dispose();
+        _currentFrame = null;
+        _currentBitmap = null;
     }
 
     private class VideoFrameRenderOperation : ICustomDrawOperation
