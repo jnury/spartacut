@@ -11,6 +11,7 @@ using Avalonia.Skia;
 using Avalonia.Threading;
 using Bref.Models;
 using Bref.ViewModels;
+using Serilog;
 using SkiaSharp;
 
 namespace Bref.Controls;
@@ -48,7 +49,8 @@ public partial class TimelineControl : UserControl
 
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        if (_viewModel?.VideoMetadata == null) return;
+        if (_viewModel?.VideoMetadata == null)
+            return;
 
         var point = e.GetPosition(this);
         _isDragging = true;
@@ -59,12 +61,20 @@ public partial class TimelineControl : UserControl
 
     private void OnPointerMoved(object? sender, PointerEventArgs e)
     {
-        if (!_isDragging || _viewModel?.VideoMetadata == null) return;
+        if (!_isDragging || _viewModel?.VideoMetadata == null)
+            return;
 
-        var point = e.GetPosition(this);
-        _viewModel.SeekToPixel(point.X);
-        InvalidateVisual();
-        e.Handled = true;
+        try
+        {
+            var point = e.GetPosition(this);
+            _viewModel.SeekToPixel(point.X);
+            InvalidateVisual();
+            e.Handled = true;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error during timeline drag");
+        }
     }
 
     private void OnPointerReleased(object? sender, PointerReleasedEventArgs e)

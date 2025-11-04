@@ -5,7 +5,7 @@ namespace Bref.Utilities;
 
 /// <summary>
 /// Least Recently Used (LRU) cache with automatic eviction and disposal.
-/// Thread-safe for single-threaded access. For multi-threaded use, external synchronization required.
+/// Thread-safe: All operations are protected by internal locking.
 /// </summary>
 /// <typeparam name="TKey">Cache key type</typeparam>
 /// <typeparam name="TValue">Cache value type (must implement IDisposable)</typeparam>
@@ -16,6 +16,7 @@ public class LRUCache<TKey, TValue> : IDisposable
     private readonly int _capacity;
     private readonly Dictionary<TKey, LinkedListNode<CacheItem>> _cache;
     private readonly LinkedList<CacheItem> _lruList;
+    private readonly object _lock = new object();
     private bool _isDisposed;
 
     public LRUCache(int capacity)
@@ -31,7 +32,16 @@ public class LRUCache<TKey, TValue> : IDisposable
     /// <summary>
     /// Current number of items in cache.
     /// </summary>
-    public int Count => _cache.Count;
+    public int Count
+    {
+        get
+        {
+            lock (_lock)
+            {
+                return _cache.Count;
+            }
+        }
+    }
 
     /// <summary>
     /// Maximum capacity of cache.
@@ -46,14 +56,17 @@ public class LRUCache<TKey, TValue> : IDisposable
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
 
-        if (!_cache.TryGetValue(key, out var node))
-            return null;
+        lock (_lock)
+        {
+            if (!_cache.TryGetValue(key, out var node))
+                return null;
 
-        // Move to front (most recently used)
-        _lruList.Remove(node);
-        _lruList.AddFirst(node);
+            // Move to front (most recently used)
+            _lruList.Remove(node);
+            _lruList.AddFirst(node);
 
-        return node.Value.Value;
+            return node.Value.Value;
+        }
     }
 
     /// <summary>
@@ -66,24 +79,27 @@ public class LRUCache<TKey, TValue> : IDisposable
         ArgumentNullException.ThrowIfNull(value);
         ObjectDisposedException.ThrowIf(_isDisposed, this);
 
-        // If key exists, remove old entry
-        if (_cache.TryGetValue(key, out var existingNode))
+        lock (_lock)
         {
-            _lruList.Remove(existingNode);
-            existingNode.Value.Value.Dispose();
-            _cache.Remove(key);
-        }
+            // If key exists, remove old entry
+            if (_cache.TryGetValue(key, out var existingNode))
+            {
+                _lruList.Remove(existingNode);
+                existingNode.Value.Value.Dispose();
+                _cache.Remove(key);
+            }
 
-        // Evict if at capacity
-        if (_cache.Count >= _capacity)
-        {
-            EvictLeastRecentlyUsed();
-        }
+            // Evict if at capacity
+            if (_cache.Count >= _capacity)
+            {
+                EvictLeastRecentlyUsed();
+            }
 
-        // Add new entry at front
-        var newItem = new CacheItem { Key = key, Value = value };
-        var newNode = _lruList.AddFirst(newItem);
-        _cache[key] = newNode;
+            // Add new entry at front
+            var newItem = new CacheItem { Key = key, Value = value };
+            var newNode = _lruList.AddFirst(newItem);
+            _cache[key] = newNode;
+        }
     }
 
     /// <summary>
@@ -93,7 +109,11 @@ public class LRUCache<TKey, TValue> : IDisposable
     public bool ContainsKey(TKey key)
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
-        return _cache.ContainsKey(key);
+
+        lock (_lock)
+        {
+            return _cache.ContainsKey(key);
+        }
     }
 
     /// <summary>
@@ -104,14 +124,17 @@ public class LRUCache<TKey, TValue> : IDisposable
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
 
-        if (!_cache.TryGetValue(key, out var node))
-            return false;
+        lock (_lock)
+        {
+            if (!_cache.TryGetValue(key, out var node))
+                return false;
 
-        _lruList.Remove(node);
-        _cache.Remove(key);
-        node.Value.Value.Dispose();
+            _lruList.Remove(node);
+            _cache.Remove(key);
+            node.Value.Value.Dispose();
 
-        return true;
+            return true;
+        }
     }
 
     /// <summary>
@@ -121,13 +144,16 @@ public class LRUCache<TKey, TValue> : IDisposable
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
 
-        foreach (var node in _lruList)
+        lock (_lock)
         {
-            node.Value?.Dispose();
-        }
+            foreach (var node in _lruList)
+            {
+                node.Value?.Dispose();
+            }
 
-        _cache.Clear();
-        _lruList.Clear();
+            _cache.Clear();
+            _lruList.Clear();
+        }
     }
 
     /// <summary>
@@ -146,11 +172,21 @@ public class LRUCache<TKey, TValue> : IDisposable
 
     public void Dispose()
     {
-        if (_isDisposed)
-            return;
+        lock (_lock)
+        {
+            if (_isDisposed)
+                return;
 
-        Clear();
-        _isDisposed = true;
+            // Clear will acquire lock again, but locks are reentrant for the same thread
+            foreach (var node in _lruList)
+            {
+                node.Value?.Dispose();
+            }
+
+            _cache.Clear();
+            _lruList.Clear();
+            _isDisposed = true;
+        }
     }
 
     private class CacheItem

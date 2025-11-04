@@ -4,19 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Bref.Controls.VideoPlayerControl"
-             Background="Black">
+             Background="Transparent">
 
-    <Grid>
-        <!-- Canvas for SkiaSharp rendering -->
-        <Panel Name="RenderPanel">
-            <!-- Placeholder text when no video loaded -->
-            <TextBlock Name="PlaceholderText"
-                       Text="No video loaded"
-                       Foreground="#666666"
-                       HorizontalAlignment="Center"
-                       VerticalAlignment="Center"
-                       FontSize="16"
-                       IsVisible="True"/>
-        </Panel>
-    </Grid>
+    <!-- No children - all rendering happens in custom Render() method -->
+    <!-- Background is Transparent to prevent it from covering custom drawing -->
+    <!-- Black background is drawn in RenderFrame() via canvas.Clear() -->
 </UserControl>

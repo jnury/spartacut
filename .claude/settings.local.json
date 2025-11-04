@@ -67,7 +67,17 @@
       "Bash(/usr/local/share/dotnet/dotnet test --filter \"FullyQualifiedName~VideoServiceTests\" --verbosity normal)",
       "Bash(git diff-tree:*)",
       "Skill(superpowers:systematic-debugging)",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Skill(superpowers:executing-plans)",
+      "Bash(git -C /Users/jnury-perso/Repositories/Bref add docs/plans/2025-01-04-persistent-decoder-640x360.md)",
+      "Bash(git -C /Users/jnury-perso/Repositories/Bref commit -m \"docs: add persistent decoder implementation plan\n\n- Replace per-frame file opening with persistent decoder\n- Always decode to 640×360 for fast scrubbing\n- 20-40× performance improvement expected\n- 6 tasks with TDD approach\")",
+      "Bash(git -C /Users/jnury-perso/Repositories/Bref log --oneline -2)",
+      "Bash(git rm:*)",
+      "Bash(git -C /Users/jnury-perso/Repositories/Bref add src/Bref/Services/PersistentFrameDecoder.cs)",
+      "Bash(git -C /Users/jnury-perso/Repositories/Bref commit:*)",
+      "Bash(git -C /Users/jnury-perso/Repositories/Bref add:*)",
+      "Bash(git -C /Users/jnury-perso/Repositories/Bref log --oneline -5)",
+      "Bash(git -C /Users/jnury-perso/Repositories/Bref diff --stat)"
     ],
     "deny": [],
     "ask": []

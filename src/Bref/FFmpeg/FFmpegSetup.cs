@@ -22,16 +22,17 @@ public static class FFmpegSetup
     public static void Initialize()
     {
         if (_isInitialized)
-        {
-            Log.Debug("FFmpeg already initialized, skipping");
             return;
-        }
 
         var libraryPath = GetFFmpegLibraryPath();
         Log.Information("Setting FFmpeg library path: {LibraryPath}", libraryPath);
 
         // Configure FFmpeg.AutoGen to load libraries from the specified path
         ffmpeg.RootPath = libraryPath;
+
+        // Suppress FFmpeg warnings (like "No accelerated colorspace conversion")
+        // Only show errors and fatal messages
+        ffmpeg.av_log_set_level(ffmpeg.AV_LOG_ERROR);
 
         // Verify FFmpeg is accessible by checking version
         try

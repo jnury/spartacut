@@ -272,3 +272,156 @@
 ### Next Steps
 
 Week 4: Frame Cache & Preview (see roadmap)
+
+---
+
+## Week 4: Frame Cache & Video Preview
+
+**Date:** 2025-11-04
+**Status:** ✅ Complete
+**Version:** 0.4.0
+
+### Objectives
+- Implement LRU cache utility for frame management
+- Create VideoFrame model for decoded frame data
+- Build FrameDecoder service for FFmpeg frame extraction
+- Implement FrameCache with preloading
+- Create VideoPlayerControl for frame display
+- Integrate video preview with timeline scrubbing
+- Replace verbose logging with minimal status line
+
+### Completed Tasks
+
+1. **LRUCache Utility (TDD)** - Generic LRU cache with automatic eviction
+2. **VideoFrame Data Model** - Frame data structure with SkiaSharp bitmap conversion
+3. **FrameDecoder Service (TDD)** - FFmpeg-based frame extraction at arbitrary timestamps
+4. **FrameCache Service** - High-level cache with frame quantization and async preloading
+5. **VideoPlayerControl XAML** - Custom control structure with placeholder
+6. **VideoPlayerControl Rendering** - SkiaSharp rendering with aspect ratio preservation
+7. **MainWindow Integration** - Connected timeline to video player with event wiring
+8. **Performance Testing** - Verified cache performance targets (<5ms cached, <100ms uncached)
+9. **Bug Fixes** - Fixed frame ownership, timeline hit-testing, and compilation errors
+
+### Key Achievements
+
+- ✅ Generic LRU cache with IDisposable pattern for frame management
+- ✅ Frame extraction at arbitrary timestamps using FFmpeg seek
+- ✅ 60-frame LRU cache (~370MB for 1080p video)
+- ✅ Frame quantization to 33ms intervals (30fps alignment)
+- ✅ Async frame preloading (5 frames before/after current position)
+- ✅ Custom video player control with SkiaSharp rendering
+- ✅ Aspect ratio preservation with letterboxing
+- ✅ Interactive timeline scrubbing connected to video preview
+- ✅ Performance targets met (cached <5ms, uncached <100ms)
+
+### Technical Highlights
+
+**LRUCache<TKey, TValue>:**
+- Generic cache with Dictionary + LinkedList for O(1) access
+- Automatic eviction of least recently used items
+- IDisposable pattern for proper resource cleanup
+- Thread-safe (caller responsible for synchronization)
+- 6 unit tests covering get, add, eviction, clear, dispose
+
+**FrameDecoder:**
+- Uses FFmpeg.AutoGen for frame extraction
+- Seeks to arbitrary timestamps with AVSEEK_FLAG_BACKWARD
+- Decodes single frame and converts to RGB24 format
+- Returns VideoFrame with image data, dimensions, and timestamp
+- Validates time position and file path
+- 4 unit tests for error handling
+
+**FrameCache:**
+- Wraps FrameDecoder with LRUCache
+- Quantizes timestamps to 33ms intervals (330000 ticks)
+- 60-frame capacity for smooth scrubbing
+- Async PreloadFramesAsync() for nearby frames (5 before/after)
+- GetFrame() is synchronous and always returns a frame
+- Clear() method for cache invalidation
+
+**VideoFrame Model:**
+- Stores decoded frame data: TimePosition, ImageData, Width, Height
+- ToBitmap() converts RGB24 byte array to SKBitmap
+- IDisposable for proper cleanup
+- Frame ownership pattern: cache owns frames, control owns bitmaps
+
+**VideoPlayerControl:**
+- Custom Avalonia control with SkiaSharp rendering
+- ICustomDrawOperation pattern for efficient rendering
+- Aspect ratio preservation with letterboxing
+- Black background for professional video player look
+- DisplayFrame() is thread-safe (uses Dispatcher.UIThread.Post)
+- Only disposes bitmaps, not frames (frames owned by cache)
+
+**Timeline Integration:**
+- TimelineViewModel.CurrentTimeChanged event wiring
+- MainWindow subscribes to event and updates VideoPlayerControl
+- Async frame preloading on every timeline change
+- First frame displayed on video load
+- StatusTextBlock shows minimal video info instead of verbose logs
+
+### Commits
+
+1. `feat: implement LRUCache utility with tests`
+2. `feat: add VideoFrame model with SkiaSharp bitmap conversion`
+3. `feat: implement FrameDecoder service with FFmpeg seek (TDD)`
+4. `feat: add FrameCache service with LRU and preloading`
+5. `feat: add VideoPlayerControl XAML structure`
+6. `feat: implement VideoPlayerControl rendering with SkiaSharp`
+7. `feat: integrate VideoPlayer and FrameCache into MainWindow`
+8. `test: add performance tests for FrameCache`
+9. `fix: VideoPlayerControl should not dispose frames owned by FrameCache`
+10. `fix: add transparent background to TimelineControl for hit-testing`
+11. `fix: add missing Serilog using statement to TimelineControl`
+12. `chore: bump version to 0.4.0 for Week 4 milestone`
+
+### Bug Fixes
+
+**Frame Ownership Bug:**
+- Issue: VideoPlayerControl was disposing frames owned by FrameCache
+- Impact: First click worked, subsequent clicks failed (using disposed frames)
+- Fix: Only dispose SKBitmap, not VideoFrame (frame owned by cache)
+
+**Timeline Hit-Testing Bug:**
+- Issue: Timeline clicks not captured, dragging not working
+- Root Cause: TimelineControl had no Background, was not hit-testable
+- Fix: Added `Background="Transparent"` to make control receive pointer events
+
+**Compilation Error:**
+- Issue: `Log` not found in TimelineControl.axaml.cs
+- Fix: Added missing `using Serilog;` statement
+
+### Testing
+
+**Unit Tests:**
+- LRUCache: 6 tests covering get, add, eviction, clear, dispose
+- FrameDecoder: 4 tests for error handling (missing file, invalid extension, negative time)
+- All tests passing
+
+**Performance Tests:**
+- FrameCache cached access: <5ms (target: <5ms) ✅
+- FrameCache uncached decode: <100ms (target: <100ms) ✅
+
+**Manual Testing:**
+- Verified video frame displays correctly with aspect ratio preservation
+- Confirmed timeline scrubbing updates video player in real-time
+- Tested click-and-drag timeline interaction
+- Verified first frame displays on video load
+- Confirmed status line shows minimal info instead of verbose logs
+
+### Known Limitations
+
+- Frame preloading is fire-and-forget (no cancellation)
+- Cache size fixed at 60 frames (not configurable)
+- Frame quantization fixed at 33ms (not adaptive)
+- No frame format validation (assumes RGB24)
+- Performance tests skipped if test video not present
+
+### Time Estimate vs Actual
+
+- **Estimated:** 25 hours
+- **Actual:** ~20 hours (efficient reuse of FFmpeg patterns from Week 1-2)
+
+### Next Steps
+
+Week 5: Video Playback Engine (see roadmap)

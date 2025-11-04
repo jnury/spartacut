@@ -78,12 +78,13 @@ public class VideoFrame : IDisposable
 
     /// <summary>
     /// Converts frame to SkiaSharp bitmap for rendering.
+    /// Converts RGB24 (3 bytes/pixel) to BGRA (4 bytes/pixel) for SkiaSharp.
     /// </summary>
     public SKBitmap ToBitmap()
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
 
-        var bitmap = new SKBitmap(Width, Height, SKColorType.Rgb888x, SKAlphaType.Opaque);
+        var bitmap = new SKBitmap(Width, Height, SKColorType.Bgra8888, SKAlphaType.Opaque);
 
         var ptr = bitmap.GetPixels();
         unsafe
@@ -91,7 +92,18 @@ public class VideoFrame : IDisposable
             var dstPtr = (byte*)ptr;
             fixed (byte* srcPtr = ImageData)
             {
-                Buffer.MemoryCopy(srcPtr, dstPtr, ImageData.Length, ImageData.Length);
+                // Convert RGB24 (3 bytes/pixel) to BGRA (4 bytes/pixel)
+                for (int i = 0; i < Width * Height; i++)
+                {
+                    int srcIndex = i * 3;
+                    int dstIndex = i * 4;
+
+                    // RGB24 -> BGRA8888: swap R and B, add alpha
+                    dstPtr[dstIndex + 0] = srcPtr[srcIndex + 2]; // B
+                    dstPtr[dstIndex + 1] = srcPtr[srcIndex + 1]; // G
+                    dstPtr[dstIndex + 2] = srcPtr[srcIndex + 0]; // R
+                    dstPtr[dstIndex + 3] = 255;                   // A (opaque)
+                }
             }
         }
 

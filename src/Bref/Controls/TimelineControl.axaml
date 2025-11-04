@@ -4,9 +4,10 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="200"
              x:Class="Bref.Controls.TimelineControl"
+             Background="Transparent"
              PointerPressed="OnPointerPressed"
              PointerMoved="OnPointerMoved"
              PointerReleased="OnPointerReleased">
     <!-- SkiaSharp rendering happens in code-behind Render method -->
-    <!-- Background is drawn via SkiaSharp canvas.Clear() to avoid covering custom drawing -->
+    <!-- Background Transparent makes the control hit-testable for pointer events -->
 </UserControl>
