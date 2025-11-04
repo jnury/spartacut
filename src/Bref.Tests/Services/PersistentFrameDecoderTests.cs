@@ -11,7 +11,19 @@ public class PersistentFrameDecoderTests
 
     public PersistentFrameDecoderTests()
     {
-        _testVideoPath = Path.Combine("/Users/jnury-perso/Repositories/Bref/samples", "sample-30s.mp4");
+        // Find repository root by looking for .git directory
+        var currentDir = Directory.GetCurrentDirectory();
+        while (currentDir != null && !Directory.Exists(Path.Combine(currentDir, ".git")))
+        {
+            currentDir = Directory.GetParent(currentDir)?.FullName;
+        }
+
+        if (currentDir == null)
+        {
+            throw new InvalidOperationException("Could not find repository root (no .git directory found)");
+        }
+
+        _testVideoPath = Path.Combine(currentDir, "samples", "sample-30s.mp4");
     }
 
     [Fact]
