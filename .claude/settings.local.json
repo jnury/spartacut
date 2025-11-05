@@ -77,7 +77,11 @@
       "Bash(git -C /Users/jnury-perso/Repositories/Bref commit:*)",
       "Bash(git -C /Users/jnury-perso/Repositories/Bref add:*)",
       "Bash(git -C /Users/jnury-perso/Repositories/Bref log --oneline -5)",
-      "Bash(git -C /Users/jnury-perso/Repositories/Bref diff --stat)"
+      "Bash(git -C /Users/jnury-perso/Repositories/Bref diff --stat)",
+      "Bash(git -C:*)",
+      "Bash(/usr/local/share/dotnet/dotnet clean:*)",
+      "Skill(superpowers:finishing-a-development-branch)",
+      "Bash(git worktree:*)"
     ],
     "deny": [],
     "ask": []

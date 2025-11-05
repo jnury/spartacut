@@ -9,10 +9,10 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
     <!-- Version Information -->
-    <Version>0.4.0</Version>
-    <AssemblyVersion>0.4.0</AssemblyVersion>
-    <FileVersion>0.4.0</FileVersion>
-    <InformationalVersion>0.4.0</InformationalVersion>
+    <Version>0.5.0</Version>
+    <AssemblyVersion>0.5.0</AssemblyVersion>
+    <FileVersion>0.5.0</FileVersion>
+    <InformationalVersion>0.5.0</InformationalVersion>
   </PropertyGroup>
 
   <ItemGroup>
