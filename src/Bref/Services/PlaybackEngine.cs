@@ -199,6 +199,16 @@ public class PlaybackEngine : IDisposable
         var frameTime = TimeSpan.FromSeconds(1.0 / _frameRate);
         var nextTime = _currentTime + frameTime;
 
+        // Check if next time would exceed duration - stop before advancing
+        if (nextTime >= _duration)
+        {
+            _currentTime = _duration;
+            Pause();
+            TimeChanged?.Invoke(this, _currentTime);
+            Log.Information("Playback reached end");
+            return;
+        }
+
         // Check if next time is in a deleted segment
         var virtualTime = _segmentManager.CurrentSegments.SourceToVirtualTime(nextTime);
         if (virtualTime == null)
@@ -221,6 +231,7 @@ public class PlaybackEngine : IDisposable
                 // No more segments - end of video
                 _currentTime = _duration;
                 Pause();
+                TimeChanged?.Invoke(this, _currentTime);
                 Log.Information("Playback reached end (after deleted segment)");
                 return;
             }
@@ -229,15 +240,6 @@ public class PlaybackEngine : IDisposable
         {
             // Normal playback - advance time
             _currentTime = nextTime;
-        }
-
-        // Check if reached end
-        if (_currentTime >= _duration)
-        {
-            _currentTime = _duration;
-            Pause();
-            Log.Information("Playback reached end");
-            return;
         }
 
         // Notify time changed
