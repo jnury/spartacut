@@ -93,6 +93,9 @@ public partial class MainWindow : Window
         // Clear video player (disposes SKBitmaps)
         VideoPlayer?.Clear();
 
+        // Dispose PlaybackEngine (will cleanup temp audio files)
+        _viewModel?.PlaybackEngine.Dispose();
+
         // Don't dispose FrameCache/Decoder on shutdown to avoid FFmpeg race conditions
         // The OS will reclaim all resources when process terminates
         // Disposing native FFmpeg contexts during active decoding causes crashes

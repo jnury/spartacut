@@ -16,6 +16,7 @@ public class AudioPlayer : IDisposable
     private float _volume = 1.0f;
     private bool _disposed = false;
     private string? _currentFilePath;
+    private string? _tempAudioFilePath;
 
     /// <summary>
     /// Current volume (0.0 to 1.0)
@@ -61,7 +62,7 @@ public class AudioPlayer : IDisposable
     /// <summary>
     /// Loads audio from WAV file
     /// </summary>
-    public async Task LoadAudioAsync(string audioFilePath)
+    public async Task LoadAudioAsync(string audioFilePath, bool isTempFile = false)
     {
         if (_disposed) throw new ObjectDisposedException(nameof(AudioPlayer));
 
@@ -84,6 +85,7 @@ public class AudioPlayer : IDisposable
             _waveOut.Init(_audioFileReader);
 
             _currentFilePath = audioFilePath;
+            _tempAudioFilePath = isTempFile ? audioFilePath : null;
 
             Log.Information("Loaded audio from {FilePath}, Duration={Duration}",
                 audioFilePath, _audioFileReader.TotalTime);
@@ -182,6 +184,21 @@ public class AudioPlayer : IDisposable
 
         _audioFileReader?.Dispose();
         _audioFileReader = null;
+
+        // Delete temp audio file
+        if (_tempAudioFilePath != null && File.Exists(_tempAudioFilePath))
+        {
+            try
+            {
+                File.Delete(_tempAudioFilePath);
+                Log.Debug("Deleted temp audio file: {Path}", _tempAudioFilePath);
+            }
+            catch (Exception ex)
+            {
+                Log.Warning(ex, "Failed to delete temp audio file: {Path}", _tempAudioFilePath);
+            }
+            _tempAudioFilePath = null;
+        }
 
         _currentFilePath = null;
     }

@@ -94,7 +94,7 @@ public class PlaybackEngine : IDisposable
                 _audioPlayer = new AudioPlayer();
             }
 
-            await _audioPlayer.LoadAudioAsync(audioPath);
+            await _audioPlayer.LoadAudioAsync(audioPath, isTempFile: true);
 
             Log.Information("PlaybackEngine initialized: Duration={Duration}, FrameRate={FrameRate}fps, Audio loaded",
                 _duration, _frameRate);
