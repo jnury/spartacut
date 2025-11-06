@@ -12,6 +12,7 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -212,6 +213,13 @@ public partial class MainWindow : Window
                                     // No preloading - rely on smart seeking + natural LRU cache
                                     // This prevents thread explosion and simplifies the system
                                 }
+                            }
+                            catch (InvalidDataException ex) when (ex.Message.Contains("Failed to decode frame"))
+                            {
+                                // Decoder failed - likely trying to decode past actual video end
+                                // (metadata duration can be longer than last decodable frame)
+                                // Silently ignore - keep showing last successfully decoded frame
+                                Log.Debug(ex, "Frame decode failed for time {Time} (likely past last frame), keeping current frame", newTime);
                             }
                             catch (Exception ex)
                             {
