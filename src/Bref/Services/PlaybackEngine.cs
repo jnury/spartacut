@@ -196,6 +196,12 @@ public class PlaybackEngine : IDisposable
             return;
         }
 
+        // Guard against race condition - if already at end, don't process
+        if (_currentTime >= _duration)
+        {
+            return;
+        }
+
         // Advance time by one frame
         var frameTime = TimeSpan.FromSeconds(1.0 / _frameRate);
         var nextTime = _currentTime + frameTime;
