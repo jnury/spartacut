@@ -1,22 +1,28 @@
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using NAudio.Wave;
 using Serilog;
 
 namespace Bref.Services;
 
 /// <summary>
-/// Handles audio playback synchronized with video frames using NAudio
+/// Handles audio playback synchronized with video frames using platform-specific backends
 /// </summary>
 public class AudioPlayer : IDisposable
 {
-    private IWavePlayer? _waveOut;
-    private AudioFileReader? _audioFileReader;
+    private IAudioBackend? _backend;
     private float _volume = 1.0f;
     private bool _disposed = false;
     private string? _currentFilePath;
     private string? _tempAudioFilePath;
+
+    public AudioPlayer()
+    {
+        // Create platform-specific backend
+        _backend = CreateAudioBackend();
+        Log.Information("AudioPlayer initialized with {BackendType} backend", _backend.GetType().Name);
+    }
 
     /// <summary>
     /// Current volume (0.0 to 1.0)
@@ -27,29 +33,26 @@ public class AudioPlayer : IDisposable
         set
         {
             _volume = Math.Clamp(value, 0f, 1f);
-            if (_audioFileReader != null)
-            {
-                _audioFileReader.Volume = _volume;
-            }
+            _backend?.SetVolume(_volume);
         }
     }
 
     /// <summary>
     /// Whether audio file is loaded
     /// </summary>
-    public bool IsLoaded => _audioFileReader != null;
+    public bool IsLoaded => _backend?.IsLoaded ?? false;
 
     /// <summary>
     /// Current playback position
     /// </summary>
     public TimeSpan CurrentTime
     {
-        get => _audioFileReader?.CurrentTime ?? TimeSpan.Zero;
+        get => _backend?.CurrentTime ?? TimeSpan.Zero;
         set
         {
-            if (_audioFileReader != null)
+            if (_backend != null)
             {
-                _audioFileReader.CurrentTime = value;
+                _backend.CurrentTime = value;
             }
         }
     }
@@ -57,7 +60,34 @@ public class AudioPlayer : IDisposable
     /// <summary>
     /// Total audio duration
     /// </summary>
-    public TimeSpan TotalTime => _audioFileReader?.TotalTime ?? TimeSpan.Zero;
+    public TimeSpan TotalTime => _backend?.TotalTime ?? TimeSpan.Zero;
+
+    /// <summary>
+    /// Creates the appropriate audio backend for the current platform
+    /// </summary>
+    private static IAudioBackend CreateAudioBackend()
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            Log.Information("Detected Windows platform - using NAudio backend");
+            return new WindowsAudioBackend();
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            Log.Information("Detected macOS platform - using OpenAL backend");
+            return new OpenALAudioBackend();
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            Log.Information("Detected Linux platform - using OpenAL backend");
+            return new OpenALAudioBackend();
+        }
+        else
+        {
+            Log.Warning("Unknown platform - defaulting to OpenAL backend");
+            return new OpenALAudioBackend();
+        }
+    }
 
     /// <summary>
     /// Loads audio from WAV file
@@ -71,26 +101,27 @@ public class AudioPlayer : IDisposable
             throw new FileNotFoundException($"Audio file not found: {audioFilePath}", audioFilePath);
         }
 
+        if (_backend == null)
+        {
+            throw new InvalidOperationException("Audio backend not initialized");
+        }
+
         try
         {
             // Dispose existing audio
             DisposeAudio();
 
-            // Load new audio file
-            _audioFileReader = new AudioFileReader(audioFilePath);
-            _audioFileReader.Volume = _volume;
+            // Load new audio file via backend
+            await _backend.LoadAudioAsync(audioFilePath);
 
-            // Initialize wave output
-            _waveOut = new WaveOutEvent();
-            _waveOut.Init(_audioFileReader);
+            // Set volume on backend
+            _backend.SetVolume(_volume);
 
             _currentFilePath = audioFilePath;
             _tempAudioFilePath = isTempFile ? audioFilePath : null;
 
             Log.Information("Loaded audio from {FilePath}, Duration={Duration}",
-                audioFilePath, _audioFileReader.TotalTime);
-
-            await Task.CompletedTask; // Keep async signature for future enhancements
+                audioFilePath, TotalTime);
         }
         catch (Exception ex)
         {
@@ -114,18 +145,7 @@ public class AudioPlayer : IDisposable
     public void Play()
     {
         if (_disposed) throw new ObjectDisposedException(nameof(AudioPlayer));
-
-        if (_waveOut == null || _audioFileReader == null)
-        {
-            Log.Warning("Cannot play: No audio loaded");
-            return;
-        }
-
-        if (_waveOut.PlaybackState != PlaybackState.Playing)
-        {
-            _waveOut.Play();
-            Log.Debug("Audio playback started at {Time}", CurrentTime);
-        }
+        _backend?.Play();
     }
 
     /// <summary>
@@ -134,12 +154,7 @@ public class AudioPlayer : IDisposable
     public void Pause()
     {
         if (_disposed) throw new ObjectDisposedException(nameof(AudioPlayer));
-
-        if (_waveOut?.PlaybackState == PlaybackState.Playing)
-        {
-            _waveOut.Pause();
-            Log.Debug("Audio playback paused at {Time}", CurrentTime);
-        }
+        _backend?.Pause();
     }
 
     /// <summary>
@@ -148,16 +163,7 @@ public class AudioPlayer : IDisposable
     public void Stop()
     {
         if (_disposed) throw new ObjectDisposedException(nameof(AudioPlayer));
-
-        if (_waveOut != null)
-        {
-            _waveOut.Stop();
-            if (_audioFileReader != null)
-            {
-                _audioFileReader.CurrentTime = TimeSpan.Zero;
-            }
-            Log.Debug("Audio playback stopped");
-        }
+        _backend?.Stop();
     }
 
     /// <summary>
@@ -166,25 +172,11 @@ public class AudioPlayer : IDisposable
     public void Seek(TimeSpan position)
     {
         if (_disposed) throw new ObjectDisposedException(nameof(AudioPlayer));
-
-        if (_audioFileReader != null)
-        {
-            var clampedPosition = TimeSpan.FromSeconds(
-                Math.Clamp(position.TotalSeconds, 0, _audioFileReader.TotalTime.TotalSeconds));
-            _audioFileReader.CurrentTime = clampedPosition;
-            Log.Debug("Audio seeked to {Time}", clampedPosition);
-        }
+        _backend?.Seek(position);
     }
 
     private void DisposeAudio()
     {
-        _waveOut?.Stop();
-        _waveOut?.Dispose();
-        _waveOut = null;
-
-        _audioFileReader?.Dispose();
-        _audioFileReader = null;
-
         // Delete temp audio file
         if (_tempAudioFilePath != null && File.Exists(_tempAudioFilePath))
         {
@@ -208,6 +200,8 @@ public class AudioPlayer : IDisposable
         if (_disposed) return;
 
         DisposeAudio();
+        _backend?.Dispose();
+        _backend = null;
         _disposed = true;
 
         Log.Debug("AudioPlayer disposed");
