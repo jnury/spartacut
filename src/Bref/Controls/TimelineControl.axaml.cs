@@ -20,6 +20,8 @@ public partial class TimelineControl : UserControl
 {
     private TimelineViewModel? _viewModel;
     private bool _isDragging;
+    private Point? _pointerDownPosition;
+    private const double DragThreshold = 5.0; // pixels
 
     public TimelineControl()
     {
@@ -29,8 +31,35 @@ public partial class TimelineControl : UserControl
 
     private void OnDataContextChanged(object? sender, EventArgs e)
     {
+        // Unsubscribe from old ViewModel
+        if (_viewModel != null)
+        {
+            _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
+            _viewModel.SegmentsChanged -= OnSegmentsChanged;
+        }
+
         _viewModel = DataContext as TimelineViewModel;
+
+        // Subscribe to new ViewModel
+        if (_viewModel != null)
+        {
+            _viewModel.PropertyChanged += OnViewModelPropertyChanged;
+            _viewModel.SegmentsChanged += OnSegmentsChanged;
+        }
+
         InvalidateVisual();
+    }
+
+    private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        // Re-render when relevant properties change
+        InvalidateVisual();
+    }
+
+    private void OnSegmentsChanged(object? sender, EventArgs e)
+    {
+        // Force re-render when segments change (delete/undo/redo)
+        Dispatcher.UIThread.Post(InvalidateVisual);
     }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -53,22 +82,37 @@ public partial class TimelineControl : UserControl
             return;
 
         var point = e.GetPosition(this);
-        _isDragging = true;
-        _viewModel.SeekToPixel(point.X);
-        InvalidateVisual();
+        _pointerDownPosition = point;
+        _isDragging = false; // Don't start dragging yet
         e.Handled = true;
     }
 
     private void OnPointerMoved(object? sender, PointerEventArgs e)
     {
-        if (!_isDragging || _viewModel?.VideoMetadata == null)
+        if (_pointerDownPosition == null || _viewModel?.VideoMetadata == null)
             return;
 
         try
         {
             var point = e.GetPosition(this);
-            _viewModel.SeekToPixel(point.X);
-            InvalidateVisual();
+
+            // Check if moved beyond threshold (selection drag vs. seek click)
+            var distance = Math.Abs(point.X - _pointerDownPosition.Value.X);
+
+            if (!_isDragging && distance > DragThreshold)
+            {
+                // Start selection
+                _isDragging = true;
+                _viewModel.StartSelectionCommand.Execute(_pointerDownPosition.Value.X);
+            }
+
+            if (_isDragging)
+            {
+                // Update selection
+                _viewModel.UpdateSelectionCommand.Execute(point.X);
+                InvalidateVisual();
+            }
+
             e.Handled = true;
         }
         catch (Exception ex)
@@ -79,7 +123,32 @@ public partial class TimelineControl : UserControl
 
     private void OnPointerReleased(object? sender, PointerReleasedEventArgs e)
     {
+        if (_viewModel == null || _pointerDownPosition == null)
+            return;
+
+        var point = e.GetPosition(this);
+        var distance = Math.Abs(point.X - _pointerDownPosition.Value.X);
+
+        if (distance <= DragThreshold)
+        {
+            // Single click - seek to position
+            _viewModel.SeekToPixel(point.X);
+            _viewModel.ClearSelectionCommand.Execute(null);
+        }
+        else if (_viewModel.Selection.IsValid)
+        {
+            // Valid selection completed
+            // Selection remains active for Delete operation
+        }
+        else
+        {
+            // Invalid selection (too small)
+            _viewModel.ClearSelectionCommand.Execute(null);
+        }
+
+        _pointerDownPosition = null;
         _isDragging = false;
+        InvalidateVisual();
         e.Handled = true;
     }
 
@@ -130,13 +199,17 @@ public partial class TimelineControl : UserControl
             var width = (float)bounds.Width;
             var height = (float)bounds.Height;
 
+            // Removed: Log on every render (too verbose)
+            // Log.Information("RenderTimeline: Width={Width:F0}px, Metrics.Duration={MetricsDuration:F2}s, Video.Duration={VideoDuration:F2}s",
+            //     width, metricsDuration, videoDuration);
+
             // Clear background
             canvas.Clear(SKColor.Parse("#2D2D2D"));
 
-            // Define regions
-            var waveformHeight = height * 0.3f;
-            var thumbnailHeight = height * 0.5f;
-            var rulerHeight = height * 0.2f;
+            // Define regions (optimized for 150px height with smaller thumbnails)
+            var waveformHeight = height * 0.25f;  // ~38px for waveform
+            var thumbnailHeight = height * 0.55f; // ~82px for thumbnails (fit 100x56)
+            var rulerHeight = height * 0.2f;      // ~30px for ruler
 
             // Render waveform
             RenderWaveform(canvas, viewModel, 0, waveformHeight, width);
@@ -146,6 +219,11 @@ public partial class TimelineControl : UserControl
 
             // Render time ruler
             RenderTimeRuler(canvas, viewModel, waveformHeight + thumbnailHeight, rulerHeight, width);
+
+            // Note: No deleted regions rendering - timeline contracts to show only kept segments
+
+            // Render selection highlight
+            RenderSelection(canvas, viewModel, height);
 
             // Render playhead
             RenderPlayhead(canvas, viewModel, height);
@@ -157,6 +235,9 @@ public partial class TimelineControl : UserControl
 
             var waveform = viewModel.VideoMetadata.Waveform;
             var peaks = waveform.Peaks;
+            var metrics = viewModel.Metrics;
+            if (metrics == null) return;
+
             using var paint = new SKPaint
             {
                 Color = SKColor.Parse("#007ACC"),
@@ -164,22 +245,33 @@ public partial class TimelineControl : UserControl
                 IsAntialias = true
             };
 
-            // Draw waveform peaks
+            // Draw waveform peaks mapped to virtual timeline
             var centerY = y + height / 2;
-            var samplesPerPixel = Math.Max(1, peaks.Length / (int)width / 2); // Peaks are min/max pairs
+            var videoDuration = viewModel.VideoMetadata.Duration;
 
+            // For each pixel, map virtual time to source time and sample waveform
             for (int x = 0; x < width; x++)
             {
-                var sampleIndex = (int)(x * samplesPerPixel * 2);
-                if (sampleIndex + 1 >= peaks.Length) break;
+                // Convert pixel to virtual time
+                var virtualTime = metrics.PixelToTime(x);
 
-                var min = peaks[sampleIndex];
-                var max = peaks[sampleIndex + 1];
+                // Convert virtual time to source time
+                var sourceTime = viewModel.VirtualToSourceTime(virtualTime);
 
-                var minY = centerY - (min * height / 2);
-                var maxY = centerY - (max * height / 2);
+                // Calculate waveform sample index based on source time
+                var sourceProgress = sourceTime.TotalSeconds / videoDuration.TotalSeconds;
+                var sampleIndex = (int)(sourceProgress * (peaks.Length / 2)) * 2; // Peaks are min/max pairs
 
-                canvas.DrawLine(x, (float)minY, x, (float)maxY, paint);
+                if (sampleIndex >= 0 && sampleIndex + 1 < peaks.Length)
+                {
+                    var min = peaks[sampleIndex];
+                    var max = peaks[sampleIndex + 1];
+
+                    var minY = centerY - (min * height / 2);
+                    var maxY = centerY - (max * height / 2);
+
+                    canvas.DrawLine(x, (float)minY, x, (float)maxY, paint);
+                }
             }
         }
 
@@ -259,6 +351,95 @@ public partial class TimelineControl : UserControl
                 var timeStr = TimeSpan.FromSeconds(seconds).ToString(@"mm\:ss");
                 canvas.DrawText(timeStr, x, y + height - 5, textPaint);
             }
+        }
+
+        private void RenderDeletedRegions(SKCanvas canvas, TimelineViewModel viewModel, float height)
+        {
+            // Note: This method is no longer called - timeline contracts instead of showing overlays
+            var deletedRegions = viewModel.GetDeletedRegions();
+
+            if (deletedRegions.Count == 0 || viewModel.VideoMetadata == null)
+                return;
+
+            var videoDuration = viewModel.VideoMetadata.Duration;
+            if (videoDuration.TotalSeconds == 0)
+                return;
+
+            // Render deleted regions as red semi-transparent overlays
+            using var deletedPaint = new SKPaint
+            {
+                Color = new SKColor(255, 50, 50, 100), // Red with 40% opacity
+                Style = SKPaintStyle.Fill
+            };
+
+            using var borderPaint = new SKPaint
+            {
+                Color = new SKColor(200, 0, 0, 150), // Dark red border
+                Style = SKPaintStyle.Stroke,
+                StrokeWidth = 1
+            };
+
+            var width = (float)viewModel.TimelineWidth;
+
+            foreach (var (start, end) in deletedRegions)
+            {
+                // Convert source times to pixel positions (using full video duration)
+                var startPixel = (float)(start.TotalSeconds / videoDuration.TotalSeconds * width);
+                var endPixel = (float)(end.TotalSeconds / videoDuration.TotalSeconds * width);
+
+                var deletedRect = new SKRect(startPixel, 0, endPixel, height);
+
+                // Draw red overlay
+                canvas.DrawRect(deletedRect, deletedPaint);
+
+                // Draw border
+                canvas.DrawRect(deletedRect, borderPaint);
+            }
+        }
+
+        private void RenderSelection(SKCanvas canvas, TimelineViewModel viewModel, float height)
+        {
+            if (!viewModel.Selection.IsActive)
+                return;
+
+            var selectionRect = new SKRect(
+                (float)viewModel.SelectionNormalizedStartPixel,
+                0,
+                (float)(viewModel.SelectionNormalizedStartPixel + viewModel.SelectionWidth),
+                height
+            );
+
+            // Semi-transparent blue overlay
+            using var selectionPaint = new SKPaint
+            {
+                Color = new SKColor(100, 150, 255, 80), // Light blue, 30% opacity
+                Style = SKPaintStyle.Fill
+            };
+            canvas.DrawRect(selectionRect, selectionPaint);
+
+            // Selection border
+            using var borderPaint = new SKPaint
+            {
+                Color = new SKColor(100, 150, 255, 200), // Light blue, 80% opacity
+                Style = SKPaintStyle.Stroke,
+                StrokeWidth = 2
+            };
+            canvas.DrawRect(selectionRect, borderPaint);
+
+            // Draw handles (for visual clarity)
+            DrawSelectionHandle(canvas, selectionRect.Left, height);
+            DrawSelectionHandle(canvas, selectionRect.Right, height);
+        }
+
+        private void DrawSelectionHandle(SKCanvas canvas, float x, float height)
+        {
+            var handleRect = new SKRect(x - 5, 0, x + 5, height);
+            using var handlePaint = new SKPaint
+            {
+                Color = new SKColor(100, 150, 255, 255),
+                Style = SKPaintStyle.Fill
+            };
+            canvas.DrawRect(handleRect, handlePaint);
         }
 
         private void RenderPlayhead(SKCanvas canvas, TimelineViewModel viewModel, float height)

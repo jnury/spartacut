@@ -33,9 +33,6 @@ public unsafe class ThumbnailGenerator
             throw new FileNotFoundException($"Video file not found: {videoFilePath}", videoFilePath);
         }
 
-        Log.Information("Generating thumbnails for: {FilePath}, Interval: {Interval}s, Size: {Width}x{Height}",
-            videoFilePath, interval.TotalSeconds, width, height);
-
         var thumbnails = new List<ThumbnailData>();
 
         try
@@ -112,8 +109,6 @@ public unsafe class ThumbnailGenerator
 
                         currentTime += interval;
                     }
-
-                    Log.Information("Generated {Count} thumbnails for {FilePath}", thumbnails.Count, videoFilePath);
                 }
                 finally
                 {
@@ -137,6 +132,86 @@ public unsafe class ThumbnailGenerator
         }
 
         return thumbnails;
+    }
+
+    /// <summary>
+    /// Generates a single thumbnail at a specific time.
+    /// </summary>
+    public ThumbnailData? GenerateSingle(string videoFilePath, TimeSpan time, int width, int height)
+    {
+        if (!File.Exists(videoFilePath))
+        {
+            throw new FileNotFoundException($"Video file not found: {videoFilePath}", videoFilePath);
+        }
+
+        try
+        {
+            FFmpegSetup.Initialize();
+
+            AVFormatContext* formatContext = null;
+            if (ffmpeg.avformat_open_input(&formatContext, videoFilePath, null, null) != 0)
+            {
+                return null;
+            }
+
+            try
+            {
+                if (ffmpeg.avformat_find_stream_info(formatContext, null) < 0)
+                {
+                    return null;
+                }
+
+                // Find video stream
+                int videoStreamIndex = -1;
+                for (int i = 0; i < formatContext->nb_streams; i++)
+                {
+                    if (formatContext->streams[i]->codecpar->codec_type == AVMediaType.AVMEDIA_TYPE_VIDEO)
+                    {
+                        videoStreamIndex = i;
+                        break;
+                    }
+                }
+
+                if (videoStreamIndex == -1)
+                    return null;
+
+                var codecParams = formatContext->streams[videoStreamIndex]->codecpar;
+                var codec = ffmpeg.avcodec_find_decoder(codecParams->codec_id);
+                if (codec == null)
+                    return null;
+
+                AVCodecContext* codecContext = ffmpeg.avcodec_alloc_context3(codec);
+                if (codecContext == null)
+                    return null;
+
+                try
+                {
+                    ffmpeg.avcodec_parameters_to_context(codecContext, codecParams);
+                    if (ffmpeg.avcodec_open2(codecContext, codec, null) < 0)
+                        return null;
+
+                    return ExtractFrameAtTime(formatContext, codecContext, videoStreamIndex, time, width, height);
+                }
+                finally
+                {
+                    if (codecContext != null)
+                    {
+                        var ctx = codecContext;
+                        ffmpeg.avcodec_free_context(&ctx);
+                    }
+                }
+            }
+            finally
+            {
+                var ctx = formatContext;
+                ffmpeg.avformat_close_input(&ctx);
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Failed to generate single thumbnail at {Time} for: {FilePath}", time, videoFilePath);
+            return null;
+        }
     }
 
     private ThumbnailData? ExtractFrameAtTime(

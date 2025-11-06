@@ -237,12 +237,50 @@ public class WaveformGenerator
             }
         }
 
+        // Normalize peaks so the loudest peak is always at ±1.0
+        // This ensures quiet audio is visible with the same visual intensity as loud audio
+        var peaksArray = peaks.ToArray();
+        NormalizePeaks(peaksArray);
+
         return new WaveformData
         {
-            Peaks = peaks.ToArray(),
+            Peaks = peaksArray,
             Duration = duration,
             SampleRate = sampleRate,
             SamplesPerPeak = samplesPerPeak
         };
+    }
+
+    /// <summary>
+    /// Normalizes waveform peaks so the maximum absolute value is 1.0.
+    /// This ensures all waveforms use the full available height when rendered.
+    /// </summary>
+    private void NormalizePeaks(float[] peaks)
+    {
+        if (peaks.Length == 0) return;
+
+        // Find the maximum absolute value
+        float maxAbsValue = 0f;
+        for (int i = 0; i < peaks.Length; i++)
+        {
+            var absValue = Math.Abs(peaks[i]);
+            if (absValue > maxAbsValue)
+            {
+                maxAbsValue = absValue;
+            }
+        }
+
+        // Normalize if there's any audio (avoid division by zero)
+        if (maxAbsValue > 0.001f) // Small threshold to avoid amplifying noise
+        {
+            float scale = 1.0f / maxAbsValue;
+            for (int i = 0; i < peaks.Length; i++)
+            {
+                peaks[i] *= scale;
+            }
+
+            Log.Debug("Normalized waveform peaks by factor {Scale:F2} (max was {Max:F3})",
+                scale, maxAbsValue);
+        }
     }
 }

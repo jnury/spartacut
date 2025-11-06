@@ -6,6 +6,7 @@
         xmlns:vm="using:Bref.ViewModels"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Bref.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
         Title="Bref"
         Width="800" Height="600"
         Background="#1E1E1E">
@@ -23,51 +24,53 @@
 
     <Grid Margin="20">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/> <!-- Header -->
-            <RowDefinition Height="Auto"/> <!-- Load Button -->
+            <RowDefinition Height="Auto"/> <!-- Load Button and Toolbar -->
             <RowDefinition Height="*"/>    <!-- Video Player -->
-            <RowDefinition Height="Auto"/> <!-- Status -->
             <RowDefinition Height="Auto"/> <!-- Timeline -->
         </Grid.RowDefinitions>
 
-        <!-- Header -->
-        <TextBlock Grid.Row="0"
-                   Text="Bref Video Editor - Week 4 Preview"
-                   FontSize="24"
-                   FontWeight="Bold"
-                   Foreground="White"
-                   Margin="0,0,0,20"/>
+        <!-- Load Video Button and Edit Toolbar -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="10" Margin="0,0,0,20">
+            <Button Name="LoadVideoButton"
+                    Content="Load MP4 Video"
+                    Padding="20,10"
+                    FontSize="16"
+                    Click="LoadVideoButton_Click"/>
 
-        <!-- Load Video Button -->
-        <Button Grid.Row="1"
-                Name="LoadVideoButton"
-                Content="Load MP4 Video"
-                HorizontalAlignment="Left"
-                Padding="20,10"
-                FontSize="16"
-                Margin="0,0,0,20"
-                Click="LoadVideoButton_Click"/>
+            <!-- Edit Controls -->
+            <Button Name="DeleteButton"
+                    Content="Delete Selection"
+                    Command="{Binding DeleteSelectionCommand}"
+                    HotKey="Delete"
+                    Padding="15,10"
+                    FontSize="14"/>
+
+            <Button Name="UndoButton"
+                    Content="Undo"
+                    Command="{Binding UndoCommand}"
+                    HotKey="Ctrl+Z"
+                    Padding="15,10"
+                    FontSize="14"/>
+
+            <Button Name="RedoButton"
+                    Content="Redo"
+                    Command="{Binding RedoCommand}"
+                    HotKey="Ctrl+Y"
+                    Padding="15,10"
+                    FontSize="14"/>
+        </StackPanel>
 
         <!-- Video Player -->
-        <controls:VideoPlayerControl Grid.Row="2"
+        <controls:VideoPlayerControl Grid.Row="1"
                                      Name="VideoPlayer"
                                      MinHeight="300"
                                      Margin="0,0,0,20"
                                      IsVisible="False"/>
 
-        <!-- Status Line (minimal info) -->
-        <TextBlock Grid.Row="3"
-                   Name="StatusTextBlock"
-                   Text="No video loaded"
-                   Foreground="#CCCCCC"
-                   FontSize="12"
-                   Margin="0,0,0,10"
-                   TextTrimming="CharacterEllipsis"/>
-
         <!-- Timeline Control -->
-        <controls:TimelineControl Grid.Row="4"
+        <controls:TimelineControl Grid.Row="2"
                                   Name="TimelineControl"
-                                  Height="200"
+                                  Height="150"
                                   Margin="0,0,0,0"
                                   IsVisible="False"/>
     </Grid>
