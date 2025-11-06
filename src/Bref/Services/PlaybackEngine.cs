@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Timers;
 using Bref.Models;
 using Serilog;
@@ -10,6 +12,8 @@ namespace Bref.Services;
 /// </summary>
 public class PlaybackEngine : IDisposable
 {
+    private const int PreloadFrameCount = 10; // Preload 10 frames ahead (~333ms at 30fps)
+
     private readonly Timer _frameTimer;
     private PlaybackState _state = PlaybackState.Stopped;
     private TimeSpan _currentTime = TimeSpan.Zero;
@@ -109,6 +113,9 @@ public class PlaybackEngine : IDisposable
         _state = PlaybackState.Playing;
         StateChanged?.Invoke(this, _state);
 
+        // Start preloading frames ahead (non-blocking)
+        PreloadFrames(_currentTime);
+
         _frameTimer.Start();
         _audioPlayer?.Play();
 
@@ -202,6 +209,50 @@ public class PlaybackEngine : IDisposable
 
         // Notify time changed
         TimeChanged?.Invoke(this, _currentTime);
+    }
+
+    /// <summary>
+    /// Preloads frames ahead of current time for smooth playback.
+    /// Runs asynchronously without blocking.
+    /// </summary>
+    private void PreloadFrames(TimeSpan fromTime)
+    {
+        if (_frameCache == null || _segmentManager == null)
+        {
+            return;
+        }
+
+        // Run preloading in background (non-blocking)
+        Task.Run(() =>
+        {
+            try
+            {
+                var frameTime = TimeSpan.FromSeconds(1.0 / _frameRate);
+
+                for (int i = 1; i <= PreloadFrameCount; i++)
+                {
+                    var preloadTime = fromTime + (frameTime * i);
+
+                    // Stop if we've reached the end of the video
+                    if (preloadTime >= _duration)
+                    {
+                        Log.Debug("Preloading stopped at end of video");
+                        break;
+                    }
+
+                    // This will populate the cache if not already cached
+                    _frameCache.GetFrame(preloadTime);
+
+                    Log.Verbose("Preloaded frame at {Time}", preloadTime);
+                }
+
+                Log.Debug("Preloaded {Count} frames ahead from {Time}", PreloadFrameCount, fromTime);
+            }
+            catch (Exception ex)
+            {
+                Log.Warning(ex, "Failed to preload frames from {Time}", fromTime);
+            }
+        });
     }
 
     public void Dispose()
