@@ -56,6 +56,21 @@
                     Padding="15,10"
                     FontSize="14"/>
 
+            <!-- Volume Control -->
+            <StackPanel Orientation="Horizontal" Margin="20,0,0,0">
+                <TextBlock Text="🔊" VerticalAlignment="Center" Margin="0,0,5,0" />
+                <Slider Width="100"
+                        Minimum="0"
+                        Maximum="100"
+                        Value="{Binding Volume}"
+                        VerticalAlignment="Center"
+                        ToolTip.Tip="Volume" />
+                <TextBlock Text="{Binding Volume, StringFormat={}{0:F0}%}"
+                           VerticalAlignment="Center"
+                           Margin="5,0,0,0"
+                           Width="35" />
+            </StackPanel>
+
             <!-- Edit Controls -->
             <Button Name="DeleteButton"
                     Content="Delete Selection"

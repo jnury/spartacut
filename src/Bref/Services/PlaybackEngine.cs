@@ -45,6 +45,11 @@ public class PlaybackEngine : IDisposable
     public bool CanPlay => _frameCache != null && _segmentManager != null;
 
     /// <summary>
+    /// Audio player instance (may be null if audio failed to load)
+    /// </summary>
+    public AudioPlayer? AudioPlayer => _audioPlayer;
+
+    /// <summary>
     /// Event raised when playback time changes
     /// </summary>
     public event EventHandler<TimeSpan>? TimeChanged;

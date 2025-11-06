@@ -21,6 +21,18 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private bool _isPlaying = false;
 
+    [ObservableProperty]
+    private double _volume = 100.0; // 0-100%
+
+    partial void OnVolumeChanged(double value)
+    {
+        // Update AudioPlayer volume (convert 0-100 to 0.0-1.0)
+        if (_playbackEngine.AudioPlayer != null)
+        {
+            _playbackEngine.AudioPlayer.Volume = (float)(value / 100.0);
+        }
+    }
+
     /// <summary>
     /// PlaybackEngine instance for playback control
     /// </summary>
