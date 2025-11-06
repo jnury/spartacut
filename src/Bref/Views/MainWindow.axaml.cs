@@ -194,11 +194,19 @@ public partial class MainWindow : Window
                         {
                             try
                             {
-                                if (_frameCache != null)
+                                if (_frameCache != null && _viewModel.Timeline.VideoMetadata != null)
                                 {
+                                    // Clamp time to video duration to prevent decoding past end
+                                    // (Playback timer race conditions can fire events slightly past duration)
+                                    var clampedTime = newTime;
+                                    if (clampedTime > _viewModel.Timeline.VideoMetadata.Duration)
+                                    {
+                                        clampedTime = _viewModel.Timeline.VideoMetadata.Duration;
+                                    }
+
                                     // Get and display current frame immediately
                                     // With smart seeking, forward scrubbing is fast without preloading
-                                    var frame = _frameCache.GetFrame(newTime);
+                                    var frame = _frameCache.GetFrame(clampedTime);
                                     VideoPlayer.DisplayFrame(frame);
 
                                     // No preloading - rely on smart seeking + natural LRU cache

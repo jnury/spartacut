@@ -249,6 +249,12 @@ public class PlaybackEngine : IDisposable
             _currentTime = nextTime;
         }
 
+        // Clamp to duration before firing event (safety check for race conditions)
+        if (_currentTime > _duration)
+        {
+            _currentTime = _duration;
+        }
+
         // Notify time changed
         TimeChanged?.Invoke(this, _currentTime);
     }
