@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using Bref.Controls;
@@ -31,6 +32,9 @@ public partial class MainWindow : Window
 
         // Subscribe to window size changes for thumbnail regeneration
         this.PropertyChanged += OnWindowPropertyChanged;
+
+        // Subscribe to key events for Space key handling
+        this.KeyDown += OnWindowKeyDown;
 
         // Initialize ViewModel
         _viewModel = new MainWindowViewModel();
@@ -356,5 +360,36 @@ public partial class MainWindow : Window
         var virtualDuration = _viewModel?.VirtualDuration ?? metadata.Duration;
 
         Title = $"Bref - {fileName} | {metadata.Width}x{metadata.Height} @ {metadata.FrameRate:F0}fps | Duration: {virtualDuration:hh\\:mm\\:ss}";
+    }
+
+    /// <summary>
+    /// Handle keyboard shortcuts including Space key for Play/Pause toggle
+    /// </summary>
+    private void OnWindowKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (_viewModel == null)
+            return;
+
+        // Space key toggles Play/Pause
+        if (e.Key == Key.Space)
+        {
+            // Toggle between Play and Pause
+            if (_viewModel.IsPlaying)
+            {
+                if (_viewModel.PauseCommand.CanExecute(null))
+                {
+                    _viewModel.PauseCommand.Execute(null);
+                    e.Handled = true;
+                }
+            }
+            else
+            {
+                if (_viewModel.PlayCommand.CanExecute(null))
+                {
+                    _viewModel.PlayCommand.Execute(null);
+                    e.Handled = true;
+                }
+            }
+        }
     }
 }

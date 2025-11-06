@@ -37,6 +37,25 @@
                     FontSize="16"
                     Click="LoadVideoButton_Click"/>
 
+            <!-- Playback Controls -->
+            <Button Name="PlayButton"
+                    Content="▶ Play"
+                    Command="{Binding PlayCommand}"
+                    Padding="15,10"
+                    FontSize="14"/>
+
+            <Button Name="PauseButton"
+                    Content="⏸ Pause"
+                    Command="{Binding PauseCommand}"
+                    Padding="15,10"
+                    FontSize="14"/>
+
+            <Button Name="StopButton"
+                    Content="⏹ Stop"
+                    Command="{Binding StopCommand}"
+                    Padding="15,10"
+                    FontSize="14"/>
+
             <!-- Edit Controls -->
             <Button Name="DeleteButton"
                     Content="Delete Selection"
