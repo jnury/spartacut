@@ -49,6 +49,7 @@ public partial class TimelineViewModel : ObservableObject
     partial void OnCurrentTimeChanged(TimeSpan value)
     {
         CurrentTimeChanged?.Invoke(this, value);
+        OnPropertyChanged(nameof(PlayheadPosition));
     }
 
     [ObservableProperty]
