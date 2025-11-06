@@ -141,3 +141,40 @@ SegmentList Redo(SegmentList currentState);
 
 ## Always Think Step by Step
 - Read specification → Check dependencies → Validate data flow → Implement incrementally → Test immediately
+
+## Today I Learned
+
+### Week 7: Playback Engine Architecture (January 2025)
+
+**Timer-Based Playback Design:**
+- System.Timers.Timer provides frame-accurate playback at configurable frame rates (30/60fps)
+- Frame interval calculation: `1000.0 / frameRate` milliseconds
+- Timer events drive the playback loop, advancing CurrentTime by one frame duration each tick
+- Non-blocking frame preloading (Task.Run) prevents UI freezes during playback
+
+**Segment Boundary Handling:**
+- Use `SegmentList.SourceToVirtualTime()` to detect deleted segments (returns null if in deleted region)
+- When playback hits a deleted segment, automatically jump to next kept segment's SourceStart
+- This creates seamless playback that "skips over" deleted content
+- No special UI handling needed - the timeline naturally reflects the virtual time
+
+**PlaybackEngine Integration Pattern:**
+- PlaybackEngine owns Timer, FrameCache, and SegmentManager references
+- Exposes events: TimeChanged (every frame) and StateChanged (play/pause/stop)
+- MainWindowViewModel subscribes to events and updates Timeline.CurrentTime
+- This event-driven architecture keeps UI responsive and decoupled from playback logic
+
+**Frame Preloading Strategy:**
+- Preload 10 frames ahead (~333ms buffer at 30fps)
+- Preloading runs async in background (non-blocking)
+- FrameCache's LRU eviction naturally manages memory
+- Preloading is essential for smooth playback across segment boundaries
+
+**Audio Synchronization (Deferred to Week 8):**
+- AudioPlayer stub created with volume control and seek methods
+- NAudio requires extracting audio to temp file (can't read MP4 directly)
+- Future implementation: FFmpeg audio extraction + NAudio playback synchronized with video timer
+
+## Never Again
+
+*No mistakes documented yet - add lessons learned from errors here.*
