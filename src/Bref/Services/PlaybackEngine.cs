@@ -256,6 +256,7 @@ public class PlaybackEngine : IDisposable
             {
                 // Jump to start of next segment
                 _currentTime = nextKeptSegment.SourceStart;
+                _audioPlayer?.Seek(_currentTime);
                 Log.Information("Jumped to next segment at {Time}", _currentTime);
             }
             else
