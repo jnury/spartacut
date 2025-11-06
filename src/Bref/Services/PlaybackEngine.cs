@@ -103,11 +103,12 @@ public class PlaybackEngine : IDisposable
             return;
         }
 
-        // Check if at end
+        // Only reset to beginning if at the very end (not if user seeked to middle)
         if (_currentTime >= _duration)
         {
             _currentTime = TimeSpan.Zero;
             TimeChanged?.Invoke(this, _currentTime);
+            Log.Debug("Playback at end, reset to beginning");
         }
 
         _state = PlaybackState.Playing;

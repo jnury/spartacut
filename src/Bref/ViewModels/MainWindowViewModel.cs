@@ -50,21 +50,52 @@ public partial class MainWindowViewModel : ObservableObject
         // Subscribe to playback state changes
         _playbackEngine.StateChanged += OnPlaybackStateChanged;
         _playbackEngine.TimeChanged += OnPlaybackTimeChanged;
+
+        // Subscribe to timeline seeks (user clicking timeline)
+        Timeline.CurrentTimeChanged += OnTimelineSeek;
+    }
+
+    private bool _updatingFromPlayback = false;
+
+    private void OnTimelineSeek(object? sender, TimeSpan time)
+    {
+        // Only seek PlaybackEngine if this wasn't triggered by playback
+        if (!_updatingFromPlayback && _playbackEngine.CanPlay)
+        {
+            _playbackEngine.Seek(time);
+        }
     }
 
     private void OnPlaybackStateChanged(object? sender, PlaybackState state)
     {
-        IsPlaying = state == PlaybackState.Playing;
-        OnPropertyChanged(nameof(CanPlay));
-        OnPropertyChanged(nameof(CanPause));
-        PlayCommand.NotifyCanExecuteChanged();
-        PauseCommand.NotifyCanExecuteChanged();
+        // Marshal to UI thread (PlaybackEngine fires from Timer thread)
+        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            IsPlaying = state == PlaybackState.Playing;
+            OnPropertyChanged(nameof(CanPlay));
+            OnPropertyChanged(nameof(CanPause));
+            PlayCommand.NotifyCanExecuteChanged();
+            PauseCommand.NotifyCanExecuteChanged();
+        });
     }
 
     private void OnPlaybackTimeChanged(object? sender, TimeSpan time)
     {
-        // Update timeline current time
-        Timeline.CurrentTime = time;
+        // Marshal to UI thread (PlaybackEngine fires from Timer thread)
+        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            // Set flag to prevent circular update
+            _updatingFromPlayback = true;
+            try
+            {
+                // Update timeline current time
+                Timeline.CurrentTime = time;
+            }
+            finally
+            {
+                _updatingFromPlayback = false;
+            }
+        });
     }
 
     /// <summary>
