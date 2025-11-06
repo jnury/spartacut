@@ -64,6 +64,34 @@ public static class FFmpegSetup
     }
 
     /// <summary>
+    /// Gets the path to the ffmpeg executable
+    /// </summary>
+    public static string GetFFmpegPath()
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return "ffmpeg.exe"; // Assumes ffmpeg.exe is in PATH or bundled
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            // Try common Homebrew paths
+            var brewPaths = new[]
+            {
+                "/opt/homebrew/bin/ffmpeg",  // Apple Silicon
+                "/usr/local/bin/ffmpeg"      // Intel
+            };
+
+            foreach (var path in brewPaths)
+            {
+                if (File.Exists(path))
+                    return path;
+            }
+        }
+
+        return "ffmpeg"; // Fallback to PATH
+    }
+
+    /// <summary>
     /// Detect platform-specific FFmpeg library path.
     /// macOS: /opt/homebrew/opt/ffmpeg@7/lib (Apple Silicon) or /usr/local/opt/ffmpeg@7/lib (Intel)
     /// Windows: Will be bundled in assets/ffmpeg/ (future implementation)
