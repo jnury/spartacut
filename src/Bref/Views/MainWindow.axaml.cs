@@ -146,10 +146,14 @@ public partial class MainWindow : Window
             // Wait for loading to complete
             var metadata = await loadTask;
 
-            // Initialize ViewModel with video metadata
+            // Initialize frame cache first (needed for ViewModel initialization)
+            _frameCache?.Dispose();
+            _frameCache = new FrameCache(filePath, capacity: 60);
+
+            // Initialize ViewModel with video metadata and frame cache
             if (_viewModel != null)
             {
-                _viewModel.InitializeVideo(metadata);
+                _viewModel.InitializeVideo(metadata, _frameCache);
             }
 
             // Update window title with video info
@@ -209,10 +213,6 @@ public partial class MainWindow : Window
                     // Timeline DataContext already set in constructor, just show it
                     TimelineControl.IsVisible = true;
                 }
-
-                // Initialize frame cache
-                _frameCache?.Dispose();
-                _frameCache = new FrameCache(filePath, capacity: 60);
 
                 // Display first frame
                 var firstFrame = _frameCache.GetFrame(TimeSpan.Zero);

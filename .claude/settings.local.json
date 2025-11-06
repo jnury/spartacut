@@ -81,7 +81,8 @@
       "Bash(git -C:*)",
       "Bash(/usr/local/share/dotnet/dotnet clean:*)",
       "Skill(superpowers:finishing-a-development-branch)",
-      "Bash(git worktree:*)"
+      "Bash(git worktree:*)",
+      "Bash(whereis:*)"
     ],
     "deny": [],
     "ask": []

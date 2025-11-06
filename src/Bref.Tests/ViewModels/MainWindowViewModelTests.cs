@@ -183,4 +183,59 @@ public class MainWindowViewModelTests
         // Assert - with valid selection
         Assert.True(viewModel.CanDelete);
     }
+
+    [Fact]
+    public void PlaybackEngine_PropertyExists()
+    {
+        // Arrange
+        var viewModel = new MainWindowViewModel();
+
+        // Assert - PlaybackEngine property should exist
+        Assert.NotNull(viewModel.PlaybackEngine);
+    }
+
+    [Fact]
+    public void PlayCommand_ExistsAndIsDisabledInitially()
+    {
+        // Arrange
+        var viewModel = new MainWindowViewModel();
+
+        // Assert - Play command should exist but be disabled (no video loaded)
+        Assert.NotNull(viewModel.PlayCommand);
+        Assert.False(viewModel.CanPlay);
+        Assert.False(viewModel.PlayCommand.CanExecute(null));
+    }
+
+    [Fact]
+    public void PauseCommand_ExistsAndIsDisabledInitially()
+    {
+        // Arrange
+        var viewModel = new MainWindowViewModel();
+
+        // Assert - Pause command should exist but be disabled (not playing)
+        Assert.NotNull(viewModel.PauseCommand);
+        Assert.False(viewModel.CanPause);
+        Assert.False(viewModel.PauseCommand.CanExecute(null));
+    }
+
+    [Fact]
+    public void StopCommand_Exists()
+    {
+        // Arrange
+        var viewModel = new MainWindowViewModel();
+
+        // Assert - Stop command should exist
+        Assert.NotNull(viewModel.StopCommand);
+        Assert.True(viewModel.StopCommand.CanExecute(null)); // Stop can always execute
+    }
+
+    [Fact]
+    public void IsPlaying_InitiallyFalse()
+    {
+        // Arrange
+        var viewModel = new MainWindowViewModel();
+
+        // Assert - IsPlaying should be false initially
+        Assert.False(viewModel.IsPlaying);
+    }
 }

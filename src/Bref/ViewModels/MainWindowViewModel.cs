@@ -13,9 +13,18 @@ namespace Bref.ViewModels;
 public partial class MainWindowViewModel : ObservableObject
 {
     private readonly SegmentManager _segmentManager = new();
+    private readonly PlaybackEngine _playbackEngine = new();
 
     [ObservableProperty]
     private TimelineViewModel _timeline = new();
+
+    [ObservableProperty]
+    private bool _isPlaying = false;
+
+    /// <summary>
+    /// PlaybackEngine instance for playback control
+    /// </summary>
+    public PlaybackEngine PlaybackEngine => _playbackEngine;
 
     /// <summary>
     /// Callback to regenerate thumbnails before timeline update
@@ -37,6 +46,25 @@ public partial class MainWindowViewModel : ObservableObject
                 DeleteSelectionCommand.NotifyCanExecuteChanged();
             }
         };
+
+        // Subscribe to playback state changes
+        _playbackEngine.StateChanged += OnPlaybackStateChanged;
+        _playbackEngine.TimeChanged += OnPlaybackTimeChanged;
+    }
+
+    private void OnPlaybackStateChanged(object? sender, PlaybackState state)
+    {
+        IsPlaying = state == PlaybackState.Playing;
+        OnPropertyChanged(nameof(CanPlay));
+        OnPropertyChanged(nameof(CanPause));
+        PlayCommand.NotifyCanExecuteChanged();
+        PauseCommand.NotifyCanExecuteChanged();
+    }
+
+    private void OnPlaybackTimeChanged(object? sender, TimeSpan time)
+    {
+        // Update timeline current time
+        Timeline.CurrentTime = time;
     }
 
     /// <summary>
@@ -55,6 +83,16 @@ public partial class MainWindowViewModel : ObservableObject
     public bool CanRedo => _segmentManager.CanRedo;
 
     /// <summary>
+    /// Can play? (video loaded and not playing)
+    /// </summary>
+    public bool CanPlay => _playbackEngine.CanPlay && !IsPlaying;
+
+    /// <summary>
+    /// Can pause? (currently playing)
+    /// </summary>
+    public bool CanPause => IsPlaying;
+
+    /// <summary>
     /// Current virtual duration (after deletions)
     /// </summary>
     public TimeSpan VirtualDuration => _segmentManager.CurrentSegments.TotalDuration;
@@ -65,13 +103,29 @@ public partial class MainWindowViewModel : ObservableObject
     public int SegmentCount => _segmentManager.CurrentSegments.SegmentCount;
 
     /// <summary>
-    /// Initialize with video duration
+    /// Initialize with video duration (legacy overload for existing tests)
     /// </summary>
     public void InitializeVideo(VideoMetadata metadata)
     {
         _segmentManager.Initialize(metadata.Duration);
         Timeline.VideoMetadata = metadata;
         Timeline.SegmentManager = _segmentManager; // Connect SegmentManager to Timeline!
+    }
+
+    /// <summary>
+    /// Initialize with video duration and frame cache (for playback)
+    /// </summary>
+    public void InitializeVideo(VideoMetadata metadata, FrameCache frameCache)
+    {
+        _segmentManager.Initialize(metadata.Duration);
+        Timeline.VideoMetadata = metadata;
+        Timeline.SegmentManager = _segmentManager;
+
+        // Initialize playback engine
+        _playbackEngine.Initialize(frameCache, _segmentManager, metadata);
+
+        OnPropertyChanged(nameof(CanPlay));
+        PlayCommand.NotifyCanExecuteChanged();
     }
 
     /// <summary>
@@ -146,5 +200,32 @@ public partial class MainWindowViewModel : ObservableObject
 
         OnPropertyChanged(nameof(VirtualDuration));
         OnPropertyChanged(nameof(SegmentCount));
+    }
+
+    /// <summary>
+    /// Play command
+    /// </summary>
+    [RelayCommand(CanExecute = nameof(CanPlay))]
+    public void Play()
+    {
+        _playbackEngine.Play();
+    }
+
+    /// <summary>
+    /// Pause command
+    /// </summary>
+    [RelayCommand(CanExecute = nameof(CanPause))]
+    public void Pause()
+    {
+        _playbackEngine.Pause();
+    }
+
+    /// <summary>
+    /// Stop command
+    /// </summary>
+    [RelayCommand]
+    public void Stop()
+    {
+        _playbackEngine.Stop();
     }
 }
