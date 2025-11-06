@@ -99,26 +99,6 @@ public class AudioPlayer : IDisposable
     }
 
     /// <summary>
-    /// Loads audio from video file
-    /// </summary>
-    public void LoadAudio(string videoFilePath)
-    {
-        if (_disposed) throw new ObjectDisposedException(nameof(AudioPlayer));
-
-        try
-        {
-            // Extract audio to temp file (NAudio can't read MP4 directly)
-            // For now, we'll skip audio extraction and implement later
-            Log.Information("AudioPlayer: Load audio not yet implemented");
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "Failed to load audio from {FilePath}", videoFilePath);
-            throw;
-        }
-    }
-
-    /// <summary>
     /// Sets playback volume (0.0 to 1.0)
     /// </summary>
     public void SetVolume(float volume)
