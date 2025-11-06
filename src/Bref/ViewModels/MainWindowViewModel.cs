@@ -27,6 +27,11 @@ public partial class MainWindowViewModel : ObservableObject
     public PlaybackEngine PlaybackEngine => _playbackEngine;
 
     /// <summary>
+    /// Segment manager for playback engine access
+    /// </summary>
+    public SegmentManager SegmentManager => _segmentManager;
+
+    /// <summary>
     /// Callback to regenerate thumbnails before timeline update
     /// </summary>
     public Func<Task>? RegenerateThumbnailsCallback { get; set; }
@@ -134,26 +139,13 @@ public partial class MainWindowViewModel : ObservableObject
     public int SegmentCount => _segmentManager.CurrentSegments.SegmentCount;
 
     /// <summary>
-    /// Initialize with video duration (legacy overload for existing tests)
+    /// Initialize with video duration
     /// </summary>
     public void InitializeVideo(VideoMetadata metadata)
     {
         _segmentManager.Initialize(metadata.Duration);
         Timeline.VideoMetadata = metadata;
         Timeline.SegmentManager = _segmentManager; // Connect SegmentManager to Timeline!
-    }
-
-    /// <summary>
-    /// Initialize with video duration and frame cache (for playback)
-    /// </summary>
-    public void InitializeVideo(VideoMetadata metadata, FrameCache frameCache)
-    {
-        _segmentManager.Initialize(metadata.Duration);
-        Timeline.VideoMetadata = metadata;
-        Timeline.SegmentManager = _segmentManager;
-
-        // Initialize playback engine
-        _playbackEngine.Initialize(frameCache, _segmentManager, metadata);
 
         OnPropertyChanged(nameof(CanPlay));
         PlayCommand.NotifyCanExecuteChanged();

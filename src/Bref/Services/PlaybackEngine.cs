@@ -63,9 +63,10 @@ public class PlaybackEngine : IDisposable
     }
 
     /// <summary>
-    /// Initializes playback with video resources
+    /// Initializes playback with video and audio resources
     /// </summary>
-    public void Initialize(FrameCache frameCache, SegmentManager segmentManager, VideoMetadata metadata)
+    public async Task InitializeAsync(FrameCache frameCache, SegmentManager segmentManager,
+        VideoMetadata metadata, AudioExtractor audioExtractor)
     {
         if (_disposed) throw new ObjectDisposedException(nameof(PlaybackEngine));
 
@@ -77,8 +78,27 @@ public class PlaybackEngine : IDisposable
         // Update frame timer interval based on frame rate
         _frameTimer.Interval = 1000.0 / _frameRate;
 
-        Log.Information("PlaybackEngine initialized: Duration={Duration}, FrameRate={FrameRate}fps",
-            _duration, _frameRate);
+        // Extract and load audio
+        try
+        {
+            Log.Information("Extracting audio from video...");
+            var audioPath = await audioExtractor.ExtractAudioAsync(metadata.FilePath);
+
+            if (_audioPlayer == null)
+            {
+                _audioPlayer = new AudioPlayer();
+            }
+
+            await _audioPlayer.LoadAudioAsync(audioPath);
+
+            Log.Information("PlaybackEngine initialized: Duration={Duration}, FrameRate={FrameRate}fps, Audio loaded",
+                _duration, _frameRate);
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Failed to load audio, continuing without audio playback");
+            // Continue without audio - video playback will still work
+        }
     }
 
     /// <summary>

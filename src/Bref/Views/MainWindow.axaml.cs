@@ -155,10 +155,15 @@ public partial class MainWindow : Window
             _frameCache?.Dispose();
             _frameCache = new FrameCache(filePath, capacity: 60);
 
-            // Initialize ViewModel with video metadata and frame cache
+            // Initialize ViewModel with video metadata
             if (_viewModel != null)
             {
-                _viewModel.InitializeVideo(metadata, _frameCache);
+                _viewModel.InitializeVideo(metadata);
+
+                // Initialize playback engine with audio
+                var audioExtractor = new AudioExtractor();
+                await _viewModel.PlaybackEngine.InitializeAsync(_frameCache, _viewModel.SegmentManager,
+                    metadata, audioExtractor);
             }
 
             // Update window title with video info
