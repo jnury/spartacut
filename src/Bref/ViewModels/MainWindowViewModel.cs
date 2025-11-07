@@ -78,10 +78,17 @@ public partial class MainWindowViewModel : ObservableObject
 
     private void OnTimelineSeek(object? sender, TimeSpan time)
     {
+        OnTimelineScrubbed(time);
+    }
+
+    private void OnTimelineScrubbed(TimeSpan sourceTime)
+    {
         // Only seek VlcPlaybackEngine if this wasn't triggered by playback
         if (!_updatingFromPlayback && _vlcPlaybackEngine.CanPlay)
         {
-            _vlcPlaybackEngine.Seek(time);
+            // Timeline already provides source time (not virtual time)
+            // Seek VLC to source time (with throttling built-in)
+            _vlcPlaybackEngine.Seek(sourceTime);
         }
     }
 
