@@ -13,6 +13,9 @@ public class VlcPlaybackEngine : IDisposable
 {
     private LibVLC? _libVLC;
     private MediaPlayer? _mediaPlayer;
+    private Media? _media;
+    private SegmentManager? _segmentManager;
+    private VideoMetadata? _metadata;
     private PlaybackState _state = PlaybackState.Stopped;
     private bool _disposed = false;
 
@@ -32,6 +35,11 @@ public class VlcPlaybackEngine : IDisposable
             return TimeSpan.FromMilliseconds(_mediaPlayer.Time);
         }
     }
+
+    /// <summary>
+    /// Whether playback can start (video loaded)
+    /// </summary>
+    public bool CanPlay => _media != null && _segmentManager != null;
 
     /// <summary>
     /// Event raised when playback state changes
@@ -83,10 +91,38 @@ public class VlcPlaybackEngine : IDisposable
         }
     }
 
+    /// <summary>
+    /// Initialize playback with video file and segment manager
+    /// </summary>
+    public void Initialize(string videoFilePath, SegmentManager segmentManager, VideoMetadata metadata)
+    {
+        if (_disposed) throw new ObjectDisposedException(nameof(VlcPlaybackEngine));
+        if (!File.Exists(videoFilePath))
+            throw new FileNotFoundException("Video file not found", videoFilePath);
+
+        _segmentManager = segmentManager ?? throw new ArgumentNullException(nameof(segmentManager));
+        _metadata = metadata ?? throw new ArgumentNullException(nameof(metadata));
+
+        try
+        {
+            _media = new Media(_libVLC, videoFilePath, FromType.FromPath);
+            _mediaPlayer!.Media = _media;
+
+            Log.Information("VlcPlaybackEngine initialized with {FilePath}", videoFilePath);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Failed to load media from {FilePath}", videoFilePath);
+            throw new InvalidOperationException(
+                "VLC cannot play this video. The file may be corrupted or in an unsupported format.", ex);
+        }
+    }
+
     public void Dispose()
     {
         if (_disposed) return;
 
+        _media?.Dispose();
         _mediaPlayer?.Dispose();
         _libVLC?.Dispose();
         _disposed = true;
