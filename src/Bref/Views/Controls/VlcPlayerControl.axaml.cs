@@ -2,7 +2,7 @@ using Avalonia.Controls;
 using LibVLCSharp.Shared;
 using Serilog;
 
-namespace Bref.Views.Controls;
+namespace Bref.Controls;
 
 public partial class VlcPlayerControl : UserControl
 {

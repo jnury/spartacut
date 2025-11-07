@@ -24,12 +24,16 @@ public partial class MainWindow : Window
     private FrameCache? _frameCache;
     private TimelineViewModel? _timelineViewModel;
     private MainWindowViewModel? _viewModel;
+    private VlcPlayerControl? _vlcPlayer;
     private string? _currentVideoPath;
     private double _lastRegenerationWidth = 0;
 
     public MainWindow()
     {
         InitializeComponent();
+
+        // Get reference to VLC player control
+        _vlcPlayer = this.FindControl<VlcPlayerControl>("VlcPlayer");
 
         // Subscribe to window size changes for thumbnail regeneration
         this.PropertyChanged += OnWindowPropertyChanged;
@@ -90,8 +94,7 @@ public partial class MainWindow : Window
     {
         base.OnClosing(e);
 
-        // Clear video player (disposes SKBitmaps)
-        VideoPlayer?.Clear();
+        // VLC cleanup handled by VlcPlaybackEngine disposal
 
         // Dispose PlaybackEngine (will cleanup temp audio files)
         _viewModel?.PlaybackEngine.Dispose();
@@ -216,7 +219,8 @@ public partial class MainWindow : Window
                                     // Get and display current frame immediately
                                     // With smart seeking, forward scrubbing is fast without preloading
                                     var frame = _frameCache.GetFrame(clampedTime);
-                                    VideoPlayer.DisplayFrame(frame);
+                                    // TODO: VLC handles display automatically
+                                    // VideoPlayer.DisplayFrame(frame);
 
                                     // No preloading - rely on smart seeking + natural LRU cache
                                     // This prevents thread explosion and simplifies the system
@@ -244,8 +248,9 @@ public partial class MainWindow : Window
 
                 // Display first frame
                 var firstFrame = _frameCache.GetFrame(TimeSpan.Zero);
-                VideoPlayer.DisplayFrame(firstFrame);
-                VideoPlayer.IsVisible = true;
+                // TODO: VLC handles display automatically
+                // VideoPlayer.DisplayFrame(firstFrame);
+                // VideoPlayer.IsVisible = true;
             }
             catch (Exception ex)
             {
