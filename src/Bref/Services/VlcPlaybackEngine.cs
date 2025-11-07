@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using Bref.Models;
 using LibVLCSharp.Shared;
 using Serilog;
 
@@ -11,7 +12,36 @@ namespace Bref.Services;
 public class VlcPlaybackEngine : IDisposable
 {
     private LibVLC? _libVLC;
+    private MediaPlayer? _mediaPlayer;
+    private PlaybackState _state = PlaybackState.Stopped;
     private bool _disposed = false;
+
+    /// <summary>
+    /// Current playback state
+    /// </summary>
+    public PlaybackState State => _state;
+
+    /// <summary>
+    /// Current playback time (source time)
+    /// </summary>
+    public TimeSpan CurrentTime
+    {
+        get
+        {
+            if (_mediaPlayer == null) return TimeSpan.Zero;
+            return TimeSpan.FromMilliseconds(_mediaPlayer.Time);
+        }
+    }
+
+    /// <summary>
+    /// Event raised when playback state changes
+    /// </summary>
+    public event EventHandler<PlaybackState>? StateChanged;
+
+    /// <summary>
+    /// Event raised when playback time changes
+    /// </summary>
+    public event EventHandler<TimeSpan>? TimeChanged;
 
     static VlcPlaybackEngine()
     {
@@ -36,6 +66,7 @@ public class VlcPlaybackEngine : IDisposable
 
             // Create LibVLC instance
             _libVLC = new LibVLC();
+            _mediaPlayer = new MediaPlayer(_libVLC);
             Log.Information("LibVLC instance created successfully");
         }
         catch (Exception ex)
@@ -56,6 +87,7 @@ public class VlcPlaybackEngine : IDisposable
     {
         if (_disposed) return;
 
+        _mediaPlayer?.Dispose();
         _libVLC?.Dispose();
         _disposed = true;
     }

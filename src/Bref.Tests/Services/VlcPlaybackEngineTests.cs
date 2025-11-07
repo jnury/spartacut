@@ -1,5 +1,6 @@
 using System;
 using Xunit;
+using Bref.Models;
 using Bref.Services;
 
 namespace Bref.Tests.Services;
@@ -24,5 +25,19 @@ public class VlcPlaybackEngineTests
 
         // Act & Assert - Should not throw
         engine.Dispose();
+    }
+
+    [Fact]
+    public void State_InitiallyIsStopped()
+    {
+        using var engine = new VlcPlaybackEngine();
+        Assert.Equal(PlaybackState.Stopped, engine.State);
+    }
+
+    [Fact]
+    public void CurrentTime_InitiallyIsZero()
+    {
+        using var engine = new VlcPlaybackEngine();
+        Assert.Equal(TimeSpan.Zero, engine.CurrentTime);
     }
 }
