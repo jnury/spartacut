@@ -166,7 +166,13 @@ public partial class MainWindow : Window
             {
                 _viewModel.InitializeVideo(metadata);
 
-                // Initialize playback engine with audio
+                // Bind VLC MediaPlayer to control
+                if (_vlcPlayer != null && _viewModel.VlcPlaybackEngine.MediaPlayer != null)
+                {
+                    _vlcPlayer.SetMediaPlayer(_viewModel.VlcPlaybackEngine.MediaPlayer);
+                }
+
+                // Initialize playback engine with audio (old engine - will be removed)
                 var audioExtractor = new AudioExtractor();
                 await _viewModel.PlaybackEngine.InitializeAsync(_frameCache, _viewModel.SegmentManager,
                     metadata, audioExtractor);
