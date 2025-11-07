@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <RunConfiguration>
+    <EnvironmentVariables>
+      <!-- Set VLC_PLUGIN_PATH for macOS tests -->
+      <VLC_PLUGIN_PATH>plugins</VLC_PLUGIN_PATH>
+    </EnvironmentVariables>
+  </RunConfiguration>
+</RunSettings>
