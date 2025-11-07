@@ -13,7 +13,7 @@ namespace Bref.ViewModels;
 public partial class MainWindowViewModel : ObservableObject
 {
     private readonly SegmentManager _segmentManager = new();
-    private readonly PlaybackEngine _playbackEngine = new();
+    private readonly VlcPlaybackEngine _vlcPlaybackEngine = new();
 
     [ObservableProperty]
     private TimelineViewModel _timeline = new();
@@ -26,17 +26,19 @@ public partial class MainWindowViewModel : ObservableObject
 
     partial void OnVolumeChanged(double value)
     {
-        // Update AudioPlayer volume (convert 0-100 to 0.0-1.0)
-        if (_playbackEngine.AudioPlayer != null)
-        {
-            _playbackEngine.AudioPlayer.Volume = (float)(value / 100.0);
-        }
+        // TODO: VLC volume control will be implemented later
+        // VLC MediaPlayer has built-in volume control
     }
 
     /// <summary>
-    /// PlaybackEngine instance for playback control
+    /// Exposes VLC playback engine for UI binding
     /// </summary>
-    public PlaybackEngine PlaybackEngine => _playbackEngine;
+    public VlcPlaybackEngine VlcPlaybackEngine => _vlcPlaybackEngine;
+
+    /// <summary>
+    /// PlaybackEngine instance for playback control (kept for backward compatibility during transition)
+    /// </summary>
+    public PlaybackEngine PlaybackEngine => new PlaybackEngine(); // Temporary stub
 
     /// <summary>
     /// Segment manager for playback engine access
@@ -64,9 +66,9 @@ public partial class MainWindowViewModel : ObservableObject
             }
         };
 
-        // Subscribe to playback state changes
-        _playbackEngine.StateChanged += OnPlaybackStateChanged;
-        _playbackEngine.TimeChanged += OnPlaybackTimeChanged;
+        // Subscribe to VLC playback state changes
+        _vlcPlaybackEngine.StateChanged += OnPlaybackStateChanged;
+        _vlcPlaybackEngine.TimeChanged += OnPlaybackTimeChanged;
 
         // Subscribe to timeline seeks (user clicking timeline)
         Timeline.CurrentTimeChanged += OnTimelineSeek;
@@ -76,10 +78,10 @@ public partial class MainWindowViewModel : ObservableObject
 
     private void OnTimelineSeek(object? sender, TimeSpan time)
     {
-        // Only seek PlaybackEngine if this wasn't triggered by playback
-        if (!_updatingFromPlayback && _playbackEngine.CanPlay)
+        // Only seek VlcPlaybackEngine if this wasn't triggered by playback
+        if (!_updatingFromPlayback && _vlcPlaybackEngine.CanPlay)
         {
-            _playbackEngine.Seek(time);
+            _vlcPlaybackEngine.Seek(time);
         }
     }
 
@@ -133,7 +135,7 @@ public partial class MainWindowViewModel : ObservableObject
     /// <summary>
     /// Can play? (video loaded and not playing)
     /// </summary>
-    public bool CanPlay => _playbackEngine.CanPlay && !IsPlaying;
+    public bool CanPlay => _vlcPlaybackEngine.CanPlay && !IsPlaying;
 
     /// <summary>
     /// Can pause? (currently playing)
@@ -151,13 +153,16 @@ public partial class MainWindowViewModel : ObservableObject
     public int SegmentCount => _segmentManager.CurrentSegments.SegmentCount;
 
     /// <summary>
-    /// Initialize with video duration
+    /// Initialize with video metadata (no FrameCache needed with VLC)
     /// </summary>
     public void InitializeVideo(VideoMetadata metadata)
     {
         _segmentManager.Initialize(metadata.Duration);
         Timeline.VideoMetadata = metadata;
         Timeline.SegmentManager = _segmentManager; // Connect SegmentManager to Timeline!
+
+        // Initialize VLC playback engine
+        _vlcPlaybackEngine.Initialize(metadata.FilePath, _segmentManager, metadata);
 
         OnPropertyChanged(nameof(CanPlay));
         PlayCommand.NotifyCanExecuteChanged();
@@ -243,7 +248,7 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanPlay))]
     public void Play()
     {
-        _playbackEngine.Play();
+        _vlcPlaybackEngine.Play();
     }
 
     /// <summary>
@@ -252,15 +257,23 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanPause))]
     public void Pause()
     {
-        _playbackEngine.Pause();
+        _vlcPlaybackEngine.Pause();
     }
 
     /// <summary>
-    /// Stop command
+    /// Stop command (VLC doesn't have explicit Stop, use Pause instead)
     /// </summary>
     [RelayCommand]
     public void Stop()
     {
-        _playbackEngine.Stop();
+        _vlcPlaybackEngine.Pause();
+    }
+
+    /// <summary>
+    /// Dispose resources
+    /// </summary>
+    public void Dispose()
+    {
+        _vlcPlaybackEngine?.Dispose();
     }
 }

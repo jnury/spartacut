@@ -49,6 +49,11 @@ public class VlcPlaybackEngine : IDisposable
     public bool CanPlay => _media != null && _segmentManager != null;
 
     /// <summary>
+    /// Gets the underlying MediaPlayer for binding to UI
+    /// </summary>
+    public MediaPlayer? MediaPlayer => _mediaPlayer;
+
+    /// <summary>
     /// Event raised when playback state changes
     /// </summary>
     public event EventHandler<PlaybackState>? StateChanged;
