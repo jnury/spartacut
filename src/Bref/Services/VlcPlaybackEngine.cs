@@ -17,6 +17,9 @@ public class VlcPlaybackEngine : IDisposable
     private SegmentManager? _segmentManager;
     private VideoMetadata? _metadata;
     private PlaybackState _state = PlaybackState.Stopped;
+    private DateTime _lastSeekTime = DateTime.MinValue;
+    private bool _isSeeking = false;
+    private const int SeekThrottleMs = 50;
     private bool _disposed = false;
 
     /// <summary>
@@ -161,6 +164,43 @@ public class VlcPlaybackEngine : IDisposable
         StateChanged?.Invoke(this, _state);
 
         Log.Information("Playback paused at {Time}", CurrentTime);
+    }
+
+    /// <summary>
+    /// Seek to specific time with throttling
+    /// </summary>
+    public void Seek(TimeSpan position)
+    {
+        if (_disposed) throw new ObjectDisposedException(nameof(VlcPlaybackEngine));
+
+        if (!CanPlay)
+        {
+            Log.Warning("Cannot seek: No video loaded");
+            return;
+        }
+
+        // Throttle seeks to prevent overwhelming VLC
+        var now = DateTime.UtcNow;
+        var timeSinceLastSeek = (now - _lastSeekTime).TotalMilliseconds;
+
+        if (timeSinceLastSeek < SeekThrottleMs)
+        {
+            // Too soon - skip this seek
+            Log.Debug("Seek throttled");
+            return;
+        }
+
+        _lastSeekTime = now;
+        _isSeeking = true;
+
+        // Clamp position to valid range
+        var clampedMs = Math.Clamp(position.TotalMilliseconds, 0, _metadata!.Duration.TotalMilliseconds);
+        _mediaPlayer!.Time = (long)clampedMs;
+
+        // Clear seeking flag after 50ms
+        System.Threading.Tasks.Task.Delay(50).ContinueWith(_ => _isSeeking = false);
+
+        Log.Debug("Seeked to {Time}", position);
     }
 
     public void Dispose()

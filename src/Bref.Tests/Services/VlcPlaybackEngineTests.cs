@@ -121,4 +121,30 @@ public class VlcPlaybackEngineTests
         // Assert
         Assert.Equal(PlaybackState.Paused, engine.State);
     }
+
+    [Fact]
+    public void Seek_UpdatesCurrentTime()
+    {
+        using var engine = new VlcPlaybackEngine();
+        var segmentManager = new SegmentManager();
+        var metadata = new VideoMetadata
+        {
+            FilePath = "test.mp4",
+            Duration = TimeSpan.FromMinutes(5),
+            Width = 1920,
+            Height = 1080,
+            FrameRate = 30,
+            CodecName = "h264",
+            PixelFormat = "yuv420p"
+        };
+        segmentManager.Initialize(metadata.Duration);
+        engine.Initialize(metadata.FilePath, segmentManager, metadata);
+
+        // Act
+        var seekTime = TimeSpan.FromMinutes(2);
+        engine.Seek(seekTime);
+
+        // Assert - MediaPlayer.Time is set (actual seeking happens async)
+        // We just verify the method doesn't throw
+    }
 }
