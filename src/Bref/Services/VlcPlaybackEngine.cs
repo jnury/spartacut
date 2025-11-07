@@ -1,5 +1,7 @@
 using System;
 using System.IO;
+using System.Linq;
+using System.Timers;
 using Bref.Models;
 using LibVLCSharp.Shared;
 using Serilog;
@@ -16,10 +18,12 @@ public class VlcPlaybackEngine : IDisposable
     private Media? _media;
     private SegmentManager? _segmentManager;
     private VideoMetadata? _metadata;
+    private Timer? _positionMonitor;
     private PlaybackState _state = PlaybackState.Stopped;
     private DateTime _lastSeekTime = DateTime.MinValue;
     private bool _isSeeking = false;
     private const int SeekThrottleMs = 50;
+    private const int PositionMonitorMs = 50; // Monitor every 50ms
     private bool _disposed = false;
 
     /// <summary>
@@ -78,6 +82,12 @@ public class VlcPlaybackEngine : IDisposable
             // Create LibVLC instance
             _libVLC = new LibVLC();
             _mediaPlayer = new MediaPlayer(_libVLC);
+
+            // Initialize position monitor
+            _positionMonitor = new Timer(PositionMonitorMs);
+            _positionMonitor.Elapsed += OnPositionMonitorTick;
+            _positionMonitor.AutoReset = true;
+
             Log.Information("LibVLC instance created successfully");
         }
         catch (Exception ex)
@@ -144,6 +154,9 @@ public class VlcPlaybackEngine : IDisposable
         _state = PlaybackState.Playing;
         StateChanged?.Invoke(this, _state);
 
+        // Start position monitor
+        _positionMonitor!.Start();
+
         Log.Information("Playback started");
     }
 
@@ -158,6 +171,9 @@ public class VlcPlaybackEngine : IDisposable
         {
             return;
         }
+
+        // Stop position monitor
+        _positionMonitor!.Stop();
 
         _mediaPlayer!.Pause();
         _state = PlaybackState.Paused;
@@ -203,10 +219,51 @@ public class VlcPlaybackEngine : IDisposable
         Log.Debug("Seeked to {Time}", position);
     }
 
+    private void OnPositionMonitorTick(object? sender, ElapsedEventArgs e)
+    {
+        // Only monitor when playing
+        if (_state != PlaybackState.Playing || _isSeeking || _mediaPlayer == null || _segmentManager == null)
+        {
+            return;
+        }
+
+        var currentTime = TimeSpan.FromMilliseconds(_mediaPlayer.Time);
+
+        // Check if current position is in a deleted segment
+        var virtualTime = _segmentManager.CurrentSegments.SourceToVirtualTime(currentTime);
+
+        if (virtualTime == null)
+        {
+            // We're in a deleted segment - find next kept segment
+            var nextSegment = _segmentManager.CurrentSegments.KeptSegments
+                .FirstOrDefault(s => s.SourceStart > currentTime);
+
+            if (nextSegment != null)
+            {
+                // Jump to next kept segment
+                Log.Information("Skipping deleted segment, jumping to {Time}", nextSegment.SourceStart);
+                Seek(nextSegment.SourceStart);
+            }
+            else
+            {
+                // No more segments - end of video
+                Log.Information("Playback reached end");
+                Pause();
+                _state = PlaybackState.Stopped;
+                StateChanged?.Invoke(this, _state);
+            }
+        }
+
+        // Raise time changed event
+        TimeChanged?.Invoke(this, currentTime);
+    }
+
     public void Dispose()
     {
         if (_disposed) return;
 
+        _positionMonitor?.Stop();
+        _positionMonitor?.Dispose();
         _media?.Dispose();
         _mediaPlayer?.Dispose();
         _libVLC?.Dispose();
