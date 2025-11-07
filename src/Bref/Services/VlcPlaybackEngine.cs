@@ -118,6 +118,51 @@ public class VlcPlaybackEngine : IDisposable
         }
     }
 
+    /// <summary>
+    /// Start playback
+    /// </summary>
+    public void Play()
+    {
+        if (_disposed) throw new ObjectDisposedException(nameof(VlcPlaybackEngine));
+
+        if (!CanPlay)
+        {
+            Log.Warning("Cannot play: No video loaded");
+            return;
+        }
+
+        if (_state == PlaybackState.Playing)
+        {
+            Log.Debug("Already playing");
+            return;
+        }
+
+        _mediaPlayer!.Play();
+        _state = PlaybackState.Playing;
+        StateChanged?.Invoke(this, _state);
+
+        Log.Information("Playback started");
+    }
+
+    /// <summary>
+    /// Pause playback
+    /// </summary>
+    public void Pause()
+    {
+        if (_disposed) throw new ObjectDisposedException(nameof(VlcPlaybackEngine));
+
+        if (_state != PlaybackState.Playing)
+        {
+            return;
+        }
+
+        _mediaPlayer!.Pause();
+        _state = PlaybackState.Paused;
+        StateChanged?.Invoke(this, _state);
+
+        Log.Information("Playback paused at {Time}", CurrentTime);
+    }
+
     public void Dispose()
     {
         if (_disposed) return;

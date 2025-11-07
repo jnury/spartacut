@@ -70,4 +70,55 @@ public class VlcPlaybackEngineTests
         using var engine = new VlcPlaybackEngine();
         Assert.False(engine.CanPlay);
     }
+
+    [Fact]
+    public void Play_WhenInitialized_ChangesStateToPlaying()
+    {
+        using var engine = new VlcPlaybackEngine();
+        var segmentManager = new SegmentManager();
+        var metadata = new VideoMetadata
+        {
+            FilePath = "test.mp4",
+            Duration = TimeSpan.FromMinutes(5),
+            Width = 1920,
+            Height = 1080,
+            FrameRate = 30,
+            CodecName = "h264",
+            PixelFormat = "yuv420p"
+        };
+        segmentManager.Initialize(metadata.Duration);
+        engine.Initialize(metadata.FilePath, segmentManager, metadata);
+
+        // Act
+        engine.Play();
+
+        // Assert
+        Assert.Equal(PlaybackState.Playing, engine.State);
+    }
+
+    [Fact]
+    public void Pause_WhenPlaying_ChangesStateToPaused()
+    {
+        using var engine = new VlcPlaybackEngine();
+        var segmentManager = new SegmentManager();
+        var metadata = new VideoMetadata
+        {
+            FilePath = "test.mp4",
+            Duration = TimeSpan.FromMinutes(5),
+            Width = 1920,
+            Height = 1080,
+            FrameRate = 30,
+            CodecName = "h264",
+            PixelFormat = "yuv420p"
+        };
+        segmentManager.Initialize(metadata.Duration);
+        engine.Initialize(metadata.FilePath, segmentManager, metadata);
+        engine.Play();
+
+        // Act
+        engine.Pause();
+
+        // Assert
+        Assert.Equal(PlaybackState.Paused, engine.State);
+    }
 }
