@@ -94,7 +94,12 @@
       "Bash(/Applications/VLC.app/Contents/MacOS/VLC:*)",
       "Bash(dotnet nuget:*)",
       "Bash(nm:*)",
-      "Bash(export VLC_PLUGIN_PATH=/Users/jnury-perso/Repositories/SpartaCut/src/Bref.Tests/bin/Debug/net8.0/plugins:*)"
+      "Bash(export VLC_PLUGIN_PATH=/Users/jnury-perso/Repositories/SpartaCut/src/Bref.Tests/bin/Debug/net8.0/plugins:*)",
+      "Bash(find:*)",
+      "Bash(arch -x86_64 /usr/local/share/dotnet/dotnet run:*)",
+      "Bash(arch -x86_64:*)",
+      "Bash(/usr/local/share/dotnet/dotnet publish:*)",
+      "Bash(pkill:*)"
     ],
     "deny": [],
     "ask": []
