@@ -196,27 +196,21 @@ public partial class MainWindowViewModel : ObservableObject
     /// <summary>
     /// Can undo?
     /// </summary>
-    public bool CanUndo
+    public bool CanUndo()
     {
-        get
-        {
-            var canUndo = _segmentManager.CanUndo;
-            Log.Debug("CanUndo queried: {CanUndo}", canUndo);
-            return canUndo;
-        }
+        var canUndo = _segmentManager.CanUndo;
+        Log.Debug("CanUndo() queried: {CanUndo}", canUndo);
+        return canUndo;
     }
 
     /// <summary>
     /// Can redo?
     /// </summary>
-    public bool CanRedo
+    public bool CanRedo()
     {
-        get
-        {
-            var canRedo = _segmentManager.CanRedo;
-            Log.Debug("CanRedo queried: {CanRedo}", canRedo);
-            return canRedo;
-        }
+        var canRedo = _segmentManager.CanRedo;
+        Log.Debug("CanRedo() queried: {CanRedo}", canRedo);
+        return canRedo;
     }
 
     /// <summary>
@@ -252,8 +246,6 @@ public partial class MainWindowViewModel : ObservableObject
         _playbackEngine.Initialize(metadata.FilePath, _segmentManager, metadata);
 
         OnPropertyChanged(nameof(CanPlay));
-        OnPropertyChanged(nameof(CanUndo));
-        OnPropertyChanged(nameof(CanRedo));
         PlayCommand.NotifyCanExecuteChanged();
         UndoCommand.NotifyCanExecuteChanged();
         RedoCommand.NotifyCanExecuteChanged();
@@ -337,10 +329,6 @@ public partial class MainWindowViewModel : ObservableObject
                 UndoCommand.NotifyCanExecuteChanged();
                 RedoCommand.NotifyCanExecuteChanged();
 
-                // Notify property changes for CanUndo/CanRedo
-                OnPropertyChanged(nameof(CanUndo));
-                OnPropertyChanged(nameof(CanRedo));
-
                 Log.Debug("UpdateAfterEditAsync: Notifications sent on UI thread");
 
                 OnPropertyChanged(nameof(VirtualDuration));
@@ -358,9 +346,6 @@ public partial class MainWindowViewModel : ObservableObject
             DeleteSelectionCommand.NotifyCanExecuteChanged();
             UndoCommand.NotifyCanExecuteChanged();
             RedoCommand.NotifyCanExecuteChanged();
-
-            OnPropertyChanged(nameof(CanUndo));
-            OnPropertyChanged(nameof(CanRedo));
 
             Log.Debug("UpdateAfterEditAsync: Notifications sent (no UI context)");
 

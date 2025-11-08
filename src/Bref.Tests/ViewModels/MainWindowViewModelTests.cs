@@ -147,7 +147,7 @@ public class MainWindowViewModelTests
         viewModel.DeleteSelectionCommand.Execute(null);
 
         Assert.Equal(TimeSpan.FromMinutes(9), viewModel.VirtualDuration);
-        Assert.True(viewModel.CanUndo);
+        Assert.True(viewModel.CanUndo());
 
         // Act
         viewModel.UndoCommand.Execute(null);

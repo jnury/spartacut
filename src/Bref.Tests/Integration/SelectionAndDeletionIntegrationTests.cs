@@ -120,8 +120,8 @@ public class SelectionAndDeletionIntegrationTests
 
         var durationAfterDelete = viewModel.VirtualDuration;
         Assert.Equal(TimeSpan.FromMinutes(9), durationAfterDelete);
-        Assert.True(viewModel.CanUndo);
-        Assert.False(viewModel.CanRedo);
+        Assert.True(viewModel.CanUndo());
+        Assert.False(viewModel.CanRedo());
 
         // Act - Undo
         viewModel.UndoCommand.Execute(null);
@@ -129,8 +129,8 @@ public class SelectionAndDeletionIntegrationTests
         // Assert - Restored to original state
         Assert.Equal(TimeSpan.FromMinutes(10), viewModel.VirtualDuration);
         Assert.Equal(1, viewModel.SegmentCount);
-        Assert.False(viewModel.CanUndo);
-        Assert.True(viewModel.CanRedo);
+        Assert.False(viewModel.CanUndo());
+        Assert.True(viewModel.CanRedo());
 
         // Act - Redo
         viewModel.RedoCommand.Execute(null);
@@ -138,8 +138,8 @@ public class SelectionAndDeletionIntegrationTests
         // Assert - Deletion reapplied
         Assert.Equal(TimeSpan.FromMinutes(9), viewModel.VirtualDuration);
         Assert.Equal(2, viewModel.SegmentCount);
-        Assert.True(viewModel.CanUndo);
-        Assert.False(viewModel.CanRedo);
+        Assert.True(viewModel.CanUndo());
+        Assert.False(viewModel.CanRedo());
     }
 
     [Fact]
@@ -369,7 +369,7 @@ public class SelectionAndDeletionIntegrationTests
 
         viewModel.UndoCommand.Execute(null);
         Assert.Equal(TimeSpan.FromMinutes(10), viewModel.VirtualDuration);
-        Assert.False(viewModel.CanUndo);
+        Assert.False(viewModel.CanUndo());
 
         // Redo all three
         viewModel.RedoCommand.Execute(null);
@@ -380,7 +380,7 @@ public class SelectionAndDeletionIntegrationTests
 
         viewModel.RedoCommand.Execute(null);
         Assert.Equal(duration3, viewModel.VirtualDuration);
-        Assert.False(viewModel.CanRedo);
+        Assert.False(viewModel.CanRedo());
     }
 
     [Fact]
