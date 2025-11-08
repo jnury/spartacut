@@ -24,13 +24,21 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private bool _isPlaying = false;
 
-    [ObservableProperty]
-    private double _volume = 100.0; // 0-100%
+    private double _volume = 1.0;
 
-    partial void OnVolumeChanged(double value)
+    /// <summary>
+    /// Audio volume (0.0 to 1.0)
+    /// </summary>
+    public double Volume
     {
-        // TODO: VLC volume control will be implemented later
-        // VLC MediaPlayer has built-in volume control
+        get => _volume;
+        set
+        {
+            if (SetProperty(ref _volume, value))
+            {
+                _playbackEngine.SetVolume((float)value);
+            }
+        }
     }
 
     /// <summary>
