@@ -28,6 +28,7 @@ public class VlcPlaybackEngine : IPlaybackEngine
     private const int SeekThrottleMs = 50;
     private const int PositionMonitorMs = 50; // Monitor every 50ms
     private bool _disposed = false;
+    private float _volume = 1.0f;
 
     /// <summary>
     /// Current playback state
@@ -50,6 +51,11 @@ public class VlcPlaybackEngine : IPlaybackEngine
     /// Whether playback can start (video loaded)
     /// </summary>
     public bool CanPlay => _media != null && _segmentManager != null;
+
+    /// <summary>
+    /// Current audio volume (0.0 to 1.0)
+    /// </summary>
+    public float Volume => _volume;
 
     /// <summary>
     /// Gets the underlying MediaPlayer for binding to UI
@@ -140,6 +146,9 @@ public class VlcPlaybackEngine : IPlaybackEngine
             _media = new Media(_libVLC, videoFilePath, FromType.FromPath);
             _mediaPlayer!.Media = _media;
 
+            // Set initial volume
+            _mediaPlayer.Volume = (int)(_volume * 100);
+
             // Set starting position to 0 (VLC will show a black frame until Play is called)
             _mediaPlayer.Time = 0;
 
@@ -202,6 +211,24 @@ public class VlcPlaybackEngine : IPlaybackEngine
         StateChanged?.Invoke(this, _state);
 
         Log.Information("Playback paused at {Time}", CurrentTime);
+    }
+
+    /// <summary>
+    /// Set audio volume
+    /// </summary>
+    public void SetVolume(float volume)
+    {
+        if (_disposed) throw new ObjectDisposedException(nameof(VlcPlaybackEngine));
+
+        // Clamp to valid range
+        _volume = Math.Clamp(volume, 0.0f, 1.0f);
+
+        if (_mediaPlayer != null)
+        {
+            // LibVLC volume is 0-100
+            _mediaPlayer.Volume = (int)(_volume * 100);
+            Log.Debug("Volume set to {Volume}%", (int)(_volume * 100));
+        }
     }
 
     /// <summary>

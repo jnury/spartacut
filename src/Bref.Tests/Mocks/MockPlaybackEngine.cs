@@ -10,9 +10,12 @@ namespace Bref.Tests.Mocks;
 /// </summary>
 public class MockPlaybackEngine : IPlaybackEngine
 {
+    private float _volume = 1.0f;
+
     public PlaybackState State { get; private set; } = PlaybackState.Stopped;
     public TimeSpan CurrentTime { get; private set; } = TimeSpan.Zero;
     public bool CanPlay { get; private set; } = false;
+    public float Volume => _volume;
 
     public event EventHandler<PlaybackState>? StateChanged;
     public event EventHandler<TimeSpan>? TimeChanged;
@@ -38,6 +41,11 @@ public class MockPlaybackEngine : IPlaybackEngine
     {
         CurrentTime = position;
         TimeChanged?.Invoke(this, CurrentTime);
+    }
+
+    public void SetVolume(float volume)
+    {
+        _volume = Math.Clamp(volume, 0.0f, 1.0f);
     }
 
     public void Dispose()

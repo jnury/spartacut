@@ -24,6 +24,11 @@ public interface IPlaybackEngine : IDisposable
     bool CanPlay { get; }
 
     /// <summary>
+    /// Current audio volume (0.0 to 1.0)
+    /// </summary>
+    float Volume { get; }
+
+    /// <summary>
     /// Event raised when playback state changes
     /// </summary>
     event EventHandler<PlaybackState>? StateChanged;
@@ -52,4 +57,9 @@ public interface IPlaybackEngine : IDisposable
     /// Seek to specific time
     /// </summary>
     void Seek(TimeSpan position);
+
+    /// <summary>
+    /// Set audio volume (0.0 to 1.0)
+    /// </summary>
+    void SetVolume(float volume);
 }
