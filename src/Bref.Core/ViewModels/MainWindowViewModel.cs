@@ -196,12 +196,28 @@ public partial class MainWindowViewModel : ObservableObject
     /// <summary>
     /// Can undo?
     /// </summary>
-    public bool CanUndo => _segmentManager.CanUndo;
+    public bool CanUndo
+    {
+        get
+        {
+            var canUndo = _segmentManager.CanUndo;
+            Log.Debug("CanUndo queried: {CanUndo}", canUndo);
+            return canUndo;
+        }
+    }
 
     /// <summary>
     /// Can redo?
     /// </summary>
-    public bool CanRedo => _segmentManager.CanRedo;
+    public bool CanRedo
+    {
+        get
+        {
+            var canRedo = _segmentManager.CanRedo;
+            Log.Debug("CanRedo queried: {CanRedo}", canRedo);
+            return canRedo;
+        }
+    }
 
     /// <summary>
     /// Can play? (video loaded and not playing)
@@ -305,20 +321,52 @@ public partial class MainWindowViewModel : ObservableObject
             Timeline.EndUpdate();
         }
 
-        // Update timeline to reflect new virtual duration and deleted segments
-        Timeline.NotifySegmentsChanged();
+        // Marshal UI updates to UI thread
+        if (_uiContext != null)
+        {
+            _uiContext.Post(_ =>
+            {
+                // Update timeline to reflect new virtual duration and deleted segments
+                Timeline.NotifySegmentsChanged();
 
-        // Notify command state changes
-        DeleteSelectionCommand.NotifyCanExecuteChanged();
-        UndoCommand.NotifyCanExecuteChanged();
-        RedoCommand.NotifyCanExecuteChanged();
+                Log.Debug("UpdateAfterEditAsync: About to notify command changes. CanUndo={CanUndo}, CanRedo={CanRedo}",
+                    _segmentManager.CanUndo, _segmentManager.CanRedo);
 
-        // Notify property changes for CanUndo/CanRedo
-        OnPropertyChanged(nameof(CanUndo));
-        OnPropertyChanged(nameof(CanRedo));
+                // Notify command state changes
+                DeleteSelectionCommand.NotifyCanExecuteChanged();
+                UndoCommand.NotifyCanExecuteChanged();
+                RedoCommand.NotifyCanExecuteChanged();
 
-        OnPropertyChanged(nameof(VirtualDuration));
-        OnPropertyChanged(nameof(SegmentCount));
+                // Notify property changes for CanUndo/CanRedo
+                OnPropertyChanged(nameof(CanUndo));
+                OnPropertyChanged(nameof(CanRedo));
+
+                Log.Debug("UpdateAfterEditAsync: Notifications sent on UI thread");
+
+                OnPropertyChanged(nameof(VirtualDuration));
+                OnPropertyChanged(nameof(SegmentCount));
+            }, null);
+        }
+        else
+        {
+            // Fallback for tests (no UI context)
+            Timeline.NotifySegmentsChanged();
+
+            Log.Debug("UpdateAfterEditAsync: About to notify command changes. CanUndo={CanUndo}, CanRedo={CanRedo}",
+                _segmentManager.CanUndo, _segmentManager.CanRedo);
+
+            DeleteSelectionCommand.NotifyCanExecuteChanged();
+            UndoCommand.NotifyCanExecuteChanged();
+            RedoCommand.NotifyCanExecuteChanged();
+
+            OnPropertyChanged(nameof(CanUndo));
+            OnPropertyChanged(nameof(CanRedo));
+
+            Log.Debug("UpdateAfterEditAsync: Notifications sent (no UI context)");
+
+            OnPropertyChanged(nameof(VirtualDuration));
+            OnPropertyChanged(nameof(SegmentCount));
+        }
     }
 
     /// <summary>
