@@ -1,11 +1,13 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
-using Bref.Models;
-using Bref.Services;
+using Bref.Core.Models;
+using Bref.Core.Services;
+using Bref.Core.Services.Interfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
-namespace Bref.ViewModels;
+namespace Bref.Core.ViewModels;
 
 /// <summary>
 /// Main window ViewModel orchestrating video editing operations
@@ -13,7 +15,8 @@ namespace Bref.ViewModels;
 public partial class MainWindowViewModel : ObservableObject
 {
     private readonly SegmentManager _segmentManager = new();
-    private readonly VlcPlaybackEngine _vlcPlaybackEngine = new();
+    private readonly IPlaybackEngine _playbackEngine;
+    private readonly SynchronizationContext? _uiContext;
 
     [ObservableProperty]
     private TimelineViewModel _timeline = new();
@@ -31,9 +34,9 @@ public partial class MainWindowViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Exposes VLC playback engine for UI binding
+    /// Exposes playback engine for UI binding
     /// </summary>
-    public VlcPlaybackEngine VlcPlaybackEngine => _vlcPlaybackEngine;
+    public IPlaybackEngine PlaybackEngine => _playbackEngine;
 
     /// <summary>
     /// Segment manager for playback engine access
@@ -48,8 +51,13 @@ public partial class MainWindowViewModel : ObservableObject
     /// <summary>
     /// Constructor - sets up Timeline property change subscription
     /// </summary>
-    public MainWindowViewModel()
+    public MainWindowViewModel(IPlaybackEngine playbackEngine)
     {
+        _playbackEngine = playbackEngine ?? throw new ArgumentNullException(nameof(playbackEngine));
+
+        // Capture UI synchronization context
+        _uiContext = SynchronizationContext.Current;
+
         // Subscribe to Timeline property changes to update command states
         Timeline.PropertyChanged += (s, e) =>
         {
@@ -61,9 +69,9 @@ public partial class MainWindowViewModel : ObservableObject
             }
         };
 
-        // Subscribe to VLC playback state changes
-        _vlcPlaybackEngine.StateChanged += OnPlaybackStateChanged;
-        _vlcPlaybackEngine.TimeChanged += OnPlaybackTimeChanged;
+        // Subscribe to playback state changes
+        _playbackEngine.StateChanged += OnPlaybackStateChanged;
+        _playbackEngine.TimeChanged += OnPlaybackTimeChanged;
 
         // Subscribe to timeline seeks (user clicking timeline)
         Timeline.CurrentTimeChanged += OnTimelineSeek;
@@ -79,44 +87,72 @@ public partial class MainWindowViewModel : ObservableObject
     private void OnTimelineScrubbed(TimeSpan sourceTime)
     {
         // Only seek VlcPlaybackEngine if this wasn't triggered by playback
-        if (!_updatingFromPlayback && _vlcPlaybackEngine.CanPlay)
+        if (!_updatingFromPlayback && _playbackEngine.CanPlay)
         {
             // Timeline already provides source time (not virtual time)
             // Seek VLC to source time (with throttling built-in)
-            _vlcPlaybackEngine.Seek(sourceTime);
+            _playbackEngine.Seek(sourceTime);
         }
     }
 
     private void OnPlaybackStateChanged(object? sender, PlaybackState state)
     {
         // Marshal to UI thread (PlaybackEngine fires from Timer thread)
-        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        if (_uiContext != null)
         {
+            _uiContext.Post(_ =>
+            {
+                IsPlaying = state == PlaybackState.Playing;
+                OnPropertyChanged(nameof(CanPlay));
+                OnPropertyChanged(nameof(CanPause));
+                PlayCommand.NotifyCanExecuteChanged();
+                PauseCommand.NotifyCanExecuteChanged();
+            }, null);
+        }
+        else
+        {
+            // Fallback if no UI context (e.g., in tests)
             IsPlaying = state == PlaybackState.Playing;
             OnPropertyChanged(nameof(CanPlay));
             OnPropertyChanged(nameof(CanPause));
             PlayCommand.NotifyCanExecuteChanged();
             PauseCommand.NotifyCanExecuteChanged();
-        });
+        }
     }
 
     private void OnPlaybackTimeChanged(object? sender, TimeSpan time)
     {
         // Marshal to UI thread (PlaybackEngine fires from Timer thread)
-        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        if (_uiContext != null)
         {
-            // Set flag to prevent circular update
+            _uiContext.Post(_ =>
+            {
+                // Set flag to prevent circular update
+                _updatingFromPlayback = true;
+                try
+                {
+                    // Update timeline current time
+                    Timeline.CurrentTime = time;
+                }
+                finally
+                {
+                    _updatingFromPlayback = false;
+                }
+            }, null);
+        }
+        else
+        {
+            // Fallback if no UI context (e.g., in tests)
             _updatingFromPlayback = true;
             try
             {
-                // Update timeline current time
                 Timeline.CurrentTime = time;
             }
             finally
             {
                 _updatingFromPlayback = false;
             }
-        });
+        }
     }
 
     /// <summary>
@@ -137,7 +173,7 @@ public partial class MainWindowViewModel : ObservableObject
     /// <summary>
     /// Can play? (video loaded and not playing)
     /// </summary>
-    public bool CanPlay => _vlcPlaybackEngine.CanPlay && !IsPlaying;
+    public bool CanPlay => _playbackEngine.CanPlay && !IsPlaying;
 
     /// <summary>
     /// Can pause? (currently playing)
@@ -164,7 +200,7 @@ public partial class MainWindowViewModel : ObservableObject
         Timeline.SegmentManager = _segmentManager; // Connect SegmentManager to Timeline!
 
         // Initialize VLC playback engine
-        _vlcPlaybackEngine.Initialize(metadata.FilePath, _segmentManager, metadata);
+        _playbackEngine.Initialize(metadata.FilePath, _segmentManager, metadata);
 
         OnPropertyChanged(nameof(CanPlay));
         PlayCommand.NotifyCanExecuteChanged();
@@ -174,7 +210,7 @@ public partial class MainWindowViewModel : ObservableObject
     /// Delete currently selected segment
     /// </summary>
     [RelayCommand(CanExecute = nameof(CanDelete))]
-    public async void DeleteSelection()
+    public async Task DeleteSelection()
     {
         if (!Timeline.Selection.IsValid)
             return;
@@ -197,7 +233,7 @@ public partial class MainWindowViewModel : ObservableObject
     /// Undo last operation
     /// </summary>
     [RelayCommand(CanExecute = nameof(CanUndo))]
-    public async void Undo()
+    public async Task Undo()
     {
         _segmentManager.Undo();
         await UpdateAfterEditAsync();
@@ -207,7 +243,7 @@ public partial class MainWindowViewModel : ObservableObject
     /// Redo last undone operation
     /// </summary>
     [RelayCommand(CanExecute = nameof(CanRedo))]
-    public async void Redo()
+    public async Task Redo()
     {
         _segmentManager.Redo();
         await UpdateAfterEditAsync();
@@ -250,7 +286,7 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanPlay))]
     public void Play()
     {
-        _vlcPlaybackEngine.Play();
+        _playbackEngine.Play();
     }
 
     /// <summary>
@@ -259,7 +295,7 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanPause))]
     public void Pause()
     {
-        _vlcPlaybackEngine.Pause();
+        _playbackEngine.Pause();
     }
 
     /// <summary>
@@ -268,8 +304,8 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     public void Stop()
     {
-        _vlcPlaybackEngine.Pause();
-        _vlcPlaybackEngine.Seek(TimeSpan.Zero);
+        _playbackEngine.Pause();
+        _playbackEngine.Seek(TimeSpan.Zero);
         Timeline.CurrentTime = TimeSpan.Zero;
     }
 
@@ -278,6 +314,6 @@ public partial class MainWindowViewModel : ObservableObject
     /// </summary>
     public void Dispose()
     {
-        _vlcPlaybackEngine?.Dispose();
+        _playbackEngine?.Dispose();
     }
 }

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using NAudio.Wave;
 using Serilog;
 
-namespace Bref.Services;
+namespace Bref.Core.Services;
 
 /// <summary>
 /// Windows-specific audio backend using NAudio's WaveOutEvent

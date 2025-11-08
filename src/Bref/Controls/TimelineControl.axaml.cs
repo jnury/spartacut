@@ -9,8 +9,8 @@ using Avalonia.Platform;
 using Avalonia.Rendering.SceneGraph;
 using Avalonia.Skia;
 using Avalonia.Threading;
-using Bref.Models;
-using Bref.ViewModels;
+using Bref.Core.Models;
+using Bref.Core.ViewModels;
 using Serilog;
 using SkiaSharp;
 

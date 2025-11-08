@@ -1,19 +1,22 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Bref.Services;
+using Bref.Core.Services;
 using Xunit;
 
 namespace Bref.Tests.Services;
 
 public class AudioExtractorTests
 {
-    [Fact(Skip = "Requires video file")]
+    [Fact]
     public async Task ExtractAudio_WithValidMP4_CreatesWAVFile()
     {
         // Arrange
         var extractor = new AudioExtractor();
-        var videoPath = "test-video.mp4"; // Would need actual test video
+        var videoPath = Path.Combine(
+            Path.GetDirectoryName(typeof(AudioExtractorTests).Assembly.Location)!,
+            "..", "..", "..", "..", "..", "samples", "sample-30s.mp4");
+        videoPath = Path.GetFullPath(videoPath);
 
         // Act
         var audioPath = await extractor.ExtractAudioAsync(videoPath);

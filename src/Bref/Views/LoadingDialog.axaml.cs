@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Threading;
-using Bref.Models;
+using Bref.Core.Models;
 
 namespace Bref.Views;
 

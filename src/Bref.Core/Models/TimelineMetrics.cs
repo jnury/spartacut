@@ -1,6 +1,6 @@
 using System;
 
-namespace Bref.Models;
+namespace Bref.Core.Models;
 
 /// <summary>
 /// Metrics and dimensions for timeline rendering calculations.

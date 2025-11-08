@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using FFMpegCore;
 using Serilog;
 
-namespace Bref.Services;
+namespace Bref.Core.Services;
 
 /// <summary>
 /// Extracts audio from MP4 videos to WAV format using FFMpegCore

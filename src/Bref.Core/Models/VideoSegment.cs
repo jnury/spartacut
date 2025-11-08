@@ -1,6 +1,6 @@
 using System;
 
-namespace Bref.Models;
+namespace Bref.Core.Models;
 
 /// <summary>
 /// Represents a continuous portion of the source video (kept segment)

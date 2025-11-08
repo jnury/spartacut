@@ -1,5 +1,5 @@
-using Bref.Models;
-using Bref.ViewModels;
+using Bref.Core.Models;
+using Bref.Core.ViewModels;
 using Xunit;
 
 namespace Bref.Tests.ViewModels;

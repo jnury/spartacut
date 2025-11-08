@@ -12,6 +12,7 @@
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="5.0.1" />
     <PackageReference Include="xunit" Version="2.5.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
   </ItemGroup>
@@ -21,23 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Bref\Bref.csproj" />
+    <ProjectReference Include="..\Bref.Core\Bref.Core.csproj" />
   </ItemGroup>
-
-  <!-- Copy VLC libraries from system installation on macOS -->
-  <Target Name="CopyVlcLibraries" AfterTargets="Build" Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">
-    <PropertyGroup>
-      <VlcLibPath>/Applications/VLC.app/Contents/MacOS/lib</VlcLibPath>
-      <VlcPluginPath>/Applications/VLC.app/Contents/MacOS/plugins</VlcPluginPath>
-    </PropertyGroup>
-    <ItemGroup>
-      <VlcLibFiles Include="$(VlcLibPath)/*.dylib" />
-      <VlcPluginFiles Include="$(VlcPluginPath)/**/*.*" />
-    </ItemGroup>
-    <Copy SourceFiles="@(VlcLibFiles)" DestinationFolder="$(OutputPath)/lib" SkipUnchangedFiles="true" />
-    <Copy SourceFiles="@(VlcPluginFiles)" DestinationFiles="@(VlcPluginFiles->'$(OutputPath)/plugins/%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
-    <Message Importance="high" Text="Copied VLC libraries from $(VlcLibPath) to $(OutputPath)/lib" />
-    <Message Importance="high" Text="Copied VLC plugins from $(VlcPluginPath) to $(OutputPath)/plugins" />
-  </Target>
 
 </Project>

@@ -1,6 +1,6 @@
 using System;
 
-namespace Bref.Models;
+namespace Bref.Core.Models;
 
 /// <summary>
 /// Represents a single video thumbnail at a specific time position.

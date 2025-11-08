@@ -1,5 +1,5 @@
-using Bref.Models;
-using Bref.Services;
+using Bref.Core.Models;
+using Bref.Core.Services;
 using Xunit;
 using System;
 using System.Collections.Generic;
@@ -14,11 +14,23 @@ public class VideoServiceTests
     {
         // Arrange
         var service = new VideoService();
-        var invalidPath = "/tmp/test-video.avi";
 
-        // Act & Assert
-        await Assert.ThrowsAsync<NotSupportedException>(() =>
-            service.LoadVideoAsync(invalidPath, new Progress<LoadProgress>(_ => { })));
+        // Create a temporary .avi file (empty is fine, we're testing extension validation)
+        var invalidPath = Path.Combine(Path.GetTempPath(), $"test-video-{Guid.NewGuid()}.avi");
+        File.WriteAllText(invalidPath, "dummy content");
+
+        try
+        {
+            // Act & Assert
+            await Assert.ThrowsAsync<NotSupportedException>(() =>
+                service.LoadVideoAsync(invalidPath, new Progress<LoadProgress>(_ => { })));
+        }
+        finally
+        {
+            // Cleanup
+            if (File.Exists(invalidPath))
+                File.Delete(invalidPath);
+        }
     }
 
     [Fact]

@@ -1,4 +1,4 @@
-using Bref.Services;
+using Bref.Core.Services;
 using Xunit;
 
 namespace Bref.Tests.Services;

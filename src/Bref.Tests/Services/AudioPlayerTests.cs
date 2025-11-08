@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Bref.Services;
+using Bref.Core.Services;
 using Xunit;
 
 namespace Bref.Tests.Services;
@@ -43,18 +43,35 @@ public class AudioPlayerTests
         // Should not throw
     }
 
-    [Fact(Skip = "Requires audio file")]
+    [Fact]
     public async Task LoadAudio_WithValidWAV_LoadsSuccessfully()
     {
         // Arrange
         var player = new AudioPlayer();
-        var wavPath = "test-audio.wav"; // Would need actual test file
+        var videoPath = Path.Combine(
+            Path.GetDirectoryName(typeof(AudioPlayerTests).Assembly.Location)!,
+            "..", "..", "..", "..", "..", "samples", "sample-30s.mp4");
+        videoPath = Path.GetFullPath(videoPath);
 
-        // Act
-        await player.LoadAudioAsync(wavPath);
+        // Extract audio from video first
+        var extractor = new AudioExtractor();
+        var wavPath = await extractor.ExtractAudioAsync(videoPath);
 
-        // Assert
-        Assert.True(player.IsLoaded);
+        try
+        {
+            // Act
+            await player.LoadAudioAsync(wavPath);
+
+            // Assert
+            Assert.True(player.IsLoaded);
+        }
+        finally
+        {
+            // Cleanup
+            player.Dispose();
+            if (File.Exists(wavPath))
+                File.Delete(wavPath);
+        }
     }
 
     [Fact]

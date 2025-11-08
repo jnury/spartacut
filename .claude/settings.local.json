@@ -99,7 +99,9 @@
       "Bash(arch -x86_64 /usr/local/share/dotnet/dotnet run:*)",
       "Bash(arch -x86_64:*)",
       "Bash(/usr/local/share/dotnet/dotnet publish:*)",
-      "Bash(pkill:*)"
+      "Bash(pkill:*)",
+      "Bash(dotnet sln:*)",
+      "Bash(dotnet clean:*)"
     ],
     "deny": [],
     "ask": []

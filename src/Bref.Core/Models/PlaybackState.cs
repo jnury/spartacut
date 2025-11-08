@@ -1,4 +1,4 @@
-namespace Bref.Models;
+namespace Bref.Core.Models;
 
 /// <summary>
 /// Represents the current state of video playback

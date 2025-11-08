@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Bref.Models;
+using Bref.Core.Models;
 
-namespace Bref.Services;
+namespace Bref.Core.Services;
 
 /// <summary>
 /// Manages video segments and edit history

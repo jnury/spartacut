@@ -1,5 +1,5 @@
-using Bref.Models;
-using Bref.Services;
+using Bref.Core.Models;
+using Bref.Core.Services;
 using Xunit;
 
 namespace Bref.Tests.Integration;

@@ -1,6 +1,6 @@
 using System;
-using Bref.Models;
-using Bref.Services;
+using Bref.Core.Models;
+using Bref.Core.Services;
 
 namespace Bref.Tests.Services;
 

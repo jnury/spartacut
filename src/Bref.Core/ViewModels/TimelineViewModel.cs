@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Bref.Models;
-using Bref.Services;
+using Bref.Core.Models;
+using Bref.Core.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
-namespace Bref.ViewModels;
+namespace Bref.Core.ViewModels;
 
 /// <summary>
 /// ViewModel for timeline control managing playhead position and timeline state.

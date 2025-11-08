@@ -1,6 +1,7 @@
 using System;
-using Bref.Models;
-using Bref.ViewModels;
+using Bref.Core.Models;
+using Bref.Core.ViewModels;
+using Bref.Tests.Mocks;
 using Xunit;
 
 namespace Bref.Tests.Integration;
@@ -15,7 +16,7 @@ public class SelectionAndDeletionIntegrationTests
     public void FullDeletionWorkflow_LoadVideoSelectDeleteVerify()
     {
         // Arrange - Initialize MainWindowViewModel with video
-        var viewModel = new MainWindowViewModel();
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
         var metadata = new VideoMetadata
         {
             FilePath = "test.mp4",
@@ -52,7 +53,7 @@ public class SelectionAndDeletionIntegrationTests
     public void MultipleDeletions_VirtualTimelineCalculationsCorrect()
     {
         // Arrange
-        var viewModel = new MainWindowViewModel();
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
         var metadata = new VideoMetadata
         {
             FilePath = "test.mp4",
@@ -98,7 +99,7 @@ public class SelectionAndDeletionIntegrationTests
     public void UndoRedoAfterDeletion_RestoresAndReapplies()
     {
         // Arrange
-        var viewModel = new MainWindowViewModel();
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
         var metadata = new VideoMetadata
         {
             FilePath = "test.mp4",
@@ -145,7 +146,7 @@ public class SelectionAndDeletionIntegrationTests
     public void SelectionAtVideoStart_DeletesCorrectly()
     {
         // Arrange
-        var viewModel = new MainWindowViewModel();
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
         var metadata = new VideoMetadata
         {
             FilePath = "test.mp4",
@@ -177,7 +178,7 @@ public class SelectionAndDeletionIntegrationTests
     public void SelectionAtVideoEnd_DeletesCorrectly()
     {
         // Arrange
-        var viewModel = new MainWindowViewModel();
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
         var metadata = new VideoMetadata
         {
             FilePath = "test.mp4",
@@ -209,7 +210,7 @@ public class SelectionAndDeletionIntegrationTests
     public void TimelineMetrics_UpdateAfterDeletion()
     {
         // Arrange
-        var viewModel = new MainWindowViewModel();
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
         var metadata = new VideoMetadata
         {
             FilePath = "test.mp4",
@@ -249,7 +250,7 @@ public class SelectionAndDeletionIntegrationTests
     public void PlayheadPosition_UpdatesCorrectlyAfterDeletion()
     {
         // Arrange
-        var viewModel = new MainWindowViewModel();
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
         var metadata = new VideoMetadata
         {
             FilePath = "test.mp4",
@@ -287,7 +288,7 @@ public class SelectionAndDeletionIntegrationTests
     public void DeletedRegions_ReflectInTimeline()
     {
         // Arrange
-        var viewModel = new MainWindowViewModel();
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
         var metadata = new VideoMetadata
         {
             FilePath = "test.mp4",
@@ -316,7 +317,7 @@ public class SelectionAndDeletionIntegrationTests
     public void MultipleUndoRedo_HandlesComplexHistory()
     {
         // Arrange
-        var viewModel = new MainWindowViewModel();
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
         var metadata = new VideoMetadata
         {
             FilePath = "test.mp4",

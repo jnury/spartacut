@@ -1,5 +1,5 @@
-using Bref.FFmpeg;
-using Bref.Models;
+using Bref.Core.FFmpeg;
+using Bref.Core.Models;
 using Serilog;
 using System;
 using System.IO;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Bref.Services;
+namespace Bref.Core.Services;
 
 /// <summary>
 /// Service for video file operations.

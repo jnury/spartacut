@@ -1,10 +1,10 @@
-using Bref.Models;
+using Bref.Core.Models;
 using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Bref.Services;
+namespace Bref.Core.Services;
 
 /// <summary>
 /// Service for video file operations (loading, validation, metadata extraction).

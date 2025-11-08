@@ -4,10 +4,11 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using Bref.Controls;
-using Bref.FFmpeg;
-using Bref.Models;
+using Bref.Core.FFmpeg;
+using Bref.Core.Models;
+using Bref.Core.Services;
+using Bref.Core.ViewModels;
 using Bref.Services;
-using Bref.ViewModels;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -40,8 +41,9 @@ public partial class MainWindow : Window
         // Subscribe to key events for Space key handling
         this.KeyDown += OnWindowKeyDown;
 
-        // Initialize ViewModel
-        _viewModel = new MainWindowViewModel();
+        // Initialize ViewModel with dependency injection
+        var playbackEngine = new VlcPlaybackEngine();
+        _viewModel = new MainWindowViewModel(playbackEngine);
         DataContext = _viewModel;
 
         // Set thumbnail regeneration callback
@@ -147,9 +149,9 @@ public partial class MainWindow : Window
                 _viewModel.InitializeVideo(metadata);
 
                 // Bind VLC MediaPlayer to control
-                if (_vlcPlayer != null && _viewModel.VlcPlaybackEngine.MediaPlayer != null)
+                if (_vlcPlayer != null && _viewModel.PlaybackEngine is VlcPlaybackEngine vlcEngine && vlcEngine.MediaPlayer != null)
                 {
-                    _vlcPlayer.SetMediaPlayer(_viewModel.VlcPlaybackEngine.MediaPlayer);
+                    _vlcPlayer.SetMediaPlayer(vlcEngine.MediaPlayer);
                 }
             }
 

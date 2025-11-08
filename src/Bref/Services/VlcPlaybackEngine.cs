@@ -2,7 +2,9 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Timers;
-using Bref.Models;
+using Bref.Core.Models;
+using Bref.Core.Services;
+using Bref.Core.Services.Interfaces;
 using LibVLCSharp.Shared;
 using Serilog;
 
@@ -11,7 +13,7 @@ namespace Bref.Services;
 /// <summary>
 /// Manages video playback using LibVLC
 /// </summary>
-public class VlcPlaybackEngine : IDisposable
+public class VlcPlaybackEngine : IPlaybackEngine
 {
     private LibVLC? _libVLC;
     private MediaPlayer? _mediaPlayer;
@@ -86,12 +88,12 @@ public class VlcPlaybackEngine : IDisposable
             {
                 var baseDir = AppDomain.CurrentDomain.BaseDirectory;
                 var libPath = Path.Combine(baseDir, "lib");
-                Core.Initialize(libPath);
+                LibVLCSharp.Shared.Core.Initialize(libPath);
                 Log.Information("LibVLC Core initialized with library path: {LibPath}", libPath);
             }
             else
             {
-                Core.Initialize();
+                LibVLCSharp.Shared.Core.Initialize();
                 Log.Information("LibVLC Core initialized");
             }
 
@@ -126,6 +128,7 @@ public class VlcPlaybackEngine : IDisposable
     public void Initialize(string videoFilePath, SegmentManager segmentManager, VideoMetadata metadata)
     {
         if (_disposed) throw new ObjectDisposedException(nameof(VlcPlaybackEngine));
+        if (_libVLC == null) throw new InvalidOperationException("LibVLC not initialized");
         if (!File.Exists(videoFilePath))
             throw new FileNotFoundException("Video file not found", videoFilePath);
 

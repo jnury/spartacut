@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Bref.Models;
+namespace Bref.Core.Models;
 
 /// <summary>
 /// Manages the virtual timeline of kept segments

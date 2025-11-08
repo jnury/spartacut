@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Bref.Models;
+using Bref.Core.Models;
 using FFMpegCore;
 using Serilog;
 using SkiaSharp;
 
-namespace Bref.Services;
+namespace Bref.Core.Services;
 
 /// <summary>
 /// Generates video thumbnails at regular intervals using FFMpegCore.

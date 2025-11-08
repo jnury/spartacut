@@ -1,6 +1,6 @@
 using Xunit;
-using Bref.FFmpeg;
-using Bref.Models;
+using Bref.Core.FFmpeg;
+using Bref.Core.Models;
 using System;
 using System.IO;
 using Serilog;
@@ -9,7 +9,7 @@ namespace Bref.Tests.FFmpeg;
 
 public class FrameExtractorTests : IDisposable
 {
-    private const string TestVideoPath = "/path/to/test/video.mp4"; // TODO: Update with real test video
+    private readonly string TestVideoPath;
 
     public FrameExtractorTests()
     {
@@ -18,7 +18,11 @@ public class FrameExtractorTests : IDisposable
             .WriteTo.Console()
             .CreateLogger();
 
-        FFmpegSetup.Initialize();
+        // Get path to sample video
+        TestVideoPath = Path.Combine(
+            Path.GetDirectoryName(typeof(FrameExtractorTests).Assembly.Location)!,
+            "..", "..", "..", "..", "..", "samples", "sample-30s.mp4");
+        TestVideoPath = Path.GetFullPath(TestVideoPath);
     }
 
     public void Dispose()
@@ -26,7 +30,7 @@ public class FrameExtractorTests : IDisposable
         Log.CloseAndFlush();
     }
 
-    [Fact(Skip = "Requires test video file")]
+    [Fact]
     public void ExtractMetadata_WithValidMP4_ReturnsMetadata()
     {
         // Arrange

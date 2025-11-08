@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Bref.Services;
+namespace Bref.Core.Services;
 
 /// <summary>
 /// Platform-agnostic interface for audio playback backends

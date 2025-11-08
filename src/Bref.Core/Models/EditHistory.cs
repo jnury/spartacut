@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Bref.Models;
+namespace Bref.Core.Models;
 
 /// <summary>
 /// Manages undo/redo stack for segment operations

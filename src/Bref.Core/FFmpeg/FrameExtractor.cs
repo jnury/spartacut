@@ -1,10 +1,10 @@
 using FFMpegCore;
-using Bref.Models;
+using Bref.Core.Models;
 using Serilog;
 using System;
 using System.IO;
 
-namespace Bref.FFmpeg;
+namespace Bref.Core.FFmpeg;
 
 /// <summary>
 /// Extracts metadata from video files using FFMpegCore.

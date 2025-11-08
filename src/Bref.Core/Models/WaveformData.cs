@@ -1,6 +1,6 @@
 using System;
 
-namespace Bref.Models;
+namespace Bref.Core.Models;
 
 /// <summary>
 /// Audio waveform data for timeline visualization.

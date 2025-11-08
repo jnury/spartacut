@@ -1,4 +1,4 @@
-using Bref.Models;
+using Bref.Core.Models;
 using Xunit;
 
 namespace Bref.Tests.Models;

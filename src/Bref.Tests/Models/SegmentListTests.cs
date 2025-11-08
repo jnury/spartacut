@@ -1,5 +1,5 @@
 using System;
-using Bref.Models;
+using Bref.Core.Models;
 
 namespace Bref.Tests.Models;
 

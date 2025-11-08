@@ -1,4 +1,4 @@
-namespace Bref.Models;
+namespace Bref.Core.Models;
 
 /// <summary>
 /// Progress information for video loading operations.

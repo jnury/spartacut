@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using OpenTK.Audio.OpenAL;
 using Serilog;
 
-namespace Bref.Services;
+namespace Bref.Core.Services;
 
 /// <summary>
 /// Cross-platform audio backend using OpenAL (for macOS and other platforms)

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Bref.Models;
+using Bref.Core.Models;
 using FFMpegCore;
 using Serilog;
 
-namespace Bref.Services;
+namespace Bref.Core.Services;
 
 /// <summary>
 /// Generates audio waveform data from video files using FFMpegCore.

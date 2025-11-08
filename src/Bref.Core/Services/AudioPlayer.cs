@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Serilog;
 
-namespace Bref.Services;
+namespace Bref.Core.Services;
 
 /// <summary>
 /// Handles audio playback synchronized with video frames using platform-specific backends
