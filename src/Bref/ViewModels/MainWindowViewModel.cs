@@ -36,11 +36,6 @@ public partial class MainWindowViewModel : ObservableObject
     public VlcPlaybackEngine VlcPlaybackEngine => _vlcPlaybackEngine;
 
     /// <summary>
-    /// PlaybackEngine instance for playback control (kept for backward compatibility during transition)
-    /// </summary>
-    public PlaybackEngine PlaybackEngine => new PlaybackEngine(); // Temporary stub
-
-    /// <summary>
     /// Segment manager for playback engine access
     /// </summary>
     public SegmentManager SegmentManager => _segmentManager;

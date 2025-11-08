@@ -82,7 +82,19 @@
       "Bash(/usr/local/share/dotnet/dotnet clean:*)",
       "Skill(superpowers:finishing-a-development-branch)",
       "Bash(git worktree:*)",
-      "Bash(whereis:*)"
+      "Bash(whereis:*)",
+      "WebFetch(domain:code.videolan.org)",
+      "Bash(/usr/local/share/dotnet/dotnet restore /Users/jnury-perso/Repositories/SpartaCut/src/Bref/Bref.csproj)",
+      "Bash(git pull:*)",
+      "Bash(git stash:*)",
+      "Bash(dotnet restore:*)",
+      "Bash(dotnet --info:*)",
+      "Bash(otool:*)",
+      "Bash(export DYLD_LIBRARY_PATH:*)",
+      "Bash(/Applications/VLC.app/Contents/MacOS/VLC:*)",
+      "Bash(dotnet nuget:*)",
+      "Bash(nm:*)",
+      "Bash(export VLC_PLUGIN_PATH=/Users/jnury-perso/Repositories/SpartaCut/src/Bref.Tests/bin/Debug/net8.0/plugins:*)"
     ],
     "deny": [],
     "ask": []

@@ -21,7 +21,6 @@ namespace Bref.Views;
 
 public partial class MainWindow : Window
 {
-    private FrameCache? _frameCache;
     private TimelineViewModel? _timelineViewModel;
     private MainWindowViewModel? _viewModel;
     private VlcPlayerControl? _vlcPlayer;
@@ -95,13 +94,7 @@ public partial class MainWindow : Window
         base.OnClosing(e);
 
         // VLC cleanup handled by VlcPlaybackEngine disposal
-
-        // Dispose PlaybackEngine (will cleanup temp audio files)
-        _viewModel?.PlaybackEngine.Dispose();
-
-        // Don't dispose FrameCache/Decoder on shutdown to avoid FFmpeg race conditions
-        // The OS will reclaim all resources when process terminates
-        // Disposing native FFmpeg contexts during active decoding causes crashes
+        _viewModel?.Dispose();
 
         Log.Information("MainWindow closing");
     }
@@ -157,10 +150,6 @@ public partial class MainWindow : Window
             // Wait for loading to complete
             var metadata = await loadTask;
 
-            // Initialize frame cache first (needed for ViewModel initialization)
-            _frameCache?.Dispose();
-            _frameCache = new FrameCache(filePath, capacity: 60);
-
             // Initialize ViewModel with video metadata
             if (_viewModel != null)
             {
@@ -171,11 +160,6 @@ public partial class MainWindow : Window
                 {
                     _vlcPlayer.SetMediaPlayer(_viewModel.VlcPlaybackEngine.MediaPlayer);
                 }
-
-                // Initialize playback engine with audio (old engine - will be removed)
-                var audioExtractor = new AudioExtractor();
-                await _viewModel.PlaybackEngine.InitializeAsync(_frameCache, _viewModel.SegmentManager,
-                    metadata, audioExtractor);
             }
 
             // Update window title with video info
@@ -204,59 +188,13 @@ public partial class MainWindow : Window
                 if (_viewModel != null)
                 {
                     _viewModel.Timeline.LoadVideo(metadata, thumbnails);
-
-                    // Wire timeline to video player (only once)
-                    if (_timelineViewModel == null)
-                    {
-                        _viewModel.Timeline.CurrentTimeChanged += (sender, newTime) =>
-                        {
-                            try
-                            {
-                                if (_frameCache != null && _viewModel.Timeline.VideoMetadata != null)
-                                {
-                                    // Clamp time to video duration to prevent decoding past end
-                                    // (Playback timer race conditions can fire events slightly past duration)
-                                    var clampedTime = newTime;
-                                    if (clampedTime > _viewModel.Timeline.VideoMetadata.Duration)
-                                    {
-                                        clampedTime = _viewModel.Timeline.VideoMetadata.Duration;
-                                    }
-
-                                    // Get and display current frame immediately
-                                    // With smart seeking, forward scrubbing is fast without preloading
-                                    var frame = _frameCache.GetFrame(clampedTime);
-                                    // TODO: VLC handles display automatically
-                                    // VideoPlayer.DisplayFrame(frame);
-
-                                    // No preloading - rely on smart seeking + natural LRU cache
-                                    // This prevents thread explosion and simplifies the system
-                                }
-                            }
-                            catch (InvalidDataException ex) when (ex.Message.Contains("Failed to decode frame"))
-                            {
-                                // Decoder failed - likely trying to decode past actual video end
-                                // (metadata duration can be longer than last decodable frame)
-                                // Silently ignore - keep showing last successfully decoded frame
-                                Log.Debug(ex, "Frame decode failed for time {Time} (likely past last frame), keeping current frame", newTime);
-                            }
-                            catch (Exception ex)
-                            {
-                                Log.Error(ex, "Failed to update video frame for time {Time}", newTime);
-                            }
-                        };
-                    }
-
                     _timelineViewModel = _viewModel.Timeline;
 
                     // Timeline DataContext already set in constructor, just show it
                     TimelineControl.IsVisible = true;
                 }
 
-                // Display first frame
-                var firstFrame = _frameCache.GetFrame(TimeSpan.Zero);
-                // TODO: VLC handles display automatically
-                // VideoPlayer.DisplayFrame(firstFrame);
-                // VideoPlayer.IsVisible = true;
+                // VLC handles video display automatically
             }
             catch (Exception ex)
             {
