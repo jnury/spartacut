@@ -25,6 +25,12 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private bool _isPlaying = false;
 
+    [ObservableProperty]
+    private bool _canUndoState = false;
+
+    [ObservableProperty]
+    private bool _canRedoState = false;
+
     private double _volume = 1.0;
     private double _volumeBeforeMute = 1.0;
     private bool _isMuted = false;
@@ -245,6 +251,10 @@ public partial class MainWindowViewModel : ObservableObject
         // Initialize VLC playback engine
         _playbackEngine.Initialize(metadata.FilePath, _segmentManager, metadata);
 
+        // Initialize button states
+        CanUndoState = false;
+        CanRedoState = false;
+
         OnPropertyChanged(nameof(CanPlay));
         PlayCommand.NotifyCanExecuteChanged();
         UndoCommand.NotifyCanExecuteChanged();
@@ -324,12 +334,17 @@ public partial class MainWindowViewModel : ObservableObject
                 Log.Debug("UpdateAfterEditAsync: About to notify command changes. CanUndo={CanUndo}, CanRedo={CanRedo}",
                     _segmentManager.CanUndo, _segmentManager.CanRedo);
 
+                // Update observable button states
+                CanUndoState = _segmentManager.CanUndo;
+                CanRedoState = _segmentManager.CanRedo;
+
                 // Notify command state changes
                 DeleteSelectionCommand.NotifyCanExecuteChanged();
                 UndoCommand.NotifyCanExecuteChanged();
                 RedoCommand.NotifyCanExecuteChanged();
 
-                Log.Debug("UpdateAfterEditAsync: Notifications sent on UI thread");
+                Log.Debug("UpdateAfterEditAsync: Button states updated - CanUndoState={CanUndoState}, CanRedoState={CanRedoState}",
+                    CanUndoState, CanRedoState);
 
                 OnPropertyChanged(nameof(VirtualDuration));
                 OnPropertyChanged(nameof(SegmentCount));
@@ -343,11 +358,15 @@ public partial class MainWindowViewModel : ObservableObject
             Log.Debug("UpdateAfterEditAsync: About to notify command changes. CanUndo={CanUndo}, CanRedo={CanRedo}",
                 _segmentManager.CanUndo, _segmentManager.CanRedo);
 
+            // Update observable button states
+            CanUndoState = _segmentManager.CanUndo;
+            CanRedoState = _segmentManager.CanRedo;
+
             DeleteSelectionCommand.NotifyCanExecuteChanged();
             UndoCommand.NotifyCanExecuteChanged();
             RedoCommand.NotifyCanExecuteChanged();
 
-            Log.Debug("UpdateAfterEditAsync: Notifications sent (no UI context)");
+            Log.Debug("UpdateAfterEditAsync: Button states updated (no UI context)");
 
             OnPropertyChanged(nameof(VirtualDuration));
             OnPropertyChanged(nameof(SegmentCount));
