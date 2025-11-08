@@ -382,4 +382,56 @@ public class SelectionAndDeletionIntegrationTests
         Assert.Equal(duration3, viewModel.VirtualDuration);
         Assert.False(viewModel.CanRedo);
     }
+
+    [Fact]
+    public void VolumeControl_SetMultipleTimes_MaintainsCorrectValue()
+    {
+        // Arrange
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
+        var metadata = new VideoMetadata
+        {
+            FilePath = "test.mp4",
+            Duration = TimeSpan.FromMinutes(10),
+            Width = 1920,
+            Height = 1080,
+            FrameRate = 30,
+            CodecName = "h264",
+            PixelFormat = "yuv420p"
+        };
+        viewModel.InitializeVideo(metadata);
+
+        // Act - Set volume multiple times
+        viewModel.Volume = 0.5;
+        Assert.Equal(0.5, viewModel.Volume);
+        Assert.Equal(0.5f, viewModel.PlaybackEngine.Volume);
+
+        viewModel.Volume = 0.75;
+        Assert.Equal(0.75, viewModel.Volume);
+        Assert.Equal(0.75f, viewModel.PlaybackEngine.Volume);
+
+        viewModel.Volume = 0.0;
+        Assert.Equal(0.0, viewModel.Volume);
+        Assert.Equal(0.0f, viewModel.PlaybackEngine.Volume);
+
+        // Assert - Final volume is correct
+        Assert.Equal(0.0, viewModel.Volume);
+    }
+
+    [Fact]
+    public void ToggleMute_PreservesVolumeLevel()
+    {
+        // Arrange
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
+        viewModel.Volume = 0.8;
+
+        // Act - Mute
+        viewModel.ToggleMute();
+        Assert.Equal(0.0, viewModel.Volume);
+
+        // Act - Unmute
+        viewModel.ToggleMute();
+
+        // Assert - Volume restored
+        Assert.Equal(0.8, viewModel.Volume);
+    }
 }
