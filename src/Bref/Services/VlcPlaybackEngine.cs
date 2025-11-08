@@ -316,6 +316,13 @@ public class VlcPlaybackEngine : IPlaybackEngine
                 if (Math.Abs((targetTime - _lastSeekTarget).TotalMilliseconds) > 50)
                 {
                     Log.Information("Skipping deleted segment, jumping to {Time}", targetTime);
+
+                    // Check if audio will stay synchronized
+                    if (_mediaPlayer.AudioTrackCount > 0)
+                    {
+                        Log.Debug("Audio seek: current audio time before seek");
+                    }
+
                     Seek(targetTime);
                 }
             }
