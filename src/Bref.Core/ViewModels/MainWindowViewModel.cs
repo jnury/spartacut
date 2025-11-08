@@ -236,6 +236,8 @@ public partial class MainWindowViewModel : ObservableObject
         _playbackEngine.Initialize(metadata.FilePath, _segmentManager, metadata);
 
         OnPropertyChanged(nameof(CanPlay));
+        OnPropertyChanged(nameof(CanUndo));
+        OnPropertyChanged(nameof(CanRedo));
         PlayCommand.NotifyCanExecuteChanged();
         UndoCommand.NotifyCanExecuteChanged();
         RedoCommand.NotifyCanExecuteChanged();
@@ -310,6 +312,10 @@ public partial class MainWindowViewModel : ObservableObject
         DeleteSelectionCommand.NotifyCanExecuteChanged();
         UndoCommand.NotifyCanExecuteChanged();
         RedoCommand.NotifyCanExecuteChanged();
+
+        // Notify property changes for CanUndo/CanRedo
+        OnPropertyChanged(nameof(CanUndo));
+        OnPropertyChanged(nameof(CanRedo));
 
         OnPropertyChanged(nameof(VirtualDuration));
         OnPropertyChanged(nameof(SegmentCount));
