@@ -237,6 +237,8 @@ public partial class MainWindowViewModel : ObservableObject
 
         OnPropertyChanged(nameof(CanPlay));
         PlayCommand.NotifyCanExecuteChanged();
+        UndoCommand.NotifyCanExecuteChanged();
+        RedoCommand.NotifyCanExecuteChanged();
     }
 
     /// <summary>
