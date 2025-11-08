@@ -65,7 +65,7 @@
                         Maximum="1"
                         Width="100"
                         VerticalAlignment="Center"
-                        ToolTip.Tip="Volume"/>
+                        ToolTip.Tip="Volume (M to mute)"/>
                 <TextBlock Text="{Binding Volume, StringFormat={}{0:P0}}"
                            VerticalAlignment="Center"
                            Width="40"

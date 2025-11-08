@@ -357,5 +357,11 @@ public partial class MainWindow : Window
                 }
             }
         }
+        // M key toggles Mute/Unmute
+        else if (e.Key == Key.M)
+        {
+            _viewModel.ToggleMute();
+            e.Handled = true;
+        }
     }
 }

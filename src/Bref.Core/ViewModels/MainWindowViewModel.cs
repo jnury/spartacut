@@ -6,6 +6,7 @@ using Bref.Core.Services;
 using Bref.Core.Services.Interfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Serilog;
 
 namespace Bref.Core.ViewModels;
 
@@ -25,6 +26,8 @@ public partial class MainWindowViewModel : ObservableObject
     private bool _isPlaying = false;
 
     private double _volume = 1.0;
+    private double _volumeBeforeMute = 1.0;
+    private bool _isMuted = false;
 
     /// <summary>
     /// Audio volume (0.0 to 1.0)
@@ -38,6 +41,28 @@ public partial class MainWindowViewModel : ObservableObject
             {
                 _playbackEngine.SetVolume((float)value);
             }
+        }
+    }
+
+    /// <summary>
+    /// Toggle mute state
+    /// </summary>
+    public void ToggleMute()
+    {
+        if (_isMuted)
+        {
+            // Unmute - restore previous volume
+            Volume = _volumeBeforeMute;
+            _isMuted = false;
+            Log.Debug("Audio unmuted, volume restored to {Volume}", _volumeBeforeMute);
+        }
+        else
+        {
+            // Mute - save current volume and set to 0
+            _volumeBeforeMute = Volume;
+            Volume = 0.0;
+            _isMuted = true;
+            Log.Debug("Audio muted, previous volume: {Volume}", _volumeBeforeMute);
         }
     }
 
