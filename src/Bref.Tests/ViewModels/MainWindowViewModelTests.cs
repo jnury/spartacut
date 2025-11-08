@@ -185,13 +185,13 @@ public class MainWindowViewModelTests
     }
 
     [Fact]
-    public void PlaybackEngine_PropertyExists()
+    public void VlcPlaybackEngine_PropertyExists()
     {
         // Arrange
         var viewModel = new MainWindowViewModel();
 
-        // Assert - PlaybackEngine property should exist
-        Assert.NotNull(viewModel.PlaybackEngine);
+        // Assert - VlcPlaybackEngine property should exist
+        Assert.NotNull(viewModel.VlcPlaybackEngine);
     }
 
     [Fact]
