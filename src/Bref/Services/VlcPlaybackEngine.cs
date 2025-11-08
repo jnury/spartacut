@@ -80,9 +80,19 @@ public class VlcPlaybackEngine : IDisposable
     {
         try
         {
-            // Initialize LibVLCSharp Core
-            Core.Initialize();
-            Log.Information("LibVLC Core initialized");
+            // Initialize LibVLCSharp Core with path to VLC libraries
+            if (OperatingSystem.IsMacOS())
+            {
+                var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                var libPath = Path.Combine(baseDir, "lib");
+                Core.Initialize(libPath);
+                Log.Information("LibVLC Core initialized with library path: {LibPath}", libPath);
+            }
+            else
+            {
+                Core.Initialize();
+                Log.Information("LibVLC Core initialized");
+            }
 
             // Create LibVLC instance
             _libVLC = new LibVLC();
