@@ -336,8 +336,30 @@ public partial class MainWindow : Window
         if (_viewModel == null)
             return;
 
+        // Check for Ctrl/Cmd modifier
+        var isCtrlPressed = e.KeyModifiers.HasFlag(KeyModifiers.Control) || e.KeyModifiers.HasFlag(KeyModifiers.Meta);
+        var isShiftPressed = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
+
+        // Ctrl+Z for Undo
+        if (isCtrlPressed && !isShiftPressed && e.Key == Key.Z)
+        {
+            if (_viewModel.UndoCommand.CanExecute(null))
+            {
+                _viewModel.UndoCommand.Execute(null);
+                e.Handled = true;
+            }
+        }
+        // Ctrl+Shift+Z or Ctrl+Y for Redo
+        else if (isCtrlPressed && ((isShiftPressed && e.Key == Key.Z) || e.Key == Key.Y))
+        {
+            if (_viewModel.RedoCommand.CanExecute(null))
+            {
+                _viewModel.RedoCommand.Execute(null);
+                e.Handled = true;
+            }
+        }
         // Space key toggles Play/Pause
-        if (e.Key == Key.Space)
+        else if (e.Key == Key.Space)
         {
             // Toggle between Play and Pause
             if (_viewModel.IsPlaying)
