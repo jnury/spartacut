@@ -146,8 +146,16 @@ public class VlcPlaybackEngine : IPlaybackEngine
             _media = new Media(_libVLC, videoFilePath, FromType.FromPath);
             _mediaPlayer!.Media = _media;
 
+            // Parse media to get track info
+            _media.Parse(MediaParseOptions.ParseLocal);
+
             // Set initial volume
             _mediaPlayer.Volume = (int)(_volume * 100);
+
+            // Log media info
+            Log.Information("Media loaded: Video tracks: {Video}, Audio tracks: {Audio}",
+                _media.Tracks.Count(t => t.TrackType == TrackType.Video),
+                _media.Tracks.Count(t => t.TrackType == TrackType.Audio));
 
             // Set starting position to 0 (VLC will show a black frame until Play is called)
             _mediaPlayer.Time = 0;
@@ -184,6 +192,17 @@ public class VlcPlaybackEngine : IPlaybackEngine
         _mediaPlayer!.Play();
         _state = PlaybackState.Playing;
         StateChanged?.Invoke(this, _state);
+
+        // Log audio state for debugging
+        if (_mediaPlayer.AudioTrackCount > 0)
+        {
+            Log.Information("Audio playback started: {Tracks} track(s), Volume: {Volume}%",
+                _mediaPlayer.AudioTrackCount, _mediaPlayer.Volume);
+        }
+        else
+        {
+            Log.Warning("No audio tracks found in media");
+        }
 
         // Start position monitor
         _positionMonitor!.Start();
