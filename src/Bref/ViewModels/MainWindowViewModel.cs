@@ -263,12 +263,14 @@ public partial class MainWindowViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Stop command (VLC doesn't have explicit Stop, use Pause instead)
+    /// Stop command - pauses and resets to beginning
     /// </summary>
     [RelayCommand]
     public void Stop()
     {
         _vlcPlaybackEngine.Pause();
+        _vlcPlaybackEngine.Seek(TimeSpan.Zero);
+        Timeline.CurrentTime = TimeSpan.Zero;
     }
 
     /// <summary>

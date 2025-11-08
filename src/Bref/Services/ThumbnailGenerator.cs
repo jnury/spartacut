@@ -1,17 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Bref.FFmpeg;
 using Bref.Models;
-using FFmpeg.AutoGen;
+using FFMpegCore;
 using Serilog;
+using SkiaSharp;
 
 namespace Bref.Services;
 
 /// <summary>
-/// Generates video thumbnails at regular intervals using FFmpeg.
+/// Generates video thumbnails at regular intervals using FFMpegCore.
 /// </summary>
-public unsafe class ThumbnailGenerator
+public class ThumbnailGenerator
 {
     /// <summary>
     /// Generates thumbnails from video at specified intervals.
@@ -37,92 +37,21 @@ public unsafe class ThumbnailGenerator
 
         try
         {
-            // Initialize FFmpeg
-            FFmpegSetup.Initialize();
+            // Get video duration
+            var mediaInfo = FFProbe.Analyse(videoFilePath);
+            var duration = mediaInfo.Duration;
 
-            AVFormatContext* formatContext = null;
-            if (ffmpeg.avformat_open_input(&formatContext, videoFilePath, null, null) != 0)
+            // Generate thumbnails at intervals
+            var currentTime = TimeSpan.Zero;
+            while (currentTime < duration)
             {
-                throw new InvalidDataException("Could not open video file");
-            }
-
-            try
-            {
-                if (ffmpeg.avformat_find_stream_info(formatContext, null) < 0)
+                var thumbnail = GenerateSingle(videoFilePath, currentTime, width, height);
+                if (thumbnail != null)
                 {
-                    throw new InvalidDataException("Could not find stream information");
+                    thumbnails.Add(thumbnail);
                 }
 
-                // Find video stream
-                int videoStreamIndex = -1;
-                AVCodecContext* codecContext = null;
-
-                for (int i = 0; i < formatContext->nb_streams; i++)
-                {
-                    if (formatContext->streams[i]->codecpar->codec_type == AVMediaType.AVMEDIA_TYPE_VIDEO)
-                    {
-                        videoStreamIndex = i;
-                        break;
-                    }
-                }
-
-                if (videoStreamIndex == -1)
-                {
-                    throw new InvalidDataException("No video stream found");
-                }
-
-                var codecParams = formatContext->streams[videoStreamIndex]->codecpar;
-                var codec = ffmpeg.avcodec_find_decoder(codecParams->codec_id);
-                if (codec == null)
-                {
-                    throw new InvalidDataException("Codec not found");
-                }
-
-                codecContext = ffmpeg.avcodec_alloc_context3(codec);
-                if (codecContext == null)
-                {
-                    throw new OutOfMemoryException("Could not allocate codec context");
-                }
-
-                try
-                {
-                    ffmpeg.avcodec_parameters_to_context(codecContext, codecParams);
-
-                    if (ffmpeg.avcodec_open2(codecContext, codec, null) < 0)
-                    {
-                        throw new InvalidDataException("Could not open codec");
-                    }
-
-                    // Calculate total duration
-                    var stream = formatContext->streams[videoStreamIndex];
-                    var duration = TimeSpan.FromSeconds(stream->duration * ffmpeg.av_q2d(stream->time_base));
-
-                    // Generate thumbnails at intervals
-                    var currentTime = TimeSpan.Zero;
-                    while (currentTime < duration)
-                    {
-                        var thumbnail = ExtractFrameAtTime(formatContext, codecContext, videoStreamIndex, currentTime, width, height);
-                        if (thumbnail != null)
-                        {
-                            thumbnails.Add(thumbnail);
-                        }
-
-                        currentTime += interval;
-                    }
-                }
-                finally
-                {
-                    if (codecContext != null)
-                    {
-                        var ctx = codecContext;
-                        ffmpeg.avcodec_free_context(&ctx);
-                    }
-                }
-            }
-            finally
-            {
-                var ctx = formatContext;
-                ffmpeg.avformat_close_input(&ctx);
+                currentTime += interval;
             }
         }
         catch (Exception ex)
@@ -146,65 +75,46 @@ public unsafe class ThumbnailGenerator
 
         try
         {
-            FFmpegSetup.Initialize();
-
-            AVFormatContext* formatContext = null;
-            if (ffmpeg.avformat_open_input(&formatContext, videoFilePath, null, null) != 0)
-            {
-                return null;
-            }
+            // Create temporary file for snapshot
+            var tempFile = Path.Combine(Path.GetTempPath(), $"thumb_{Guid.NewGuid()}.png");
 
             try
             {
-                if (ffmpeg.avformat_find_stream_info(formatContext, null) < 0)
+                // Extract frame using FFMpeg.Snapshot
+                var success = FFMpeg.Snapshot(videoFilePath, tempFile, new System.Drawing.Size(width, height), time);
+
+                if (!success || !File.Exists(tempFile))
                 {
+                    Log.Warning("Failed to extract frame at {Time} from {FilePath}", time, videoFilePath);
                     return null;
                 }
 
-                // Find video stream
-                int videoStreamIndex = -1;
-                for (int i = 0; i < formatContext->nb_streams; i++)
+                // Load PNG and convert to JPEG
+                using var bitmap = SKBitmap.Decode(tempFile);
+                if (bitmap == null)
                 {
-                    if (formatContext->streams[i]->codecpar->codec_type == AVMediaType.AVMEDIA_TYPE_VIDEO)
-                    {
-                        videoStreamIndex = i;
-                        break;
-                    }
+                    Log.Warning("Failed to decode thumbnail image at {Time}", time);
+                    return null;
                 }
 
-                if (videoStreamIndex == -1)
-                    return null;
+                using var image = SKImage.FromBitmap(bitmap);
+                using var data = image.Encode(SKEncodedImageFormat.Jpeg, 85);
 
-                var codecParams = formatContext->streams[videoStreamIndex]->codecpar;
-                var codec = ffmpeg.avcodec_find_decoder(codecParams->codec_id);
-                if (codec == null)
-                    return null;
-
-                AVCodecContext* codecContext = ffmpeg.avcodec_alloc_context3(codec);
-                if (codecContext == null)
-                    return null;
-
-                try
+                return new ThumbnailData
                 {
-                    ffmpeg.avcodec_parameters_to_context(codecContext, codecParams);
-                    if (ffmpeg.avcodec_open2(codecContext, codec, null) < 0)
-                        return null;
-
-                    return ExtractFrameAtTime(formatContext, codecContext, videoStreamIndex, time, width, height);
-                }
-                finally
-                {
-                    if (codecContext != null)
-                    {
-                        var ctx = codecContext;
-                        ffmpeg.avcodec_free_context(&ctx);
-                    }
-                }
+                    TimePosition = time,
+                    ImageData = data.ToArray(),
+                    Width = width,
+                    Height = height
+                };
             }
             finally
             {
-                var ctx = formatContext;
-                ffmpeg.avformat_close_input(&ctx);
+                // Clean up temp file
+                if (File.Exists(tempFile))
+                {
+                    try { File.Delete(tempFile); } catch { /* Ignore cleanup errors */ }
+                }
             }
         }
         catch (Exception ex)
@@ -212,131 +122,5 @@ public unsafe class ThumbnailGenerator
             Log.Error(ex, "Failed to generate single thumbnail at {Time} for: {FilePath}", time, videoFilePath);
             return null;
         }
-    }
-
-    private ThumbnailData? ExtractFrameAtTime(
-        AVFormatContext* formatContext,
-        AVCodecContext* codecContext,
-        int videoStreamIndex,
-        TimeSpan targetTime,
-        int width,
-        int height)
-    {
-        try
-        {
-            // Seek to target time
-            var stream = formatContext->streams[videoStreamIndex];
-            long timestamp = (long)(targetTime.TotalSeconds / ffmpeg.av_q2d(stream->time_base));
-
-            if (ffmpeg.av_seek_frame(formatContext, videoStreamIndex, timestamp, ffmpeg.AVSEEK_FLAG_BACKWARD) < 0)
-            {
-                Log.Warning("Failed to seek to {Time} in video", targetTime);
-                return null;
-            }
-
-            ffmpeg.avcodec_flush_buffers(codecContext);
-
-            var packet = ffmpeg.av_packet_alloc();
-            var frame = ffmpeg.av_frame_alloc();
-            var scaledFrame = ffmpeg.av_frame_alloc();
-
-            try
-            {
-                // Read frames until we find one at or after target time
-                while (ffmpeg.av_read_frame(formatContext, packet) >= 0)
-                {
-                    if (packet->stream_index == videoStreamIndex)
-                    {
-                        if (ffmpeg.avcodec_send_packet(codecContext, packet) == 0)
-                        {
-                            if (ffmpeg.avcodec_receive_frame(codecContext, frame) == 0)
-                            {
-                                // Scale frame to thumbnail size
-                                scaledFrame->width = width;
-                                scaledFrame->height = height;
-                                scaledFrame->format = (int)AVPixelFormat.AV_PIX_FMT_RGB24;
-
-                                ffmpeg.av_frame_get_buffer(scaledFrame, 32);
-
-                                var swsContext = ffmpeg.sws_getContext(
-                                    codecContext->width, codecContext->height, codecContext->pix_fmt,
-                                    width, height, AVPixelFormat.AV_PIX_FMT_RGB24,
-                                    ffmpeg.SWS_BILINEAR, null, null, null);
-
-                                if (swsContext == null)
-                                {
-                                    throw new InvalidOperationException("Could not create scaling context");
-                                }
-
-                                try
-                                {
-                                    ffmpeg.sws_scale(swsContext, frame->data, frame->linesize, 0, codecContext->height,
-                                        scaledFrame->data, scaledFrame->linesize);
-
-                                    // Convert RGB24 frame to JPEG byte array
-                                    var imageData = FrameToJpeg(scaledFrame, width, height);
-
-                                    return new ThumbnailData
-                                    {
-                                        TimePosition = targetTime,
-                                        ImageData = imageData,
-                                        Width = width,
-                                        Height = height
-                                    };
-                                }
-                                finally
-                                {
-                                    ffmpeg.sws_freeContext(swsContext);
-                                }
-                            }
-                        }
-                    }
-
-                    ffmpeg.av_packet_unref(packet);
-                }
-            }
-            finally
-            {
-                ffmpeg.av_packet_free(&packet);
-                ffmpeg.av_frame_free(&frame);
-                ffmpeg.av_frame_free(&scaledFrame);
-            }
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "Failed to extract frame at {Time}", targetTime);
-        }
-
-        return null;
-    }
-
-    private byte[] FrameToJpeg(AVFrame* frame, int width, int height)
-    {
-        // JPEG encoding using SkiaSharp - convert RGB24 to BGRA8888 format
-        using var bitmap = new SkiaSharp.SKBitmap(width, height, SkiaSharp.SKColorType.Bgra8888, SkiaSharp.SKAlphaType.Opaque);
-
-        var ptr = (byte*)bitmap.GetPixels();
-        var dataPtr = (byte*)frame->data[0];
-        var linesize = frame->linesize[0];
-
-        // Convert RGB24 (3 bytes/pixel) to BGRA (4 bytes/pixel)
-        for (int y = 0; y < height; y++)
-        {
-            for (int x = 0; x < width; x++)
-            {
-                int srcOffset = (y * linesize) + (x * 3);
-                int dstOffset = (y * width * 4) + (x * 4);
-
-                ptr[dstOffset + 0] = dataPtr[srcOffset + 2]; // B (from R)
-                ptr[dstOffset + 1] = dataPtr[srcOffset + 1]; // G
-                ptr[dstOffset + 2] = dataPtr[srcOffset + 0]; // R (from B)
-                ptr[dstOffset + 3] = 255; // A (alpha)
-            }
-        }
-
-        using var image = SkiaSharp.SKImage.FromBitmap(bitmap);
-        using var data = image.Encode(SkiaSharp.SKEncodedImageFormat.Jpeg, 85);
-
-        return data.ToArray();
     }
 }

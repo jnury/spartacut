@@ -1,14 +1,13 @@
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
-using Bref.FFmpeg;
+using FFMpegCore;
 using Serilog;
 
 namespace Bref.Services;
 
 /// <summary>
-/// Extracts audio from MP4 videos to WAV format using FFmpeg
+/// Extracts audio from MP4 videos to WAV format using FFMpegCore
 /// </summary>
 public class AudioExtractor
 {
@@ -26,40 +25,24 @@ public class AudioExtractor
             throw new FileNotFoundException($"Video file not found: {videoFilePath}", videoFilePath);
         }
 
-        // Initialize FFmpeg
-        FFmpegSetup.Initialize();
-
         // Create temp WAV file path
         var tempWavPath = Path.Combine(Path.GetTempPath(), $"bref_audio_{Guid.NewGuid()}.wav");
 
         try
         {
-            // Extract audio using FFmpeg
-            // -i input.mp4 -vn -acodec pcm_s16le -ar 44100 -ac 2 output.wav
-            var ffmpegPath = FFmpegSetup.GetFFmpegPath();
-            var startInfo = new ProcessStartInfo
-            {
-                FileName = ffmpegPath,
-                Arguments = $"-i \"{videoFilePath}\" -vn -acodec pcm_s16le -ar 44100 -ac 2 \"{tempWavPath}\"",
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
+            // Extract audio using FFMpegCore
+            var success = await FFMpegArguments
+                .FromFileInput(videoFilePath)
+                .OutputToFile(tempWavPath, overwrite: true, options => options
+                    .WithAudioCodec("pcm_s16le")
+                    .WithAudioSamplingRate(44100)
+                    .WithCustomArgument("-ac 2")
+                    .DisableChannel(FFMpegCore.Enums.Channel.Video))
+                .ProcessAsynchronously();
 
-            using var process = Process.Start(startInfo);
-            if (process == null)
+            if (!success)
             {
-                throw new InvalidOperationException("Failed to start FFmpeg process");
-            }
-
-            var stderr = await process.StandardError.ReadToEndAsync();
-            await process.WaitForExitAsync();
-
-            if (process.ExitCode != 0)
-            {
-                Log.Error("FFmpeg audio extraction failed: {Error}", stderr);
-                throw new InvalidOperationException($"FFmpeg extraction failed with exit code {process.ExitCode}");
+                throw new InvalidOperationException("FFmpeg extraction failed");
             }
 
             if (!File.Exists(tempWavPath))

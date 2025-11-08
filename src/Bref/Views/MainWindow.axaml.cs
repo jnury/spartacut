@@ -60,17 +60,8 @@ public partial class MainWindow : Window
             };
         }
 
-        // Initialize FFmpeg on window load
-        try
-        {
-            FFmpegSetup.Initialize();
-            Log.Information("FFmpeg initialized successfully");
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "Failed to initialize FFmpeg");
-            Title = $"Bref - ERROR: Failed to initialize FFmpeg";
-        }
+        // FFMpegCore automatically locates ffmpeg binary - no initialization needed
+        Log.Information("MainWindow initialized");
     }
 
     private async void OnWindowPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)

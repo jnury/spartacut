@@ -21,6 +21,7 @@ public class VlcPlaybackEngine : IDisposable
     private Timer? _positionMonitor;
     private PlaybackState _state = PlaybackState.Stopped;
     private DateTime _lastSeekTime = DateTime.MinValue;
+    private TimeSpan _lastSeekTarget = TimeSpan.MinValue;
     private bool _isSeeking = false;
     private const int SeekThrottleMs = 50;
     private const int PositionMonitorMs = 50; // Monitor every 50ms
@@ -136,6 +137,9 @@ public class VlcPlaybackEngine : IDisposable
             _media = new Media(_libVLC, videoFilePath, FromType.FromPath);
             _mediaPlayer!.Media = _media;
 
+            // Set starting position to 0 (VLC will show a black frame until Play is called)
+            _mediaPlayer.Time = 0;
+
             Log.Information("VlcPlaybackEngine initialized with {FilePath}", videoFilePath);
         }
         catch (Exception ex)
@@ -222,14 +226,15 @@ public class VlcPlaybackEngine : IDisposable
         }
 
         _lastSeekTime = now;
+        _lastSeekTarget = position;
         _isSeeking = true;
 
         // Clamp position to valid range
         var clampedMs = Math.Clamp(position.TotalMilliseconds, 0, _metadata!.Duration.TotalMilliseconds);
         _mediaPlayer!.Time = (long)clampedMs;
 
-        // Clear seeking flag after 50ms
-        System.Threading.Tasks.Task.Delay(50).ContinueWith(_ => _isSeeking = false);
+        // Clear seeking flag after 150ms to give VLC time to complete the seek
+        System.Threading.Tasks.Task.Delay(150).ContinueWith(_ => _isSeeking = false);
 
         Log.Debug("Seeked to {Time}", position);
     }
@@ -255,9 +260,15 @@ public class VlcPlaybackEngine : IDisposable
 
             if (nextSegment != null)
             {
-                // Jump to next kept segment
-                Log.Information("Skipping deleted segment, jumping to {Time}", nextSegment.SourceStart);
-                Seek(nextSegment.SourceStart);
+                // Jump to next kept segment (add 100ms buffer to ensure we're clearly inside the kept segment)
+                var targetTime = nextSegment.SourceStart.Add(TimeSpan.FromMilliseconds(100));
+
+                // Only seek if this is a different target than our last seek (prevents infinite loop)
+                if (Math.Abs((targetTime - _lastSeekTarget).TotalMilliseconds) > 50)
+                {
+                    Log.Information("Skipping deleted segment, jumping to {Time}", targetTime);
+                    Seek(targetTime);
+                }
             }
             else
             {
