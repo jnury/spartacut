@@ -205,6 +205,36 @@ public class ExportService : IExportService
         IProgress<ExportProgress> progress,
         CancellationToken cancellationToken = default)
     {
+        // Validate inputs
+        if (!File.Exists(options.SourceFilePath))
+        {
+            throw new FileNotFoundException($"Source video not found: {options.SourceFilePath}");
+        }
+
+        if (options.Segments.KeptSegments.Count == 0)
+        {
+            throw new InvalidOperationException("Cannot export: no segments to export");
+        }
+
+        if (string.IsNullOrWhiteSpace(options.OutputFilePath))
+        {
+            throw new ArgumentException("Output file path is required", nameof(options));
+        }
+
+        // Check if output directory exists
+        var outputDir = Path.GetDirectoryName(options.OutputFilePath);
+        if (!string.IsNullOrEmpty(outputDir) && !Directory.Exists(outputDir))
+        {
+            Directory.CreateDirectory(outputDir);
+            Log.Information("Created output directory: {Dir}", outputDir);
+        }
+
+        // Check if output file already exists
+        if (File.Exists(options.OutputFilePath))
+        {
+            Log.Warning("Output file already exists, will overwrite: {File}", options.OutputFilePath);
+        }
+
         Log.Information("Starting export: {Source} -> {Output}",
             options.SourceFilePath, options.OutputFilePath);
 
