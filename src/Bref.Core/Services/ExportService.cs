@@ -200,12 +200,181 @@ public class ExportService : IExportService
         return args.ToString();
     }
 
-    public Task<bool> ExportAsync(
+    public async Task<bool> ExportAsync(
         ExportOptions options,
         IProgress<ExportProgress> progress,
         CancellationToken cancellationToken = default)
     {
-        // TODO: Implement in next task
-        throw new NotImplementedException("Export implementation coming in Task 3");
+        Log.Information("Starting export: {Source} -> {Output}",
+            options.SourceFilePath, options.OutputFilePath);
+
+        var startTime = DateTime.Now;
+
+        try
+        {
+            // Report: Preparing
+            progress.Report(new ExportProgress
+            {
+                Stage = ExportStage.Preparing,
+                Percentage = 0,
+                Message = "Detecting hardware encoders..."
+            });
+
+            // Determine encoder
+            var encoder = options.PreferredEncoder;
+            if (encoder == null && options.UseHardwareAcceleration)
+            {
+                encoder = await GetRecommendedEncoderAsync();
+            }
+            encoder ??= "libx264"; // Software fallback
+
+            Log.Information("Using encoder: {Encoder}", encoder);
+
+            // Build FFmpeg command
+            var arguments = BuildFFmpegArguments(options, encoder);
+            Log.Debug("FFmpeg arguments: {Args}", arguments);
+
+            // Calculate total frames for progress
+            var totalFrames = (long)(options.Segments.TotalDuration.TotalSeconds * options.Metadata.FrameRate);
+
+            progress.Report(new ExportProgress
+            {
+                Stage = ExportStage.Preparing,
+                Percentage = 5,
+                Message = $"Building export with {encoder}...",
+                TotalFrames = totalFrames
+            });
+
+            // Start FFmpeg process
+            var success = false;
+
+            var process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = GlobalFFOptions.GetFFMpegBinaryPath(),
+                    Arguments = arguments,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
+            };
+
+            process.ErrorDataReceived += (sender, e) =>
+            {
+                if (string.IsNullOrEmpty(e.Data)) return;
+
+                // Parse FFmpeg stderr for progress
+                var progressInfo = ParseFFmpegProgress(e.Data, totalFrames);
+                if (progressInfo.HasValue)
+                {
+                    var elapsed = DateTime.Now - startTime;
+                    TimeSpan? remaining = progressInfo.Value.percentage > 0
+                        ? TimeSpan.FromSeconds(elapsed.TotalSeconds * (100 - progressInfo.Value.percentage) / progressInfo.Value.percentage)
+                        : null;
+
+                    progress.Report(new ExportProgress
+                    {
+                        Stage = ExportStage.Encoding,
+                        Percentage = progressInfo.Value.percentage,
+                        Message = $"Encoding frame {progressInfo.Value.frame} of {totalFrames}...",
+                        ElapsedTime = elapsed,
+                        EstimatedTimeRemaining = remaining,
+                        CurrentFrame = progressInfo.Value.frame,
+                        TotalFrames = totalFrames
+                    });
+                }
+            };
+
+            process.Start();
+            process.BeginErrorReadLine();
+
+            // Wait for completion or cancellation
+            while (!process.HasExited)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    Log.Warning("Export cancelled by user");
+                    process.Kill();
+
+                    progress.Report(new ExportProgress
+                    {
+                        Stage = ExportStage.Cancelled,
+                        Percentage = 0,
+                        Message = "Export cancelled"
+                    });
+
+                    return false;
+                }
+
+                await Task.Delay(100, CancellationToken.None);
+            }
+
+            success = process.ExitCode == 0;
+
+            if (success)
+            {
+                Log.Information("Export completed successfully in {Elapsed}", DateTime.Now - startTime);
+
+                progress.Report(new ExportProgress
+                {
+                    Stage = ExportStage.Complete,
+                    Percentage = 100,
+                    Message = "Export complete!",
+                    ElapsedTime = DateTime.Now - startTime
+                });
+            }
+            else
+            {
+                Log.Error("Export failed with exit code {ExitCode}", process.ExitCode);
+
+                progress.Report(new ExportProgress
+                {
+                    Stage = ExportStage.Failed,
+                    Percentage = 0,
+                    Message = $"Export failed (exit code {process.ExitCode})"
+                });
+            }
+
+            return success;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Export failed with exception");
+
+            progress.Report(new ExportProgress
+            {
+                Stage = ExportStage.Failed,
+                Percentage = 0,
+                Message = $"Export failed: {ex.Message}"
+            });
+
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Parse FFmpeg stderr output for progress information
+    /// </summary>
+    private (long frame, int percentage)? ParseFFmpegProgress(string line, long totalFrames)
+    {
+        // FFmpeg progress format: "frame=  123 fps=30 q=28.0 size=    1024kB time=00:00:04.10 ..."
+        if (!line.Contains("frame=")) return null;
+
+        try
+        {
+            var frameMatch = System.Text.RegularExpressions.Regex.Match(line, @"frame=\s*(\d+)");
+            if (!frameMatch.Success) return null;
+
+            var frame = long.Parse(frameMatch.Groups[1].Value);
+            var percentage = totalFrames > 0 ? (int)(frame * 100 / totalFrames) : 0;
+
+            return (frame, Math.Min(percentage, 99)); // Cap at 99% until complete
+        }
+        catch
+        {
+            return null;
+        }
     }
 }
