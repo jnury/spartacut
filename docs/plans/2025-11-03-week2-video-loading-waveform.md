@@ -29,7 +29,7 @@
 Create the progress model for reporting video loading status:
 
 ```csharp
-namespace Bref.Models;
+namespace SpartaCut.Models;
 
 /// <summary>
 /// Progress information for video loading operations.
@@ -96,15 +96,15 @@ git commit -m "feat: add LoadProgress model for video loading progress reporting
 **Files:**
 - Create: `src/Bref/Services/IVideoService.cs`
 - Create: `src/Bref/Services/VideoService.cs`
-- Create: `src/Bref.Tests/Services/VideoServiceTests.cs`
+- Create: `src/SpartaCut.Tests/Services/VideoServiceTests.cs`
 
 ### Step 1: Write failing test for format validation
 
 ```csharp
-using Bref.Services;
+using SpartaCut.Services;
 using Xunit;
 
-namespace Bref.Tests.Services;
+namespace SpartaCut.Tests.Services;
 
 public class VideoServiceTests
 {
@@ -130,9 +130,9 @@ Expected: Compilation error - VideoService doesn't exist
 ### Step 3: Create IVideoService interface
 
 ```csharp
-using Bref.Models;
+using SpartaCut.Models;
 
-namespace Bref.Services;
+namespace SpartaCut.Services;
 
 /// <summary>
 /// Service for video file operations (loading, validation, metadata extraction).
@@ -159,12 +159,12 @@ public interface IVideoService
 ### Step 4: Create VideoService stub implementation
 
 ```csharp
-using Bref.FFmpeg;
-using Bref.Models;
+using SpartaCut.FFmpeg;
+using SpartaCut.Models;
 using Serilog;
 using System.IO;
 
-namespace Bref.Services;
+namespace SpartaCut.Services;
 
 /// <summary>
 /// Service for video file operations.
@@ -239,7 +239,7 @@ Expected: PASS
 ### Step 8: Commit
 
 ```bash
-git add src/Bref/Services/IVideoService.cs src/Bref/Services/VideoService.cs src/Bref.Tests/Services/VideoServiceTests.cs
+git add src/Bref/Services/IVideoService.cs src/Bref/Services/VideoService.cs src/SpartaCut.Tests/Services/VideoServiceTests.cs
 git commit -m "feat: add VideoService with format and file validation (TDD)"
 ```
 
@@ -251,7 +251,7 @@ git commit -m "feat: add VideoService with format and file validation (TDD)"
 
 **Files:**
 - Modify: `src/Bref/Services/VideoService.cs`
-- Modify: `src/Bref.Tests/Services/VideoServiceTests.cs`
+- Modify: `src/SpartaCut.Tests/Services/VideoServiceTests.cs`
 
 ### Step 1: Write failing test for metadata extraction
 
@@ -391,7 +391,7 @@ Expected: Build succeeds with no errors
 ### Step 5: Commit
 
 ```bash
-git add src/Bref/Services/VideoService.cs src/Bref.Tests/Services/VideoServiceTests.cs
+git add src/Bref/Services/VideoService.cs src/SpartaCut.Tests/Services/VideoServiceTests.cs
 git commit -m "feat: integrate metadata extraction into VideoService"
 ```
 
@@ -404,12 +404,12 @@ git commit -m "feat: integrate metadata extraction into VideoService"
 **Files:**
 - Create: `src/Bref/Models/WaveformData.cs`
 - Create: `src/Bref/Services/WaveformGenerator.cs`
-- Create: `src/Bref.Tests/Services/WaveformGeneratorTests.cs`
+- Create: `src/SpartaCut.Tests/Services/WaveformGeneratorTests.cs`
 
 ### Step 1: Create WaveformData model
 
 ```csharp
-namespace Bref.Models;
+namespace SpartaCut.Models;
 
 /// <summary>
 /// Audio waveform data for timeline visualization.
@@ -442,10 +442,10 @@ public class WaveformData
 ### Step 2: Write failing test for WaveformGenerator
 
 ```csharp
-using Bref.Services;
+using SpartaCut.Services;
 using Xunit;
 
-namespace Bref.Tests.Services;
+namespace SpartaCut.Tests.Services;
 
 public class WaveformGeneratorTests
 {
@@ -471,11 +471,11 @@ Expected: Compilation error - WaveformGenerator doesn't exist
 ### Step 4: Create WaveformGenerator stub
 
 ```csharp
-using Bref.Models;
+using SpartaCut.Models;
 using NAudio.Wave;
 using Serilog;
 
-namespace Bref.Services;
+namespace SpartaCut.Services;
 
 /// <summary>
 /// Generates audio waveform data from video files using NAudio.
@@ -612,7 +612,7 @@ Note: Full integration test requires a real MP4 file. Add integration test in Ta
 ### Step 8: Commit
 
 ```bash
-git add src/Bref/Models/WaveformData.cs src/Bref/Services/WaveformGenerator.cs src/Bref.Tests/Services/WaveformGeneratorTests.cs
+git add src/Bref/Models/WaveformData.cs src/Bref/Services/WaveformGenerator.cs src/SpartaCut.Tests/Services/WaveformGeneratorTests.cs
 git commit -m "feat: implement WaveformGenerator using NAudio"
 ```
 
@@ -762,9 +762,9 @@ git commit -m "feat: integrate waveform generation into VideoService"
 ```csharp
 using Avalonia.Controls;
 using Avalonia.Threading;
-using Bref.Models;
+using SpartaCut.Models;
 
-namespace Bref.Views;
+namespace SpartaCut.Views;
 
 public partial class LoadingDialog : Window
 {
@@ -916,8 +916,8 @@ private async void LoadVideoButton_Click(object? sender, RoutedEventArgs e)
 At the top of MainWindow.axaml.cs:
 
 ```csharp
-using Bref.Services;
-using Bref.Models;
+using SpartaCut.Services;
+using SpartaCut.Models;
 ```
 
 ### Step 3: Build to verify
@@ -927,7 +927,7 @@ Expected: Build succeeds
 
 ### Step 4: Manual test with real MP4 file
 
-Run: `/usr/local/share/dotnet/dotnet run --project src/Bref/Bref.csproj`
+Run: `/usr/local/share/dotnet/dotnet run --project src/Bref/SpartaCut.csproj`
 Expected:
 - App launches
 - Click "Load MP4 Video"
@@ -950,16 +950,16 @@ git commit -m "feat: integrate VideoService and loading dialog into MainWindow"
 **Goal:** Add integration tests for complete video loading workflow
 
 **Files:**
-- Create: `src/Bref.Tests/Integration/VideoLoadingIntegrationTests.cs`
+- Create: `src/SpartaCut.Tests/Integration/VideoLoadingIntegrationTests.cs`
 
 ### Step 1: Create integration test class
 
 ```csharp
-using Bref.Models;
-using Bref.Services;
+using SpartaCut.Models;
+using SpartaCut.Services;
 using Xunit;
 
-namespace Bref.Tests.Integration;
+namespace SpartaCut.Tests.Integration;
 
 /// <summary>
 /// Integration tests for video loading workflow.
@@ -1061,7 +1061,7 @@ Expected: Tests SKIP if no test video, or PASS if test video exists
 ### Step 3: Commit
 
 ```bash
-git add src/Bref.Tests/Integration/VideoLoadingIntegrationTests.cs
+git add src/SpartaCut.Tests/Integration/VideoLoadingIntegrationTests.cs
 git commit -m "test: add integration tests for video loading workflow"
 ```
 
@@ -1072,10 +1072,10 @@ git commit -m "test: add integration tests for video loading workflow"
 **Goal:** Increment version to 0.2.0 for Week 2 milestone
 
 **Files:**
-- Modify: `src/Bref/Bref.csproj`
+- Modify: `src/Bref/SpartaCut.csproj`
 - Modify: `src/Bref/App.axaml.cs` (About dialog)
 
-### Step 1: Update version in Bref.csproj
+### Step 1: Update version in SpartaCut.csproj
 
 ```xml
 <!-- Version Information -->
@@ -1101,7 +1101,7 @@ Expected: Build succeeds
 ### Step 4: Commit and tag
 
 ```bash
-git add src/Bref/Bref.csproj src/Bref/App.axaml.cs
+git add src/Bref/SpartaCut.csproj src/Bref/App.axaml.cs
 git commit -m "chore: bump version to 0.2.0 for Week 2 milestone"
 git tag v0.2.0
 ```

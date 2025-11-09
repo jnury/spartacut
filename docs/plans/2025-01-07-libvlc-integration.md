@@ -19,11 +19,11 @@
 ### Task 1: Add LibVLCSharp NuGet Packages
 
 **Files:**
-- Modify: `src/Bref/Bref.csproj`
+- Modify: `src/Bref/SpartaCut.csproj`
 
 **Step 1: Add package references**
 
-Open `src/Bref/Bref.csproj` and add these packages to the `<ItemGroup>` with other packages:
+Open `src/Bref/SpartaCut.csproj` and add these packages to the `<ItemGroup>` with other packages:
 
 ```xml
 <!-- LibVLC for video playback -->
@@ -34,20 +34,20 @@ Open `src/Bref/Bref.csproj` and add these packages to the `<ItemGroup>` with oth
 
 **Step 2: Restore packages**
 
-Run: `dotnet restore src/Bref/Bref.csproj`
+Run: `dotnet restore src/Bref/SpartaCut.csproj`
 
 Expected: All packages restore successfully, no errors
 
 **Step 3: Verify build**
 
-Run: `dotnet build src/Bref/Bref.csproj`
+Run: `dotnet build src/Bref/SpartaCut.csproj`
 
 Expected: Build succeeds with no errors
 
 **Step 4: Commit**
 
 ```bash
-git add src/Bref/Bref.csproj
+git add src/Bref/SpartaCut.csproj
 git commit -m "feat: add LibVLCSharp NuGet packages"
 ```
 
@@ -56,18 +56,18 @@ git commit -m "feat: add LibVLCSharp NuGet packages"
 ### Task 2: Create LibVLC Initialization Test
 
 **Files:**
-- Create: `src/Bref.Tests/Services/VlcPlaybackEngineTests.cs`
+- Create: `src/SpartaCut.Tests/Services/VlcPlaybackEngineTests.cs`
 
 **Step 1: Write the failing test**
 
-Create `src/Bref.Tests/Services/VlcPlaybackEngineTests.cs`:
+Create `src/SpartaCut.Tests/Services/VlcPlaybackEngineTests.cs`:
 
 ```csharp
 using System;
 using Xunit;
-using Bref.Services;
+using SpartaCut.Services;
 
-namespace Bref.Tests.Services;
+namespace SpartaCut.Tests.Services;
 
 public class VlcPlaybackEngineTests
 {
@@ -108,7 +108,7 @@ using System;
 using LibVLCSharp.Shared;
 using Serilog;
 
-namespace Bref.Services;
+namespace SpartaCut.Services;
 
 /// <summary>
 /// Manages video playback using LibVLC
@@ -153,7 +153,7 @@ Expected: Both tests pass
 **Step 5: Commit**
 
 ```bash
-git add src/Bref/Services/VlcPlaybackEngine.cs src/Bref.Tests/Services/VlcPlaybackEngineTests.cs
+git add src/Bref/Services/VlcPlaybackEngine.cs src/SpartaCut.Tests/Services/VlcPlaybackEngineTests.cs
 git commit -m "feat: add VlcPlaybackEngine with LibVLC initialization"
 ```
 
@@ -188,7 +188,7 @@ using Avalonia.Controls;
 using LibVLCSharp.Shared;
 using Serilog;
 
-namespace Bref.Views.Controls;
+namespace SpartaCut.Views.Controls;
 
 public partial class VlcPlayerControl : UserControl
 {
@@ -211,7 +211,7 @@ public partial class VlcPlayerControl : UserControl
 
 **Step 3: Build to verify**
 
-Run: `dotnet build src/Bref/Bref.csproj`
+Run: `dotnet build src/Bref/SpartaCut.csproj`
 
 Expected: Build succeeds
 
@@ -230,11 +230,11 @@ git commit -m "feat: add VlcPlayerControl wrapper for LibVLCSharp VideoView"
 
 **Files:**
 - Modify: `src/Bref/Services/VlcPlaybackEngine.cs`
-- Modify: `src/Bref.Tests/Services/VlcPlaybackEngineTests.cs`
+- Modify: `src/SpartaCut.Tests/Services/VlcPlaybackEngineTests.cs`
 
 **Step 1: Write the failing test**
 
-Add to `src/Bref.Tests/Services/VlcPlaybackEngineTests.cs`:
+Add to `src/SpartaCut.Tests/Services/VlcPlaybackEngineTests.cs`:
 
 ```csharp
 [Fact]
@@ -264,11 +264,11 @@ Modify `src/Bref/Services/VlcPlaybackEngine.cs`:
 
 ```csharp
 using System;
-using Bref.Models; // Add this using
+using SpartaCut.Models; // Add this using
 using LibVLCSharp.Shared;
 using Serilog;
 
-namespace Bref.Services;
+namespace SpartaCut.Services;
 
 public class VlcPlaybackEngine : IDisposable
 {
@@ -341,7 +341,7 @@ Expected: All tests pass
 **Step 5: Commit**
 
 ```bash
-git add src/Bref/Services/VlcPlaybackEngine.cs src/Bref.Tests/Services/VlcPlaybackEngineTests.cs
+git add src/Bref/Services/VlcPlaybackEngine.cs src/SpartaCut.Tests/Services/VlcPlaybackEngineTests.cs
 git commit -m "feat: add State and CurrentTime properties to VlcPlaybackEngine"
 ```
 
@@ -351,11 +351,11 @@ git commit -m "feat: add State and CurrentTime properties to VlcPlaybackEngine"
 
 **Files:**
 - Modify: `src/Bref/Services/VlcPlaybackEngine.cs`
-- Modify: `src/Bref.Tests/Services/VlcPlaybackEngineTests.cs`
+- Modify: `src/SpartaCut.Tests/Services/VlcPlaybackEngineTests.cs`
 
 **Step 1: Write the failing test**
 
-Add to `src/Bref.Tests/Services/VlcPlaybackEngineTests.cs`:
+Add to `src/SpartaCut.Tests/Services/VlcPlaybackEngineTests.cs`:
 
 ```csharp
 [Fact]
@@ -402,11 +402,11 @@ Modify `src/Bref/Services/VlcPlaybackEngine.cs`:
 ```csharp
 using System;
 using System.IO;
-using Bref.Models;
+using SpartaCut.Models;
 using LibVLCSharp.Shared;
 using Serilog;
 
-namespace Bref.Services;
+namespace SpartaCut.Services;
 
 public class VlcPlaybackEngine : IDisposable
 {
@@ -502,7 +502,7 @@ Expected: All tests pass (Initialize test will pass even without real file - Lib
 **Step 5: Commit**
 
 ```bash
-git add src/Bref/Services/VlcPlaybackEngine.cs src/Bref.Tests/Services/VlcPlaybackEngineTests.cs
+git add src/Bref/Services/VlcPlaybackEngine.cs src/SpartaCut.Tests/Services/VlcPlaybackEngineTests.cs
 git commit -m "feat: implement Initialize method for VlcPlaybackEngine"
 ```
 
@@ -512,11 +512,11 @@ git commit -m "feat: implement Initialize method for VlcPlaybackEngine"
 
 **Files:**
 - Modify: `src/Bref/Services/VlcPlaybackEngine.cs`
-- Modify: `src/Bref.Tests/Services/VlcPlaybackEngineTests.cs`
+- Modify: `src/SpartaCut.Tests/Services/VlcPlaybackEngineTests.cs`
 
 **Step 1: Write the failing test**
 
-Add to `src/Bref.Tests/Services/VlcPlaybackEngineTests.cs`:
+Add to `src/SpartaCut.Tests/Services/VlcPlaybackEngineTests.cs`:
 
 ```csharp
 [Fact]
@@ -637,7 +637,7 @@ Expected: All tests pass
 **Step 5: Commit**
 
 ```bash
-git add src/Bref/Services/VlcPlaybackEngine.cs src/Bref.Tests/Services/VlcPlaybackEngineTests.cs
+git add src/Bref/Services/VlcPlaybackEngine.cs src/SpartaCut.Tests/Services/VlcPlaybackEngineTests.cs
 git commit -m "feat: implement Play and Pause methods"
 ```
 
@@ -647,11 +647,11 @@ git commit -m "feat: implement Play and Pause methods"
 
 **Files:**
 - Modify: `src/Bref/Services/VlcPlaybackEngine.cs`
-- Modify: `src/Bref.Tests/Services/VlcPlaybackEngineTests.cs`
+- Modify: `src/SpartaCut.Tests/Services/VlcPlaybackEngineTests.cs`
 
 **Step 1: Write the failing test**
 
-Add to `src/Bref.Tests/Services/VlcPlaybackEngineTests.cs`:
+Add to `src/SpartaCut.Tests/Services/VlcPlaybackEngineTests.cs`:
 
 ```csharp
 [Fact]
@@ -744,7 +744,7 @@ Expected: All tests pass
 **Step 5: Commit**
 
 ```bash
-git add src/Bref/Services/VlcPlaybackEngine.cs src/Bref.Tests/Services/VlcPlaybackEngineTests.cs
+git add src/Bref/Services/VlcPlaybackEngine.cs src/SpartaCut.Tests/Services/VlcPlaybackEngineTests.cs
 git commit -m "feat: implement Seek method with 50ms throttling"
 ```
 
@@ -764,11 +764,11 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Timers; // Add this
-using Bref.Models;
+using SpartaCut.Models;
 using LibVLCSharp.Shared;
 using Serilog;
 
-namespace Bref.Services;
+namespace SpartaCut.Services;
 
 public class VlcPlaybackEngine : IDisposable
 {
@@ -933,7 +933,7 @@ public void Dispose()
 
 **Step 5: Build and verify**
 
-Run: `dotnet build src/Bref/Bref.csproj`
+Run: `dotnet build src/Bref/SpartaCut.csproj`
 
 Expected: Build succeeds
 
@@ -991,7 +991,7 @@ _vlcPlayer = this.FindControl<VlcPlayerControl>("VlcPlayer");
 
 **Step 3: Build to verify**
 
-Run: `dotnet build src/Bref/Bref.csproj`
+Run: `dotnet build src/Bref/SpartaCut.csproj`
 
 Expected: Build succeeds (might have warnings about unused _vlcPlayer, that's ok)
 
@@ -1103,7 +1103,7 @@ public void Dispose()
 
 **Step 6: Build to verify**
 
-Run: `dotnet build src/Bref/Bref.csproj`
+Run: `dotnet build src/Bref/SpartaCut.csproj`
 
 Expected: Build succeeds
 
@@ -1159,7 +1159,7 @@ public VlcPlaybackEngine VlcPlaybackEngine => _vlcPlaybackEngine;
 
 **Step 3: Build to verify**
 
-Run: `dotnet build src/Bref/Bref.csproj`
+Run: `dotnet build src/Bref/SpartaCut.csproj`
 
 Expected: Build succeeds
 
@@ -1209,7 +1209,7 @@ private void OnTimelineScrubbed(TimeSpan virtualTime)
 
 **Step 3: Build to verify**
 
-Run: `dotnet build src/Bref/Bref.csproj`
+Run: `dotnet build src/Bref/SpartaCut.csproj`
 
 Expected: Build succeeds
 
@@ -1251,7 +1251,7 @@ rm src/Bref/Views/Controls/VideoPlayerControl.axaml.cs
 
 **Step 2: Verify build still works**
 
-Run: `dotnet build src/Bref/Bref.csproj`
+Run: `dotnet build src/Bref/SpartaCut.csproj`
 
 Expected: Build succeeds (should have no references to deleted files)
 
@@ -1267,19 +1267,19 @@ git commit -m "chore: remove old FFmpeg video player components"
 ### Task 14: Remove Old Tests for Deleted Components
 
 **Files:**
-- Delete: `src/Bref.Tests/Services/FrameDecoderTests.cs`
-- Delete: `src/Bref.Tests/Services/FrameCacheTests.cs`
-- Delete: `src/Bref.Tests/Services/PlaybackEngineTests.cs` (old one, not VlcPlaybackEngineTests)
-- Delete: `src/Bref.Tests/Utilities/LRUCacheTests.cs`
+- Delete: `src/SpartaCut.Tests/Services/FrameDecoderTests.cs`
+- Delete: `src/SpartaCut.Tests/Services/FrameCacheTests.cs`
+- Delete: `src/SpartaCut.Tests/Services/PlaybackEngineTests.cs` (old one, not VlcPlaybackEngineTests)
+- Delete: `src/SpartaCut.Tests/Utilities/LRUCacheTests.cs`
 
 **Step 1: Delete old test files**
 
 Run these commands:
 
 ```bash
-rm src/Bref.Tests/Services/FrameDecoderTests.cs
-rm src/Bref.Tests/Services/FrameCacheTests.cs
-rm src/Bref.Tests/Utilities/LRUCacheTests.cs
+rm src/SpartaCut.Tests/Services/FrameDecoderTests.cs
+rm src/SpartaCut.Tests/Services/FrameCacheTests.cs
+rm src/SpartaCut.Tests/Utilities/LRUCacheTests.cs
 ```
 
 Note: If there's an old `PlaybackEngineTests.cs` (not `VlcPlaybackEngineTests.cs`), delete it too.
@@ -1400,11 +1400,11 @@ git commit -m "docs: add LibVLC integration manual testing checklist"
 ### Task 16: Update Version to 0.8.0
 
 **Files:**
-- Modify: `src/Bref/Bref.csproj`
+- Modify: `src/Bref/SpartaCut.csproj`
 
 **Step 1: Update version number**
 
-Modify `src/Bref/Bref.csproj`, find the version properties and update:
+Modify `src/Bref/SpartaCut.csproj`, find the version properties and update:
 
 ```xml
 <!-- Version Information -->
@@ -1416,14 +1416,14 @@ Modify `src/Bref/Bref.csproj`, find the version properties and update:
 
 **Step 2: Build to verify**
 
-Run: `dotnet build src/Bref/Bref.csproj`
+Run: `dotnet build src/Bref/SpartaCut.csproj`
 
 Expected: Build succeeds with version 0.8.0
 
 **Step 3: Commit**
 
 ```bash
-git add src/Bref/Bref.csproj
+git add src/Bref/SpartaCut.csproj
 git commit -m "chore: bump version to 0.8.0 - LibVLC integration complete"
 ```
 

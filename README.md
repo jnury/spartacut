@@ -1,8 +1,8 @@
-# Bref
+# Sparta Cut
 
 **A fast, focused video editor for removing unwanted segments from videos.**
 
-Bref is a Windows desktop application designed for quickly trimming videos by removing unwanted segments. Perfect for cleaning up Teams meeting recordings, screen captures, and other MP4 videos.
+Sparta Cut is a Windows desktop application designed for quickly trimming videos by removing unwanted segments. Perfect for cleaning up Teams meeting recordings, screen captures, and other MP4 videos.
 
 ## Features
 
@@ -37,7 +37,7 @@ Bref is a Windows desktop application designed for quickly trimming videos by re
 ## Repository Structure
 
 ```
-Bref/
+SpartaCut/
 ├── docs/
 │   ├── stack-analysis.md              # Technology evaluation research
 │   └── plans/                     # Design documentation
@@ -46,8 +46,8 @@ Bref/
 │       ├── technical-specification.md
 │       └── mvp-scope-roadmap.md
 ├── src/
-│   ├── Bref/                      # Main application (to be created)
-│   └── Bref.Tests/                # Unit tests (to be created)
+│   ├── SpartaCut/                 # Main application
+│   └── SpartaCut.Tests/           # Unit tests
 ├── assets/                         # Icons, FFmpeg binaries (to be created)
 
 ├── claude.md                       # Claude Code context reference
@@ -84,7 +84,7 @@ See `docs/plans/2025-11-01-mvp-scope-roadmap.md` for detailed timeline.
 dotnet restore
 
 # Run application
-dotnet run --project src/Bref
+dotnet run --project src/SpartaCut
 
 # Run tests
 dotnet test

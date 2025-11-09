@@ -51,7 +51,7 @@ Timeline ← VlcPlaybackEngine (LibVLC MediaPlayer) ← Native video rendering
 
 ### Build
 ```bash
-dotnet publish src/Bref/Bref.csproj \
+dotnet publish src/Bref/SpartaCut.csproj \
   --runtime osx-x64 \
   --self-contained true \
   -c Debug

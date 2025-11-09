@@ -23,18 +23,18 @@
 ## Task 1: Create ExportService Interface and Model
 
 **Files:**
-- Create: `src/Bref.Core/Services/Interfaces/IExportService.cs`
-- Create: `src/Bref.Core/Models/ExportOptions.cs`
-- Create: `src/Bref.Core/Models/ExportProgress.cs`
+- Create: `src/SpartaCut.Core/Services/Interfaces/IExportService.cs`
+- Create: `src/SpartaCut.Core/Models/ExportOptions.cs`
+- Create: `src/SpartaCut.Core/Models/ExportProgress.cs`
 
 **Step 1: Create ExportOptions model**
 
-Create `src/Bref.Core/Models/ExportOptions.cs`:
+Create `src/SpartaCut.Core/Models/ExportOptions.cs`:
 
 ```csharp
 using System;
 
-namespace Bref.Core.Models;
+namespace SpartaCut.Core.Models;
 
 /// <summary>
 /// Options for video export operation
@@ -75,12 +75,12 @@ public record ExportOptions
 
 **Step 2: Create ExportProgress model**
 
-Create `src/Bref.Core/Models/ExportProgress.cs`:
+Create `src/SpartaCut.Core/Models/ExportProgress.cs`:
 
 ```csharp
 using System;
 
-namespace Bref.Core.Models;
+namespace SpartaCut.Core.Models;
 
 /// <summary>
 /// Progress information for export operation
@@ -139,15 +139,15 @@ public enum ExportStage
 
 **Step 3: Create IExportService interface**
 
-Create `src/Bref.Core/Services/Interfaces/IExportService.cs`:
+Create `src/SpartaCut.Core/Services/Interfaces/IExportService.cs`:
 
 ```csharp
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Bref.Core.Models;
+using SpartaCut.Core.Models;
 
-namespace Bref.Core.Services.Interfaces;
+namespace SpartaCut.Core.Services.Interfaces;
 
 /// <summary>
 /// Service for exporting edited videos
@@ -182,15 +182,15 @@ public interface IExportService
 
 **Step 4: Build and verify**
 
-Run: `/usr/local/share/dotnet/dotnet build src/Bref.Core/Bref.Core.csproj`
+Run: `/usr/local/share/dotnet/dotnet build src/SpartaCut.Core/SpartaCut.Core.csproj`
 Expected: Build succeeds with 0 errors
 
 **Step 5: Commit**
 
 ```bash
-git add src/Bref.Core/Models/ExportOptions.cs \
-        src/Bref.Core/Models/ExportProgress.cs \
-        src/Bref.Core/Services/Interfaces/IExportService.cs
+git add src/SpartaCut.Core/Models/ExportOptions.cs \
+        src/SpartaCut.Core/Models/ExportProgress.cs \
+        src/SpartaCut.Core/Services/Interfaces/IExportService.cs
 git commit -m "feat: add export service interface and models
 
 - Add ExportOptions with source/output paths and segments
@@ -204,15 +204,15 @@ git commit -m "feat: add export service interface and models
 ## Task 2: Implement Hardware Encoder Detection
 
 **Files:**
-- Create: `src/Bref.Core/Services/ExportService.cs`
+- Create: `src/SpartaCut.Core/Services/ExportService.cs`
 
 **Step 1: Create ExportService with encoder detection**
 
-Create `src/Bref.Core/Services/ExportService.cs`:
+Create `src/SpartaCut.Core/Services/ExportService.cs`:
 
 ```csharp
-using Bref.Core.Models;
-using Bref.Core.Services.Interfaces;
+using SpartaCut.Core.Models;
+using SpartaCut.Core.Services.Interfaces;
 using FFMpegCore;
 using Serilog;
 using System;
@@ -221,7 +221,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Bref.Core.Services;
+namespace SpartaCut.Core.Services;
 
 /// <summary>
 /// Service for exporting edited videos using FFmpeg
@@ -317,13 +317,13 @@ public class ExportService : IExportService
 
 **Step 2: Test encoder detection**
 
-Create `src/Bref.Tests/Services/ExportServiceTests.cs`:
+Create `src/SpartaCut.Tests/Services/ExportServiceTests.cs`:
 
 ```csharp
-using Bref.Core.Services;
+using SpartaCut.Core.Services;
 using Xunit;
 
-namespace Bref.Tests.Services;
+namespace SpartaCut.Tests.Services;
 
 public class ExportServiceTests
 {
@@ -362,16 +362,16 @@ public class ExportServiceTests
 
 **Step 3: Build and test**
 
-Run: `/usr/local/share/dotnet/dotnet build src/Bref.Core/Bref.Core.csproj`
-Run: `/usr/local/share/dotnet/dotnet test src/Bref.Tests/Bref.Tests.csproj --filter "FullyQualifiedName~ExportServiceTests"`
+Run: `/usr/local/share/dotnet/dotnet build src/SpartaCut.Core/SpartaCut.Core.csproj`
+Run: `/usr/local/share/dotnet/dotnet test src/SpartaCut.Tests/SpartaCut.Tests.csproj --filter "FullyQualifiedName~ExportServiceTests"`
 
 Expected: Build succeeds, tests pass
 
 **Step 4: Commit**
 
 ```bash
-git add src/Bref.Core/Services/ExportService.cs \
-        src/Bref.Tests/Services/ExportServiceTests.cs
+git add src/SpartaCut.Core/Services/ExportService.cs \
+        src/SpartaCut.Tests/Services/ExportServiceTests.cs
 git commit -m "feat: implement hardware encoder detection
 
 - Add ExportService with encoder detection methods
@@ -386,11 +386,11 @@ git commit -m "feat: implement hardware encoder detection
 ## Task 3: Implement FFmpeg Filter_Complex Builder
 
 **Files:**
-- Modify: `src/Bref.Core/Services/ExportService.cs`
+- Modify: `src/SpartaCut.Core/Services/ExportService.cs`
 
 **Step 1: Add BuildFilterComplex method**
 
-Modify `src/Bref.Core/Services/ExportService.cs`:
+Modify `src/SpartaCut.Core/Services/ExportService.cs`:
 
 ```csharp
 /// <summary>
@@ -509,7 +509,7 @@ private string BuildFFmpegArguments(ExportOptions options, string encoder)
 
 **Step 3: Add test for filter builder**
 
-Add to `src/Bref.Tests/Services/ExportServiceTests.cs`:
+Add to `src/SpartaCut.Tests/Services/ExportServiceTests.cs`:
 
 ```csharp
 [Fact]
@@ -547,14 +547,14 @@ public void BuildFilterComplex_SingleSegment_CreatesSimpleTrim()
 
 **Step 4: Build and test**
 
-Run: `/usr/local/share/dotnet/dotnet build src/Bref.Core/Bref.Core.csproj`
-Run: `/usr/local/share/dotnet/dotnet test src/Bref.Tests/Bref.Tests.csproj --filter "FullyQualifiedName~ExportServiceTests"`
+Run: `/usr/local/share/dotnet/dotnet build src/SpartaCut.Core/SpartaCut.Core.csproj`
+Run: `/usr/local/share/dotnet/dotnet test src/SpartaCut.Tests/SpartaCut.Tests.csproj --filter "FullyQualifiedName~ExportServiceTests"`
 
 **Step 5: Commit**
 
 ```bash
-git add src/Bref.Core/Services/ExportService.cs \
-        src/Bref.Tests/Services/ExportServiceTests.cs
+git add src/SpartaCut.Core/Services/ExportService.cs \
+        src/SpartaCut.Tests/Services/ExportServiceTests.cs
 git commit -m "feat: add FFmpeg filter_complex builder for export
 
 - Build trim filters for single segment export
@@ -569,11 +569,11 @@ git commit -m "feat: add FFmpeg filter_complex builder for export
 ## Task 4: Implement Export with Progress Monitoring
 
 **Files:**
-- Modify: `src/Bref.Core/Services/ExportService.cs`
+- Modify: `src/SpartaCut.Core/Services/ExportService.cs`
 
 **Step 1: Implement ExportAsync**
 
-Modify `src/Bref.Core/Services/ExportService.cs`:
+Modify `src/SpartaCut.Core/Services/ExportService.cs`:
 
 ```csharp
 public async Task<bool> ExportAsync(
@@ -759,12 +759,12 @@ private (long frame, int percentage)? ParseFFmpegProgress(string line, long tota
 
 **Step 2: Build**
 
-Run: `/usr/local/share/dotnet/dotnet build src/Bref.Core/Bref.Core.csproj`
+Run: `/usr/local/share/dotnet/dotnet build src/SpartaCut.Core/SpartaCut.Core.csproj`
 
 **Step 3: Commit**
 
 ```bash
-git add src/Bref.Core/Services/ExportService.cs
+git add src/SpartaCut.Core/Services/ExportService.cs
 git commit -m "feat: implement export with progress monitoring
 
 - Implement ExportAsync with FFmpeg process execution
@@ -780,12 +780,12 @@ git commit -m "feat: implement export with progress monitoring
 ## Task 5: Add Export UI to MainWindow
 
 **Files:**
-- Modify: `src/Bref.Core/ViewModels/MainWindowViewModel.cs`
+- Modify: `src/SpartaCut.Core/ViewModels/MainWindowViewModel.cs`
 - Modify: `src/Bref/Views/MainWindow.axaml`
 
 **Step 1: Add Export command to ViewModel**
 
-Modify `src/Bref.Core/ViewModels/MainWindowViewModel.cs`:
+Modify `src/SpartaCut.Core/ViewModels/MainWindowViewModel.cs`:
 
 Add private field after _playbackEngine:
 ```csharp
@@ -906,29 +906,29 @@ Modify `src/Bref/Views/MainWindow.axaml` to add export button and progress bar:
 </StackPanel>
 ```
 
-**Step 3: Update Bref.csproj version**
+**Step 3: Update SpartaCut.csproj version**
 
-Modify `src/Bref/Bref.csproj`:
+Modify `src/Bref/SpartaCut.csproj`:
 ```xml
 <Version>0.12.0</Version>
 ```
 
-Modify `src/Bref.Core/Bref.Core.csproj`:
+Modify `src/SpartaCut.Core/SpartaCut.Core.csproj`:
 ```xml
 <Version>0.12.0</Version>
 ```
 
 **Step 4: Build and test**
 
-Run: `/usr/local/share/dotnet/dotnet build src/Bref/Bref.csproj`
+Run: `/usr/local/share/dotnet/dotnet build src/Bref/SpartaCut.csproj`
 
 **Step 5: Commit**
 
 ```bash
-git add src/Bref.Core/ViewModels/MainWindowViewModel.cs \
+git add src/SpartaCut.Core/ViewModels/MainWindowViewModel.cs \
         src/Bref/Views/MainWindow.axaml \
-        src/Bref/Bref.csproj \
-        src/Bref.Core/Bref.Core.csproj
+        src/Bref/SpartaCut.csproj \
+        src/SpartaCut.Core/SpartaCut.Core.csproj
 git commit -m "feat: add export UI and command
 
 - Add ExportCommand to MainWindowViewModel
@@ -944,22 +944,22 @@ git commit -m "feat: add export UI and command
 ## Task 6: Integration Testing with Real Video
 
 **Files:**
-- Create: `src/Bref.Tests/Integration/ExportIntegrationTests.cs`
+- Create: `src/SpartaCut.Tests/Integration/ExportIntegrationTests.cs`
 
 **Step 1: Create integration test**
 
-Create `src/Bref.Tests/Integration/ExportIntegrationTests.cs`:
+Create `src/SpartaCut.Tests/Integration/ExportIntegrationTests.cs`:
 
 ```csharp
-using Bref.Core.Models;
-using Bref.Core.Services;
+using SpartaCut.Core.Models;
+using SpartaCut.Core.Services;
 using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Bref.Tests.Integration;
+namespace SpartaCut.Tests.Integration;
 
 /// <summary>
 /// Integration tests for export functionality
@@ -1111,7 +1111,7 @@ Run application and test export:
 **Step 3: Commit**
 
 ```bash
-git add src/Bref.Tests/Integration/ExportIntegrationTests.cs
+git add src/SpartaCut.Tests/Integration/ExportIntegrationTests.cs
 git commit -m "test: add export integration tests
 
 - Test single segment export creates valid video
@@ -1125,12 +1125,12 @@ git commit -m "test: add export integration tests
 ## Task 7: Handle Export Edge Cases
 
 **Files:**
-- Modify: `src/Bref.Core/Services/ExportService.cs`
-- Create: `src/Bref.Tests/Services/ExportServiceEdgeCaseTests.cs`
+- Modify: `src/SpartaCut.Core/Services/ExportService.cs`
+- Create: `src/SpartaCut.Tests/Services/ExportServiceEdgeCaseTests.cs`
 
 **Step 1: Add validation to ExportAsync**
 
-Modify `src/Bref.Core/Services/ExportService.cs` at start of ExportAsync:
+Modify `src/SpartaCut.Core/Services/ExportService.cs` at start of ExportAsync:
 
 ```csharp
 // Validate inputs
@@ -1166,18 +1166,18 @@ if (File.Exists(options.OutputFilePath))
 
 **Step 2: Add edge case tests**
 
-Create `src/Bref.Tests/Services/ExportServiceEdgeCaseTests.cs`:
+Create `src/SpartaCut.Tests/Services/ExportServiceEdgeCaseTests.cs`:
 
 ```csharp
-using Bref.Core.Models;
-using Bref.Core.Services;
+using SpartaCut.Core.Models;
+using SpartaCut.Core.Services;
 using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Bref.Tests.Services;
+namespace SpartaCut.Tests.Services;
 
 public class ExportServiceEdgeCaseTests
 {
@@ -1290,13 +1290,13 @@ public class ExportServiceEdgeCaseTests
 
 **Step 3: Build and test**
 
-Run: `/usr/local/share/dotnet/dotnet test src/Bref.Tests/Bref.Tests.csproj --filter "FullyQualifiedName~ExportServiceEdgeCaseTests"`
+Run: `/usr/local/share/dotnet/dotnet test src/SpartaCut.Tests/SpartaCut.Tests.csproj --filter "FullyQualifiedName~ExportServiceEdgeCaseTests"`
 
 **Step 4: Commit**
 
 ```bash
-git add src/Bref.Core/Services/ExportService.cs \
-        src/Bref.Tests/Services/ExportServiceEdgeCaseTests.cs
+git add src/SpartaCut.Core/Services/ExportService.cs \
+        src/SpartaCut.Tests/Services/ExportServiceEdgeCaseTests.cs
 git commit -m "feat: add export validation and edge case handling
 
 - Validate source file exists before export
@@ -1562,17 +1562,17 @@ git commit -m "docs: document Week 9 export service learnings
 ## Task 9: Final Verification and Release
 
 **Files:**
-- Modify: `src/Bref/Bref.csproj`
-- Modify: `src/Bref.Core/Bref.Core.csproj`
+- Modify: `src/Bref/SpartaCut.csproj`
+- Modify: `src/SpartaCut.Core/SpartaCut.Core.csproj`
 
 **Step 1: Run full test suite**
 
-Run: `/usr/local/share/dotnet/dotnet test src/Bref.Tests/Bref.Tests.csproj`
+Run: `/usr/local/share/dotnet/dotnet test src/SpartaCut.Tests/SpartaCut.Tests.csproj`
 Expected: All tests pass (120+ tests)
 
 **Step 2: Build release configuration**
 
-Run: `/usr/local/share/dotnet/dotnet build src/Bref/Bref.csproj -c Release`
+Run: `/usr/local/share/dotnet/dotnet build src/Bref/SpartaCut.csproj -c Release`
 Expected: Build succeeds with 0 errors, 0 warnings
 
 **Step 3: Manual export test**
@@ -1586,7 +1586,7 @@ Expected: Build succeeds with 0 errors, 0 warnings
 **Step 4: Final commit and tag**
 
 ```bash
-git add src/Bref/Bref.csproj src/Bref.Core/Bref.Core.csproj
+git add src/Bref/SpartaCut.csproj src/SpartaCut.Core/SpartaCut.Core.csproj
 git commit -m "chore: release version 0.12.0 - Week 9 export complete
 
 Week 9 deliverables:

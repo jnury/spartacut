@@ -23,12 +23,12 @@
 
 **Files:**
 - Modify: `src/Bref/Services/VlcPlaybackEngine.cs`
-- Modify: `src/Bref.Core/Services/Interfaces/IPlaybackEngine.cs`
-- Test: `src/Bref.Tests/Mocks/MockPlaybackEngine.cs`
+- Modify: `src/SpartaCut.Core/Services/Interfaces/IPlaybackEngine.cs`
+- Test: `src/SpartaCut.Tests/Mocks/MockPlaybackEngine.cs`
 
 **Step 1: Add Volume property to IPlaybackEngine**
 
-Modify `src/Bref.Core/Services/Interfaces/IPlaybackEngine.cs:12-15`:
+Modify `src/SpartaCut.Core/Services/Interfaces/IPlaybackEngine.cs:12-15`:
 
 ```csharp
 public interface IPlaybackEngine : IDisposable
@@ -103,7 +103,7 @@ _mediaPlayer.Time = 0;
 
 **Step 4: Update MockPlaybackEngine**
 
-Modify `src/Bref.Tests/Mocks/MockPlaybackEngine.cs`:
+Modify `src/SpartaCut.Tests/Mocks/MockPlaybackEngine.cs`:
 
 Add private field after line 13:
 ```csharp
@@ -125,15 +125,15 @@ public void SetVolume(float volume)
 
 **Step 5: Build and verify**
 
-Run: `/usr/local/share/dotnet/dotnet build src/Bref/Bref.csproj`
+Run: `/usr/local/share/dotnet/dotnet build src/Bref/SpartaCut.csproj`
 Expected: Build succeeds with 0 errors
 
 **Step 6: Commit**
 
 ```bash
-git add src/Bref.Core/Services/Interfaces/IPlaybackEngine.cs \
+git add src/SpartaCut.Core/Services/Interfaces/IPlaybackEngine.cs \
         src/Bref/Services/VlcPlaybackEngine.cs \
-        src/Bref.Tests/Mocks/MockPlaybackEngine.cs
+        src/SpartaCut.Tests/Mocks/MockPlaybackEngine.cs
 git commit -m "feat: add volume control to playback engine
 
 - Add Volume property and SetVolume method to IPlaybackEngine
@@ -147,12 +147,12 @@ git commit -m "feat: add volume control to playback engine
 ## Task 2: Add Volume Control UI to MainWindow
 
 **Files:**
-- Modify: `src/Bref.Core/ViewModels/MainWindowViewModel.cs`
+- Modify: `src/SpartaCut.Core/ViewModels/MainWindowViewModel.cs`
 - Modify: `src/Bref/Views/MainWindow.axaml`
 
 **Step 1: Add Volume property to MainWindowViewModel**
 
-Modify `src/Bref.Core/ViewModels/MainWindowViewModel.cs`:
+Modify `src/SpartaCut.Core/ViewModels/MainWindowViewModel.cs`:
 
 Add private field after line 21 (after _uiContext):
 ```csharp
@@ -217,13 +217,13 @@ Update the parent Grid ColumnDefinitions to accommodate the new column:
 
 **Step 3: Build and verify**
 
-Run: `/usr/local/share/dotnet/dotnet build src/Bref/Bref.csproj`
+Run: `/usr/local/share/dotnet/dotnet build src/Bref/SpartaCut.csproj`
 Expected: Build succeeds, volume slider appears in UI
 
 **Step 4: Commit**
 
 ```bash
-git add src/Bref.Core/ViewModels/MainWindowViewModel.cs \
+git add src/SpartaCut.Core/ViewModels/MainWindowViewModel.cs \
         src/Bref/Views/MainWindow.axaml
 git commit -m "feat: add volume control slider to UI
 
@@ -238,18 +238,18 @@ git commit -m "feat: add volume control slider to UI
 ## Task 3: Test Volume Control with Unit Tests
 
 **Files:**
-- Create: `src/Bref.Tests/Services/VlcPlaybackEngineVolumeTests.cs`
+- Create: `src/SpartaCut.Tests/Services/VlcPlaybackEngineVolumeTests.cs`
 
 **Step 1: Write volume control tests**
 
-Create `src/Bref.Tests/Services/VlcPlaybackEngineVolumeTests.cs`:
+Create `src/SpartaCut.Tests/Services/VlcPlaybackEngineVolumeTests.cs`:
 
 ```csharp
-using Bref.Core.ViewModels;
-using Bref.Tests.Mocks;
+using SpartaCut.Core.ViewModels;
+using SpartaCut.Tests.Mocks;
 using Xunit;
 
-namespace Bref.Tests.Services;
+namespace SpartaCut.Tests.Services;
 
 public class VlcPlaybackEngineVolumeTests
 {
@@ -320,13 +320,13 @@ public class VlcPlaybackEngineVolumeTests
 
 **Step 2: Run tests**
 
-Run: `/usr/local/share/dotnet/dotnet test src/Bref.Tests/Bref.Tests.csproj --filter "FullyQualifiedName~VlcPlaybackEngineVolumeTests"`
+Run: `/usr/local/share/dotnet/dotnet test src/SpartaCut.Tests/SpartaCut.Tests.csproj --filter "FullyQualifiedName~VlcPlaybackEngineVolumeTests"`
 Expected: All 5 tests pass
 
 **Step 3: Commit**
 
 ```bash
-git add src/Bref.Tests/Services/VlcPlaybackEngineVolumeTests.cs
+git add src/SpartaCut.Tests/Services/VlcPlaybackEngineVolumeTests.cs
 git commit -m "test: add unit tests for volume control
 
 - Test SetVolume updates volume correctly
@@ -344,7 +344,7 @@ git commit -m "test: add unit tests for volume control
 
 **Step 1: Run application with sample video**
 
-Run: `/usr/local/share/dotnet/dotnet run --project src/Bref/Bref.csproj`
+Run: `/usr/local/share/dotnet/dotnet run --project src/Bref/SpartaCut.csproj`
 
 Load: `samples/sample-30s.mp4`
 
@@ -419,7 +419,7 @@ _mediaPlayer.Time = 0;
 
 **Step 3: Build and test**
 
-Run: `/usr/local/share/dotnet/dotnet build src/Bref/Bref.csproj`
+Run: `/usr/local/share/dotnet/dotnet build src/Bref/SpartaCut.csproj`
 Expected: Build succeeds
 
 Run the app and load a video, check console for audio track logging.
@@ -496,12 +496,12 @@ git commit -m "feat: add audio seek logging for segment boundaries
 ## Task 7: Add Mute/Unmute Hotkey
 
 **Files:**
-- Modify: `src/Bref.Core/ViewModels/MainWindowViewModel.cs`
+- Modify: `src/SpartaCut.Core/ViewModels/MainWindowViewModel.cs`
 - Modify: `src/Bref/Views/MainWindow.axaml.cs`
 
 **Step 1: Add mute state to ViewModel**
 
-Modify `src/Bref.Core/ViewModels/MainWindowViewModel.cs`:
+Modify `src/SpartaCut.Core/ViewModels/MainWindowViewModel.cs`:
 
 Add private field after _volume:
 ```csharp
@@ -587,7 +587,7 @@ Run app, press M key:
 **Step 5: Commit**
 
 ```bash
-git add src/Bref.Core/ViewModels/MainWindowViewModel.cs \
+git add src/SpartaCut.Core/ViewModels/MainWindowViewModel.cs \
         src/Bref/Views/MainWindow.axaml.cs \
         src/Bref/Views/MainWindow.axaml
 git commit -m "feat: add M key mute/unmute toggle
@@ -670,11 +670,11 @@ Check logs for "Extracted audio to..." timing if applicable (LibVLC may not need
 ## Task 10: Integration Tests for Audio
 
 **Files:**
-- Modify: `src/Bref.Tests/Integration/SelectionAndDeletionIntegrationTests.cs`
+- Modify: `src/SpartaCut.Tests/Integration/SelectionAndDeletionIntegrationTests.cs`
 
 **Step 1: Add audio playback integration test**
 
-Add to `src/Bref.Tests/Integration/SelectionAndDeletionIntegrationTests.cs`:
+Add to `src/SpartaCut.Tests/Integration/SelectionAndDeletionIntegrationTests.cs`:
 
 ```csharp
 [Fact]
@@ -732,13 +732,13 @@ public void ToggleMute_PreservesVolumeLevel()
 
 **Step 2: Run integration tests**
 
-Run: `/usr/local/share/dotnet/dotnet test src/Bref.Tests/Bref.Tests.csproj --filter "FullyQualifiedName~SelectionAndDeletionIntegrationTests"`
+Run: `/usr/local/share/dotnet/dotnet test src/SpartaCut.Tests/SpartaCut.Tests.csproj --filter "FullyQualifiedName~SelectionAndDeletionIntegrationTests"`
 Expected: All tests pass including new volume tests
 
 **Step 3: Commit**
 
 ```bash
-git add src/Bref.Tests/Integration/SelectionAndDeletionIntegrationTests.cs
+git add src/SpartaCut.Tests/Integration/SelectionAndDeletionIntegrationTests.cs
 git commit -m "test: add audio volume integration tests
 
 - Test volume can be set multiple times
@@ -819,27 +819,27 @@ git commit -m "docs: document Week 8 audio playback learnings
 ## Task 12: Final Verification and Version Bump
 
 **Files:**
-- Modify: `src/Bref/Bref.csproj`
-- Modify: `src/Bref.Core/Bref.Core.csproj`
+- Modify: `src/Bref/SpartaCut.csproj`
+- Modify: `src/SpartaCut.Core/SpartaCut.Core.csproj`
 
 **Step 1: Run full test suite**
 
-Run: `/usr/local/share/dotnet/dotnet test src/Bref.Tests/Bref.Tests.csproj`
+Run: `/usr/local/share/dotnet/dotnet test src/SpartaCut.Tests/SpartaCut.Tests.csproj`
 Expected: All tests pass (115+ tests)
 
 **Step 2: Build release configuration**
 
-Run: `/usr/local/share/dotnet/dotnet build src/Bref/Bref.csproj -c Release`
+Run: `/usr/local/share/dotnet/dotnet build src/Bref/SpartaCut.csproj -c Release`
 Expected: Build succeeds with 0 errors
 
 **Step 3: Bump version to 0.11.0**
 
-Modify `src/Bref/Bref.csproj` line 6:
+Modify `src/Bref/SpartaCut.csproj` line 6:
 ```xml
 <Version>0.11.0</Version>
 ```
 
-Modify `src/Bref.Core/Bref.Core.csproj` line 6:
+Modify `src/SpartaCut.Core/SpartaCut.Core.csproj` line 6:
 ```xml
 <Version>0.11.0</Version>
 ```
@@ -847,7 +847,7 @@ Modify `src/Bref.Core/Bref.Core.csproj` line 6:
 **Step 4: Commit and tag**
 
 ```bash
-git add src/Bref/Bref.csproj src/Bref.Core/Bref.Core.csproj
+git add src/Bref/SpartaCut.csproj src/SpartaCut.Core/SpartaCut.Core.csproj
 git commit -m "chore: bump version to 0.11.0 - Week 8 audio complete
 
 Week 8 deliverables:

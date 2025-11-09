@@ -105,9 +105,9 @@ Create a note of:
 ## Task 2: Create Solution and Project Structure
 
 **Files:**
-- Create: `Bref.sln`
-- Create: `src/Bref/Bref.csproj`
-- Create: `src/Bref.Tests/Bref.Tests.csproj`
+- Create: `SpartaCut.sln`
+- Create: `src/Bref/SpartaCut.csproj`
+- Create: `src/SpartaCut.Tests/SpartaCut.Tests.csproj`
 - Create: `src/Bref/App.axaml`
 - Create: `src/Bref/App.axaml.cs`
 - Create: `src/Bref/Program.cs`
@@ -119,7 +119,7 @@ cd /Users/jnury-perso/Repositories/Bref
 dotnet new sln -n Bref
 ```
 
-Expected: `Bref.sln` created in root directory
+Expected: `SpartaCut.sln` created in root directory
 
 **Step 2: Create src directory and main project**
 
@@ -135,17 +135,17 @@ Expected: Avalonia project files created in `src/Bref/`
 
 ```bash
 cd /Users/jnury-perso/Repositories/Bref
-dotnet sln add src/Bref/Bref.csproj
+dotnet sln add src/Bref/SpartaCut.csproj
 ```
 
-Expected: `Project 'src/Bref/Bref.csproj' added to the solution.`
+Expected: `Project 'src/Bref/SpartaCut.csproj' added to the solution.`
 
 **Step 4: Create test project**
 
 ```bash
-mkdir -p src/Bref.Tests
-cd src/Bref.Tests
-dotnet new xunit -n Bref.Tests
+mkdir -p src/SpartaCut.Tests
+cd src/SpartaCut.Tests
+dotnet new xunit -n SpartaCut.Tests
 ```
 
 Expected: xUnit test project created
@@ -154,17 +154,17 @@ Expected: xUnit test project created
 
 ```bash
 cd /Users/jnury-perso/Repositories/Bref
-dotnet sln add src/Bref.Tests/Bref.Tests.csproj
+dotnet sln add src/SpartaCut.Tests/SpartaCut.Tests.csproj
 ```
 
 **Step 6: Add project reference from tests to main project**
 
 ```bash
-cd src/Bref.Tests
-dotnet add reference ../Bref/Bref.csproj
+cd src/SpartaCut.Tests
+dotnet add reference ../Bref/SpartaCut.csproj
 ```
 
-Expected: `Reference '../Bref/Bref.csproj' added to the project.`
+Expected: `Reference '../Bref/SpartaCut.csproj' added to the project.`
 
 **Step 7: Verify solution builds**
 
@@ -195,8 +195,8 @@ Review changes, then:
 ```bash
 git commit -m "feat: create solution and project structure
 
-- Add Bref.sln with Avalonia app project
-- Add Bref.Tests xUnit project
+- Add SpartaCut.sln with Avalonia app project
+- Add SpartaCut.Tests xUnit project
 - Verify build and tests pass on Mac M4
 - .NET 8 + Avalonia 11.0.x"
 ```
@@ -206,7 +206,7 @@ git commit -m "feat: create solution and project structure
 ## Task 3: Install NuGet Dependencies
 
 **Files:**
-- Modify: `src/Bref/Bref.csproj`
+- Modify: `src/Bref/SpartaCut.csproj`
 
 **Step 1: Add NuGet packages to main project**
 
@@ -223,10 +223,10 @@ dotnet add package Serilog.Sinks.File --version 5.0.0
 
 Expected: Each command shows `info : PackageReference for package 'X' version 'Y' added`
 
-**Step 2: Verify Bref.csproj contents**
+**Step 2: Verify SpartaCut.csproj contents**
 
 ```bash
-cat Bref.csproj
+cat SpartaCut.csproj
 ```
 
 Expected: Should contain all PackageReferences:
@@ -279,7 +279,7 @@ Expected: `Build succeeded. 0 Warning(s) 0 Error(s)`
 **Step 5: Commit dependency additions**
 
 ```bash
-git add src/Bref/Bref.csproj
+git add src/Bref/SpartaCut.csproj
 git commit -m "feat: add NuGet dependencies
 
 - FFmpeg.AutoGen 7.0.0 for low-level FFmpeg bindings
@@ -358,7 +358,7 @@ using Serilog;
 using System;
 using System.IO;
 
-namespace Bref.Utilities;
+namespace SpartaCut.Utilities;
 
 /// <summary>
 /// Configures Serilog logger for the application.
@@ -428,10 +428,10 @@ Edit `src/Bref/Program.cs`:
 ```csharp
 using Avalonia;
 using System;
-using Bref.Utilities;
+using SpartaCut.Utilities;
 using Serilog;
 
-namespace Bref;
+namespace SpartaCut;
 
 class Program
 {
@@ -482,7 +482,7 @@ Expected: `Build succeeded. 0 Warning(s) 0 Error(s)`
 **Step 4: Run application to test logging**
 
 ```bash
-dotnet run --project src/Bref/Bref.csproj
+dotnet run --project src/Bref/SpartaCut.csproj
 ```
 
 Expected:
@@ -529,20 +529,20 @@ git commit -m "feat: setup Serilog logging
 
 **Files:**
 - Create: `src/Bref/FFmpeg/FFmpegSetup.cs`
-- Create: `src/Bref.Tests/FFmpeg/FFmpegSetupTests.cs`
+- Create: `src/SpartaCut.Tests/FFmpeg/FFmpegSetupTests.cs`
 
 **Step 1: Write the failing test**
 
-Create `src/Bref.Tests/FFmpeg/FFmpegSetupTests.cs`:
+Create `src/SpartaCut.Tests/FFmpeg/FFmpegSetupTests.cs`:
 
 ```csharp
 using Xunit;
-using Bref.FFmpeg;
+using SpartaCut.FFmpeg;
 using System;
 using Serilog;
 using Serilog.Core;
 
-namespace Bref.Tests.FFmpeg;
+namespace SpartaCut.Tests.FFmpeg;
 
 public class FFmpegSetupTests : IDisposable
 {
@@ -607,7 +607,7 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace Bref.FFmpeg;
+namespace SpartaCut.FFmpeg;
 
 /// <summary>
 /// Configures FFmpeg.AutoGen to locate native FFmpeg libraries.
@@ -739,10 +739,10 @@ Modify `src/Bref/App.axaml.cs` temporarily to test FFmpeg initialization:
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using Bref.FFmpeg;
+using SpartaCut.FFmpeg;
 using Serilog;
 
-namespace Bref;
+namespace SpartaCut;
 
 public partial class App : Application
 {
@@ -776,7 +776,7 @@ public partial class App : Application
 
 Run:
 ```bash
-dotnet run --project src/Bref/Bref.csproj
+dotnet run --project src/Bref/SpartaCut.csproj
 ```
 
 Expected: Console shows log line like:
@@ -790,7 +790,7 @@ Close application (Cmd+Q).
 **Step 6: Commit FFmpeg setup**
 
 ```bash
-git add src/Bref/FFmpeg/FFmpegSetup.cs src/Bref.Tests/FFmpeg/FFmpegSetupTests.cs src/Bref/App.axaml.cs
+git add src/Bref/FFmpeg/FFmpegSetup.cs src/SpartaCut.Tests/FFmpeg/FFmpegSetupTests.cs src/Bref/App.axaml.cs
 git commit -m "feat: configure FFmpeg.AutoGen for macOS
 
 - Add FFmpegSetup utility to detect and initialize FFmpeg libraries
@@ -807,7 +807,7 @@ git commit -m "feat: configure FFmpeg.AutoGen for macOS
 **Files:**
 - Create: `src/Bref/Models/VideoMetadata.cs`
 - Create: `src/Bref/FFmpeg/FrameExtractor.cs`
-- Create: `src/Bref.Tests/FFmpeg/FrameExtractorTests.cs`
+- Create: `src/SpartaCut.Tests/FFmpeg/FrameExtractorTests.cs`
 
 **Step 1: Write VideoMetadata model**
 
@@ -816,7 +816,7 @@ Create `src/Bref/Models/VideoMetadata.cs`:
 ```csharp
 using System;
 
-namespace Bref.Models;
+namespace SpartaCut.Models;
 
 /// <summary>
 /// Metadata extracted from a video file.
@@ -924,17 +924,17 @@ git commit -m "feat: add VideoMetadata model
 
 **Step 4: Write failing test for FrameExtractor**
 
-Create `src/Bref.Tests/FFmpeg/FrameExtractorTests.cs`:
+Create `src/SpartaCut.Tests/FFmpeg/FrameExtractorTests.cs`:
 
 ```csharp
 using Xunit;
-using Bref.FFmpeg;
-using Bref.Models;
+using SpartaCut.FFmpeg;
+using SpartaCut.Models;
 using System;
 using System.IO;
 using Serilog;
 
-namespace Bref.Tests.FFmpeg;
+namespace SpartaCut.Tests.FFmpeg;
 
 public class FrameExtractorTests : IDisposable
 {
@@ -999,12 +999,12 @@ Create `src/Bref/FFmpeg/FrameExtractor.cs`:
 
 ```csharp
 using FFmpeg.AutoGen;
-using Bref.Models;
+using SpartaCut.Models;
 using Serilog;
 using System;
 using System.IO;
 
-namespace Bref.FFmpeg;
+namespace SpartaCut.FFmpeg;
 
 /// <summary>
 /// Extracts metadata and frames from video files using FFmpeg.
@@ -1156,7 +1156,7 @@ Expected: PASS - FileNotFoundException test should pass
 **Step 9: Commit FrameExtractor implementation**
 
 ```bash
-git add src/Bref/FFmpeg/FrameExtractor.cs src/Bref.Tests/FFmpeg/FrameExtractorTests.cs
+git add src/Bref/FFmpeg/FrameExtractor.cs src/SpartaCut.Tests/FFmpeg/FrameExtractorTests.cs
 git commit -m "feat: add FrameExtractor for video metadata
 
 - Extract video metadata using FFmpeg.AutoGen (avformat)
@@ -1243,14 +1243,14 @@ Replace `src/Bref/Views/MainWindow.axaml.cs`:
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
-using Bref.FFmpeg;
+using SpartaCut.FFmpeg;
 using Serilog;
 using System;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bref.Views;
+namespace SpartaCut.Views;
 
 public partial class MainWindow : Window
 {
@@ -1370,7 +1370,7 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 
-namespace Bref;
+namespace SpartaCut;
 
 public partial class App : Application
 {
@@ -1402,7 +1402,7 @@ Expected: `Build succeeded.`
 **Step 5: Run POC and test with real video**
 
 ```bash
-dotnet run --project src/Bref/Bref.csproj
+dotnet run --project src/Bref/SpartaCut.csproj
 ```
 
 Expected:
@@ -1453,12 +1453,12 @@ Week 1 POC: COMPLETE"
 ## Task 9: Update Version Number and Create Documentation
 
 **Files:**
-- Modify: `src/Bref/Bref.csproj`
+- Modify: `src/Bref/SpartaCut.csproj`
 - Create: `docs/development-log.md`
 
 **Step 1: Update project version to 0.1.0**
 
-Edit `src/Bref/Bref.csproj` and add version properties:
+Edit `src/Bref/SpartaCut.csproj` and add version properties:
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
@@ -1497,7 +1497,7 @@ Create `docs/development-log.md`:
 ### Completed Tasks
 
 1. ✅ Verified development environment (,NET 8 SDK, Homebrew, FFmpeg)
-2. ✅ Created solution and project structure (Bref.sln, Bref.csproj, Bref.Tests.csproj)
+2. ✅ Created solution and project structure (SpartaCut.sln, SpartaCut.csproj, SpartaCut.Tests.csproj)
 3. ✅ Installed NuGet dependencies (Avalonia, FFmpeg.AutoGen, Serilog, etc.)
 4. ✅ Created project directory structure (Models, ViewModels, Views, Services, FFmpeg, Utilities)
 5. ✅ Setup Serilog logging with console and file sinks
@@ -1563,7 +1563,7 @@ Check that version appears in build output.
 **Step 4: Commit version update and documentation**
 
 ```bash
-git add src/Bref/Bref.csproj docs/development-log.md
+git add src/Bref/SpartaCut.csproj docs/development-log.md
 git commit -m "chore: bump version to 0.1.0 and add development log
 
 - Set version to 0.1.0 (Week 1 POC milestone)
@@ -1649,8 +1649,8 @@ Expected: Latest commit and tag visible locally
 
 ### Deliverables
 - [x] .NET 8 SDK installed and verified
-- [x] Avalonia project created (Bref.csproj)
-- [x] Test project created (Bref.Tests.csproj)
+- [x] Avalonia project created (SpartaCut.csproj)
+- [x] Test project created (SpartaCut.Tests.csproj)
 - [x] NuGet dependencies installed
 - [x] FFmpeg integrated via Homebrew (Mac M4)
 - [x] Serilog logging configured

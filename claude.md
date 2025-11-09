@@ -1,4 +1,4 @@
-# Bref - Video Editor Context
+# Sparta Cut - Video Editor Context
 
 **Target:** Windows video editor for MP4/H.264 segment removal → Microsoft Store (MSIX)
 
@@ -46,8 +46,8 @@ cd src && ./build-and-run.sh  # Clean build script
 
 **Manual:**
 ```bash
-dotnet publish src/Bref/Bref.csproj --runtime osx-x64 --self-contained -c Debug
-arch -x86_64 ./src/Bref/bin/Debug/net8.0/osx-x64/publish/Bref
+dotnet publish src/SpartaCut/SpartaCut.csproj --runtime osx-x64 --self-contained -c Debug
+arch -x86_64 ./src/SpartaCut/bin/Debug/net8.0/osx-x64/publish/SpartaCut
 ```
 
 ## Key Patterns

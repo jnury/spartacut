@@ -43,7 +43,7 @@ Implement the core virtual timeline logic that enables non-destructive video edi
 
 ### Task 1: Implement VideoSegment Model (TDD)
 **Estimated Time:** 2 hours
-**Test File:** `src/Bref.Tests/Models/VideoSegmentTests.cs`
+**Test File:** `src/SpartaCut.Tests/Models/VideoSegmentTests.cs`
 **Implementation File:** `src/Bref/Models/VideoSegment.cs`
 
 #### Test Cases to Write First:
@@ -75,7 +75,7 @@ public void Contains_ReturnsTrueForBoundaryTimes()
 
 #### Implementation Spec:
 ```csharp
-namespace Bref.Models
+namespace SpartaCut.Models
 {
     /// <summary>
     /// Represents a continuous portion of the source video (kept segment)
@@ -116,7 +116,7 @@ namespace Bref.Models
 
 ### Task 2: Implement SegmentList Model (TDD - Part 1: Basic Operations)
 **Estimated Time:** 4 hours
-**Test File:** `src/Bref.Tests/Models/SegmentListTests.cs`
+**Test File:** `src/SpartaCut.Tests/Models/SegmentListTests.cs`
 **Implementation File:** `src/Bref/Models/SegmentList.cs`
 
 #### Test Cases to Write First:
@@ -182,7 +182,7 @@ public void Clone_CreatesDeepCopy()
 
 #### Implementation Spec (Part 1):
 ```csharp
-namespace Bref.Models
+namespace SpartaCut.Models
 {
     /// <summary>
     /// Manages the virtual timeline of kept segments
@@ -249,7 +249,7 @@ namespace Bref.Models
 
 ### Task 3: Implement SegmentList.DeleteSegment() (TDD - Part 2: Deletion Logic)
 **Estimated Time:** 5 hours
-**Test File:** `src/Bref.Tests/Models/SegmentListTests.cs` (add to existing)
+**Test File:** `src/SpartaCut.Tests/Models/SegmentListTests.cs` (add to existing)
 **Implementation File:** `src/Bref/Models/SegmentList.cs` (add method)
 
 #### Test Cases to Write First:
@@ -385,7 +385,7 @@ public void DeleteSegment(TimeSpan virtualStart, TimeSpan virtualEnd)
 
 ### Task 4: Implement EditHistory Model (TDD)
 **Estimated Time:** 3 hours
-**Test File:** `src/Bref.Tests/Models/EditHistoryTests.cs`
+**Test File:** `src/SpartaCut.Tests/Models/EditHistoryTests.cs`
 **Implementation File:** `src/Bref/Models/EditHistory.cs`
 
 #### Test Cases to Write First:
@@ -459,7 +459,7 @@ public void Clear_RemovesAllHistory()
 
 #### Implementation Spec:
 ```csharp
-namespace Bref.Models
+namespace SpartaCut.Models
 {
     /// <summary>
     /// Manages undo/redo stack for segment operations
@@ -531,7 +531,7 @@ namespace Bref.Models
 
 ### Task 5: Implement SegmentManager Service (TDD)
 **Estimated Time:** 4 hours
-**Test File:** `src/Bref.Tests/Services/SegmentManagerTests.cs`
+**Test File:** `src/SpartaCut.Tests/Services/SegmentManagerTests.cs`
 **Implementation File:** `src/Bref/Services/SegmentManager.cs`
 
 #### Test Cases to Write First:
@@ -587,7 +587,7 @@ public void GetSegmentAtSourceTime_ReturnsCorrectSegment()
 
 #### Implementation Spec:
 ```csharp
-namespace Bref.Services
+namespace SpartaCut.Services
 {
     /// <summary>
     /// Manages video segments and edit history
@@ -692,7 +692,7 @@ namespace Bref.Services
 
 ### Task 6: Integration Tests (Deletion + Undo/Redo Scenarios)
 **Estimated Time:** 4 hours
-**Test File:** `src/Bref.Tests/Integration/SegmentManagerIntegrationTests.cs`
+**Test File:** `src/SpartaCut.Tests/Integration/SegmentManagerIntegrationTests.cs`
 
 #### Test Scenarios:
 ```csharp
@@ -774,7 +774,7 @@ public void Scenario_MaxHistoryDepth_RemovesOldest()
 
 #### Version Update:
 - Increment version to **0.5.0** (major feature: segment management)
-- Update `src/Bref/Bref.csproj`
+- Update `src/Bref/SpartaCut.csproj`
 
 #### Documentation:
 - Add XML documentation to all public members
@@ -845,7 +845,7 @@ public void Scenario_MaxHistoryDepth_RemovesOldest()
 
 ### Required for Implementation:
 - ✅ .NET 8 SDK
-- ✅ xUnit test framework (already in Bref.Tests)
+- ✅ xUnit test framework (already in SpartaCut.Tests)
 - ✅ No new NuGet packages required
 
 ### Required for Testing:
@@ -918,15 +918,15 @@ src/Bref/Models/
 src/Bref/Services/
   └── SegmentManager.cs                  (~120 lines)
 
-src/Bref.Tests/Models/
+src/SpartaCut.Tests/Models/
   ├── VideoSegmentTests.cs               (~60 lines)
   ├── SegmentListTests.cs                (~400 lines)
   └── EditHistoryTests.cs                (~250 lines)
 
-src/Bref.Tests/Services/
+src/SpartaCut.Tests/Services/
   └── SegmentManagerTests.cs             (~200 lines)
 
-src/Bref.Tests/Integration/
+src/SpartaCut.Tests/Integration/
   └── SegmentManagerIntegrationTests.cs  (~300 lines)
 ```
 
@@ -1090,11 +1090,11 @@ Week 5 has been successfully completed, implementing the core virtual timeline l
 - `src/Bref/Services/SegmentManager.cs` (142 lines)
 
 **Tests (5 files):**
-- `src/Bref.Tests/Models/VideoSegmentTests.cs` (78 lines)
-- `src/Bref.Tests/Models/SegmentListTests.cs` (460 lines)
-- `src/Bref.Tests/Models/EditHistoryTests.cs` (250 lines)
-- `src/Bref.Tests/Services/SegmentManagerTests.cs` (214 lines)
-- `src/Bref.Tests/Integration/SegmentManagerIntegrationTests.cs` (300 lines)
+- `src/SpartaCut.Tests/Models/VideoSegmentTests.cs` (78 lines)
+- `src/SpartaCut.Tests/Models/SegmentListTests.cs` (460 lines)
+- `src/SpartaCut.Tests/Models/EditHistoryTests.cs` (250 lines)
+- `src/SpartaCut.Tests/Services/SegmentManagerTests.cs` (214 lines)
+- `src/SpartaCut.Tests/Integration/SegmentManagerIntegrationTests.cs` (300 lines)
 
 **Total New Code:** ~1,734 lines (implementation + tests)
 

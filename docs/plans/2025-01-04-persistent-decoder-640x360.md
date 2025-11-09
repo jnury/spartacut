@@ -14,19 +14,19 @@
 
 **Files:**
 - Create: `src/Bref/Services/PersistentFrameDecoder.cs`
-- Create: `src/Bref.Tests/Services/PersistentFrameDecoderTests.cs`
+- Create: `src/SpartaCut.Tests/Services/PersistentFrameDecoderTests.cs`
 
 **Step 1: Write the failing test**
 
-Create `src/Bref.Tests/Services/PersistentFrameDecoderTests.cs`:
+Create `src/SpartaCut.Tests/Services/PersistentFrameDecoderTests.cs`:
 
 ```csharp
 using System;
 using System.IO;
-using Bref.Services;
+using SpartaCut.Services;
 using Xunit;
 
-namespace Bref.Tests.Services;
+namespace SpartaCut.Tests.Services;
 
 public class PersistentFrameDecoderTests
 {
@@ -118,12 +118,12 @@ Create `src/Bref/Services/PersistentFrameDecoder.cs`:
 ```csharp
 using System;
 using System.IO;
-using Bref.FFmpeg;
-using Bref.Models;
+using SpartaCut.FFmpeg;
+using SpartaCut.Models;
 using FFmpeg.AutoGen;
 using Serilog;
 
-namespace Bref.Services;
+namespace SpartaCut.Services;
 
 /// <summary>
 /// Persistent frame decoder that keeps video file open for fast sequential decoding.
@@ -401,7 +401,7 @@ Expected: PASS (all 5 tests)
 **Step 5: Commit**
 
 ```bash
-git add src/Bref/Services/PersistentFrameDecoder.cs src/Bref.Tests/Services/PersistentFrameDecoderTests.cs
+git add src/Bref/Services/PersistentFrameDecoder.cs src/SpartaCut.Tests/Services/PersistentFrameDecoderTests.cs
 git commit -m "feat: add PersistentFrameDecoder with 640×360 scaling
 
 - Keep video file open between frames (20-40× faster)
@@ -416,7 +416,7 @@ git commit -m "feat: add PersistentFrameDecoder with 640×360 scaling
 
 **Files:**
 - Modify: `src/Bref/Services/FrameCache.cs:19-37, 71`
-- Modify: `src/Bref.Tests/Services/FrameCacheTests.cs` (if needed)
+- Modify: `src/SpartaCut.Tests/Services/FrameCacheTests.cs` (if needed)
 
 **Step 1: Update FrameCache to use PersistentFrameDecoder**
 
@@ -448,7 +448,7 @@ var frame = _decoder.DecodeFrameAt(TimeSpan.FromTicks(cacheKey));
 
 **Step 2: Build to verify changes compile**
 
-Run: `/usr/local/share/dotnet/dotnet build src/Bref/Bref.csproj`
+Run: `/usr/local/share/dotnet/dotnet build src/Bref/SpartaCut.csproj`
 
 Expected: Build succeeds
 
@@ -512,7 +512,7 @@ git commit -m "perf: increase preload radius to 30 frames (±1 second)
 
 **Files:**
 - Delete: `src/Bref/Services/FrameDecoder.cs`
-- Review: `src/Bref.Tests/Services/FrameDecoderTests.cs` (delete if exists)
+- Review: `src/SpartaCut.Tests/Services/FrameDecoderTests.cs` (delete if exists)
 
 **Step 1: Check if FrameDecoder is used elsewhere**
 
@@ -528,7 +528,7 @@ git rm src/Bref/Services/FrameDecoder.cs
 
 If tests exist:
 ```bash
-git rm src/Bref.Tests/Services/FrameDecoderTests.cs
+git rm src/SpartaCut.Tests/Services/FrameDecoderTests.cs
 ```
 
 **Step 3: Build to verify no broken references**
@@ -667,11 +667,11 @@ git commit -m "docs: document frame decoder performance improvements
 ## Task 6: Update Package Version and Tag
 
 **Files:**
-- Modify: `src/Bref/Bref.csproj` (version number)
+- Modify: `src/Bref/SpartaCut.csproj` (version number)
 
 **Step 1: Increment version**
 
-In `src/Bref/Bref.csproj`, find `<Version>` tag and increment minor version:
+In `src/Bref/SpartaCut.csproj`, find `<Version>` tag and increment minor version:
 
 ```xml
 <!-- Example: 0.3.0 → 0.4.0 -->
@@ -685,7 +685,7 @@ Run: `/usr/local/share/dotnet/dotnet build`
 **Step 3: Commit and tag**
 
 ```bash
-git add src/Bref/Bref.csproj
+git add src/Bref/SpartaCut.csproj
 git commit -m "chore: bump version to 0.4.0
 
 Week 4 milestone: Persistent decoder with 640×360 scrubbing"

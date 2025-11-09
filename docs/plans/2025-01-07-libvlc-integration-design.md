@@ -302,7 +302,7 @@ Target: 15-30fps scrubbing (seek every 50-100ms), which is responsive enough for
 
 Test segment boundary detection logic independently:
 
-**File:** `src/Bref.Tests/Services/SegmentBoundaryTests.cs`
+**File:** `src/SpartaCut.Tests/Services/SegmentBoundaryTests.cs`
 
 ```csharp
 public class SegmentBoundaryTests
@@ -366,7 +366,7 @@ These reuse existing `SegmentManager` tests - just verify boundary detection wor
 
 ### Integration Tests (Happy Path)
 
-**File:** `src/Bref.Tests/Integration/VlcPlaybackIntegrationTests.cs`
+**File:** `src/SpartaCut.Tests/Integration/VlcPlaybackIntegrationTests.cs`
 
 ```csharp
 [Fact(Skip = "Requires LibVLC and test video file")]

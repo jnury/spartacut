@@ -29,15 +29,15 @@
 
 **Files:**
 - Create: `src/Bref/Utilities/LRUCache.cs`
-- Create: `src/Bref.Tests/Utilities/LRUCacheTests.cs`
+- Create: `src/SpartaCut.Tests/Utilities/LRUCacheTests.cs`
 
 ### Step 1: Write failing test for basic add/get
 
 ```csharp
-using Bref.Utilities;
+using SpartaCut.Utilities;
 using Xunit;
 
-namespace Bref.Tests.Utilities;
+namespace SpartaCut.Tests.Utilities;
 
 public class LRUCacheTests
 {
@@ -96,7 +96,7 @@ Expected: Compilation error - LRUCache doesn't exist
 ### Step 3: Create LRUCache implementation
 
 ```csharp
-namespace Bref.Utilities;
+namespace SpartaCut.Utilities;
 
 /// <summary>
 /// Least Recently Used (LRU) cache with automatic eviction and disposal.
@@ -366,7 +366,7 @@ Expected: Build succeeds
 ### Step 8: Commit
 
 ```bash
-git add src/Bref/Utilities/LRUCache.cs src/Bref.Tests/Utilities/LRUCacheTests.cs
+git add src/Bref/Utilities/LRUCache.cs src/SpartaCut.Tests/Utilities/LRUCacheTests.cs
 git commit -m "feat: implement LRUCache with automatic eviction and disposal (TDD)"
 ```
 
@@ -382,7 +382,7 @@ git commit -m "feat: implement LRUCache with automatic eviction and disposal (TD
 ### Step 1: Create VideoFrame model
 
 ```csharp
-namespace Bref.Models;
+namespace SpartaCut.Models;
 
 /// <summary>
 /// Represents a decoded video frame with image data.
@@ -501,16 +501,16 @@ git commit -m "feat: add VideoFrame model for decoded frame data"
 
 **Files:**
 - Create: `src/Bref/Services/FrameDecoder.cs`
-- Create: `src/Bref.Tests/Services/FrameDecoderTests.cs`
+- Create: `src/SpartaCut.Tests/Services/FrameDecoderTests.cs`
 
 ### Step 1: Write failing test
 
 ```csharp
-using Bref.Services;
-using Bref.Models;
+using SpartaCut.Services;
+using SpartaCut.Models;
 using Xunit;
 
-namespace Bref.Tests.Services;
+namespace SpartaCut.Tests.Services;
 
 public class FrameDecoderTests
 {
@@ -550,13 +550,13 @@ Expected: Compilation error - FrameDecoder doesn't exist
 ### Step 3: Create FrameDecoder implementation
 
 ```csharp
-using Bref.FFmpeg;
-using Bref.Models;
+using SpartaCut.FFmpeg;
+using SpartaCut.Models;
 using FFmpeg.AutoGen;
 using Serilog;
 using SkiaSharp;
 
-namespace Bref.Services;
+namespace SpartaCut.Services;
 
 /// <summary>
 /// Decodes individual video frames at specific timestamps using FFmpeg.
@@ -797,7 +797,7 @@ Expected: Build succeeds
 ### Step 6: Commit
 
 ```bash
-git add src/Bref/Services/FrameDecoder.cs src/Bref.Tests/Services/FrameDecoderTests.cs
+git add src/Bref/Services/FrameDecoder.cs src/SpartaCut.Tests/Services/FrameDecoderTests.cs
 git commit -m "feat: implement FrameDecoder for extracting frames at timestamps"
 ```
 
@@ -809,16 +809,16 @@ git commit -m "feat: implement FrameDecoder for extracting frames at timestamps"
 
 **Files:**
 - Create: `src/Bref/Services/FrameCache.cs`
-- Create: `src/Bref.Tests/Services/FrameCacheTests.cs`
+- Create: `src/SpartaCut.Tests/Services/FrameCacheTests.cs`
 
 ### Step 1: Write failing test
 
 ```csharp
-using Bref.Services;
-using Bref.Models;
+using SpartaCut.Services;
+using SpartaCut.Models;
 using Xunit;
 
-namespace Bref.Tests.Services;
+namespace SpartaCut.Tests.Services;
 
 public class FrameCacheTests
 {
@@ -877,11 +877,11 @@ public class FrameCacheTests
 ### Step 2: Create FrameCache implementation
 
 ```csharp
-using Bref.Models;
-using Bref.Utilities;
+using SpartaCut.Models;
+using SpartaCut.Utilities;
 using Serilog;
 
-namespace Bref.Services;
+namespace SpartaCut.Services;
 
 /// <summary>
 /// High-performance frame cache with LRU eviction and intelligent preloading.
@@ -1042,7 +1042,7 @@ Expected: Build succeeds
 ### Step 5: Commit
 
 ```bash
-git add src/Bref/Services/FrameCache.cs src/Bref.Tests/Services/FrameCacheTests.cs
+git add src/Bref/Services/FrameCache.cs src/SpartaCut.Tests/Services/FrameCacheTests.cs
 git commit -m "feat: implement FrameCache with LRU eviction and preloading"
 ```
 
@@ -1114,10 +1114,10 @@ using Avalonia.Platform;
 using Avalonia.Rendering.SceneGraph;
 using Avalonia.Skia;
 using Avalonia.Threading;
-using Bref.Models;
+using SpartaCut.Models;
 using SkiaSharp;
 
-namespace Bref.Controls;
+namespace SpartaCut.Controls;
 
 /// <summary>
 /// Video player control that displays VideoFrame using SkiaSharp rendering.
@@ -1378,7 +1378,7 @@ Expected: Build succeeds
 
 ### Step 8: Manual test
 
-Run: `/usr/local/share/dotnet/dotnet run --project src/Bref/Bref.csproj`
+Run: `/usr/local/share/dotnet/dotnet run --project src/Bref/SpartaCut.csproj`
 Expected:
 - Load MP4 video
 - Video preview shows first frame
@@ -1400,17 +1400,17 @@ git commit -m "feat: integrate VideoPlayer and FrameCache for interactive scrubb
 **Goal:** Measure and optimize scrubbing performance to hit 60fps target
 
 **Files:**
-- Create: `src/Bref.Tests/Performance/FrameCachePerformanceTests.cs`
+- Create: `src/SpartaCut.Tests/Performance/FrameCachePerformanceTests.cs`
 - Modify: `src/Bref/Services/FrameCache.cs` (if optimizations needed)
 
 ### Step 1: Create performance tests
 
 ```csharp
-using Bref.Services;
+using SpartaCut.Services;
 using Xunit;
 using System.Diagnostics;
 
-namespace Bref.Tests.Performance;
+namespace SpartaCut.Tests.Performance;
 
 public class FrameCachePerformanceTests
 {
@@ -1531,7 +1531,7 @@ else
 ### Step 5: Commit
 
 ```bash
-git add src/Bref.Tests/Performance/FrameCachePerformanceTests.cs
+git add src/SpartaCut.Tests/Performance/FrameCachePerformanceTests.cs
 git commit -m "test: add performance tests for frame cache"
 ```
 
@@ -1542,7 +1542,7 @@ git commit -m "test: add performance tests for frame cache"
 **Goal:** Increment version to 0.4.0 for Week 4 milestone
 
 **Files:**
-- Modify: `src/Bref/Bref.csproj`
+- Modify: `src/Bref/SpartaCut.csproj`
 
 ### Step 1: Update version
 
@@ -1562,7 +1562,7 @@ Expected: Build succeeds
 ### Step 3: Commit and tag
 
 ```bash
-git add src/Bref/Bref.csproj
+git add src/Bref/SpartaCut.csproj
 git commit -m "chore: bump version to 0.4.0 for Week 4 milestone"
 git tag v0.4.0
 ```

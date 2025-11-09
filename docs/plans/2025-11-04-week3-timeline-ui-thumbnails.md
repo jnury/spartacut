@@ -28,7 +28,7 @@
 ### Step 1: Create ThumbnailData model
 
 ```csharp
-namespace Bref.Models;
+namespace SpartaCut.Models;
 
 /// <summary>
 /// Represents a single video thumbnail at a specific time position.
@@ -60,7 +60,7 @@ public record ThumbnailData
 ### Step 2: Create TimelineMetrics model
 
 ```csharp
-namespace Bref.Models;
+namespace SpartaCut.Models;
 
 /// <summary>
 /// Metrics and dimensions for timeline rendering calculations.
@@ -119,15 +119,15 @@ git commit -m "feat: add ThumbnailData and TimelineMetrics models"
 
 **Files:**
 - Create: `src/Bref/Services/ThumbnailGenerator.cs`
-- Create: `src/Bref.Tests/Services/ThumbnailGeneratorTests.cs`
+- Create: `src/SpartaCut.Tests/Services/ThumbnailGeneratorTests.cs`
 
 ### Step 1: Write failing test for invalid file
 
 ```csharp
-using Bref.Services;
+using SpartaCut.Services;
 using Xunit;
 
-namespace Bref.Tests.Services;
+namespace SpartaCut.Tests.Services;
 
 public class ThumbnailGeneratorTests
 {
@@ -153,12 +153,12 @@ Expected: Compilation error - ThumbnailGenerator doesn't exist
 ### Step 3: Create ThumbnailGenerator stub
 
 ```csharp
-using Bref.FFmpeg;
-using Bref.Models;
+using SpartaCut.FFmpeg;
+using SpartaCut.Models;
 using FFmpeg.AutoGen;
 using Serilog;
 
-namespace Bref.Services;
+namespace SpartaCut.Services;
 
 /// <summary>
 /// Generates video thumbnails at regular intervals using FFmpeg.
@@ -435,7 +435,7 @@ private byte[] FrameToJpeg(AVFrame* frame, int width, int height)
 
 ### Step 6: Add SkiaSharp package
 
-Modify `src/Bref/Bref.csproj`:
+Modify `src/Bref/SpartaCut.csproj`:
 ```xml
 <PackageReference Include="SkiaSharp" Version="2.88.8" />
 ```
@@ -448,7 +448,7 @@ Expected: Build succeeds
 ### Step 8: Commit
 
 ```bash
-git add src/Bref/Services/ThumbnailGenerator.cs src/Bref.Tests/Services/ThumbnailGeneratorTests.cs src/Bref/Bref.csproj
+git add src/Bref/Services/ThumbnailGenerator.cs src/SpartaCut.Tests/Services/ThumbnailGeneratorTests.cs src/Bref/SpartaCut.csproj
 git commit -m "feat: implement ThumbnailGenerator using FFmpeg and SkiaSharp"
 ```
 
@@ -464,12 +464,12 @@ git commit -m "feat: implement ThumbnailGenerator using FFmpeg and SkiaSharp"
 ### Step 1: Create TimelineViewModel
 
 ```csharp
-using Bref.Models;
+using SpartaCut.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 
-namespace Bref.ViewModels;
+namespace SpartaCut.ViewModels;
 
 /// <summary>
 /// ViewModel for timeline control managing playhead position and timeline state.
@@ -626,11 +626,11 @@ using Avalonia.Platform;
 using Avalonia.Rendering.SceneGraph;
 using Avalonia.Skia;
 using Avalonia.Threading;
-using Bref.Models;
-using Bref.ViewModels;
+using SpartaCut.Models;
+using SpartaCut.ViewModels;
 using SkiaSharp;
 
-namespace Bref.Controls;
+namespace SpartaCut.Controls;
 
 public partial class TimelineControl : UserControl
 {
@@ -960,8 +960,8 @@ catch (Exception ex)
 
 Add using statements:
 ```csharp
-using Bref.Controls;
-using Bref.ViewModels;
+using SpartaCut.Controls;
+using SpartaCut.ViewModels;
 ```
 
 ### Step 3: Build to verify
@@ -971,7 +971,7 @@ Expected: Build succeeds
 
 ### Step 4: Manual test
 
-Run: `/usr/local/share/dotnet/dotnet run --project src/Bref/Bref.csproj`
+Run: `/usr/local/share/dotnet/dotnet run --project src/Bref/SpartaCut.csproj`
 Expected:
 - Load an MP4 video
 - Timeline should appear below video info
@@ -992,16 +992,16 @@ git commit -m "feat: integrate TimelineControl into MainWindow"
 **Goal:** Add unit tests for TimelineViewModel and TimelineMetrics
 
 **Files:**
-- Create: `src/Bref.Tests/ViewModels/TimelineViewModelTests.cs`
-- Create: `src/Bref.Tests/Models/TimelineMetricsTests.cs`
+- Create: `src/SpartaCut.Tests/ViewModels/TimelineViewModelTests.cs`
+- Create: `src/SpartaCut.Tests/Models/TimelineMetricsTests.cs`
 
 ### Step 1: Create TimelineMetricsTests
 
 ```csharp
-using Bref.Models;
+using SpartaCut.Models;
 using Xunit;
 
-namespace Bref.Tests.Models;
+namespace SpartaCut.Tests.Models;
 
 public class TimelineMetricsTests
 {
@@ -1072,11 +1072,11 @@ public class TimelineMetricsTests
 ### Step 2: Create TimelineViewModelTests
 
 ```csharp
-using Bref.Models;
-using Bref.ViewModels;
+using SpartaCut.Models;
+using SpartaCut.ViewModels;
 using Xunit;
 
-namespace Bref.Tests.ViewModels;
+namespace SpartaCut.Tests.ViewModels;
 
 public class TimelineViewModelTests
 {
@@ -1200,7 +1200,7 @@ Expected: All timeline tests pass
 ### Step 4: Commit
 
 ```bash
-git add src/Bref.Tests/ViewModels/TimelineViewModelTests.cs src/Bref.Tests/Models/TimelineMetricsTests.cs
+git add src/SpartaCut.Tests/ViewModels/TimelineViewModelTests.cs src/SpartaCut.Tests/Models/TimelineMetricsTests.cs
 git commit -m "test: add unit tests for TimelineViewModel and TimelineMetrics"
 ```
 
@@ -1211,10 +1211,10 @@ git commit -m "test: add unit tests for TimelineViewModel and TimelineMetrics"
 **Goal:** Increment version to 0.3.0 for Week 3 milestone
 
 **Files:**
-- Modify: `src/Bref/Bref.csproj`
+- Modify: `src/Bref/SpartaCut.csproj`
 - Modify: `src/Bref/App.axaml.cs`
 
-### Step 1: Update version in Bref.csproj
+### Step 1: Update version in SpartaCut.csproj
 
 ```xml
 <!-- Version Information -->
@@ -1239,7 +1239,7 @@ Expected: Build succeeds
 ### Step 4: Commit and tag
 
 ```bash
-git add src/Bref/Bref.csproj src/Bref/App.axaml.cs
+git add src/Bref/SpartaCut.csproj src/Bref/App.axaml.cs
 git commit -m "chore: bump version to 0.3.0 for Week 3 milestone"
 git tag v0.3.0
 ```

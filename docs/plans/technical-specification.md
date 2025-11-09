@@ -67,7 +67,7 @@
 
 ```
 Bref/
-├── Bref.sln
+├── SpartaCut.sln
 ├── src/
 │   ├── Bref/                          # Main application
 │   │   ├── App.axaml                  # Application definition
@@ -107,7 +107,7 @@ Bref/
 │   │   └── Utilities/
 │   │       ├── LRUCache.cs
 │   │       └── TimeSpanExtensions.cs
-│   └── Bref.Tests/                    # Unit tests
+│   └── SpartaCut.Tests/                    # Unit tests
 │       ├── Models/
 │       ├── Services/
 │       └── FFmpeg/
@@ -129,7 +129,7 @@ Bref/
 ```csharp
 using System;
 
-namespace Bref.Models
+namespace SpartaCut.Models
 {
     /// <summary>
     /// Represents a complete video editing session
@@ -179,7 +179,7 @@ namespace Bref.Models
 ```csharp
 using System;
 
-namespace Bref.Models
+namespace SpartaCut.Models
 {
     /// <summary>
     /// Technical metadata about video file
@@ -256,7 +256,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Bref.Models
+namespace SpartaCut.Models
 {
     /// <summary>
     /// Manages the virtual timeline of kept segments
@@ -428,7 +428,7 @@ namespace Bref.Models
 ```csharp
 using System;
 
-namespace Bref.Models
+namespace SpartaCut.Models
 {
     /// <summary>
     /// Represents a continuous portion of the source video (kept segment)
@@ -464,7 +464,7 @@ namespace Bref.Models
 ```csharp
 using System.Collections.Generic;
 
-namespace Bref.Models
+namespace SpartaCut.Models
 {
     /// <summary>
     /// Manages undo/redo stack for segment operations
@@ -557,7 +557,7 @@ namespace Bref.Models
 ```csharp
 using System;
 
-namespace Bref.Models
+namespace SpartaCut.Models
 {
     /// <summary>
     /// Represents current timeline selection state (UI state)
@@ -627,9 +627,9 @@ namespace Bref.Models
 
 ```csharp
 using System;
-using Bref.Models;
+using SpartaCut.Models;
 
-namespace Bref.Services
+namespace SpartaCut.Services
 {
     /// <summary>
     /// Core business logic for managing video segments and edit operations
@@ -722,7 +722,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 
-namespace Bref.FFmpeg
+namespace SpartaCut.FFmpeg
 {
     /// <summary>
     /// Detects available hardware video encoders
@@ -824,7 +824,7 @@ namespace Bref.FFmpeg
 using System;
 using System.Collections.Generic;
 
-namespace Bref.Utilities
+namespace SpartaCut.Utilities
 {
     /// <summary>
     /// Least Recently Used cache with fixed capacity

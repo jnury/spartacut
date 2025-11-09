@@ -41,7 +41,7 @@ Implement the user interface for selecting and deleting video segments on the ti
 
 ### Task 1: Implement TimelineSelection Model
 **Estimated Time:** 2 hours
-**Test File:** `src/Bref.Tests/Models/TimelineSelectionTests.cs`
+**Test File:** `src/SpartaCut.Tests/Models/TimelineSelectionTests.cs`
 **Implementation File:** `src/Bref/Models/TimelineSelection.cs`
 
 #### Purpose
@@ -94,7 +94,7 @@ public void IsValid_ReturnsFalseForZeroDuration()
 
 #### Implementation Spec:
 ```csharp
-namespace Bref.Models
+namespace SpartaCut.Models
 {
     /// <summary>
     /// Represents a user's selection on the timeline
@@ -182,7 +182,7 @@ namespace Bref.Models
 
 ### Task 2: Add Selection Properties to TimelineViewModel
 **Estimated Time:** 2 hours
-**Test File:** `src/Bref.Tests/ViewModels/TimelineViewModelTests.cs` (add to existing)
+**Test File:** `src/SpartaCut.Tests/ViewModels/TimelineViewModelTests.cs` (add to existing)
 **Implementation File:** `src/Bref/ViewModels/TimelineViewModel.cs` (modify existing)
 
 #### Purpose
@@ -436,7 +436,7 @@ private void DrawSelectionHandle(SKCanvas canvas, float x, float height)
 
 ### Task 4: Create MainWindowViewModel
 **Estimated Time:** 3 hours
-**Test File:** `src/Bref.Tests/ViewModels/MainWindowViewModelTests.cs`
+**Test File:** `src/SpartaCut.Tests/ViewModels/MainWindowViewModelTests.cs`
 **Implementation File:** `src/Bref/ViewModels/MainWindowViewModel.cs`
 
 #### Purpose
@@ -444,7 +444,7 @@ Create a main ViewModel to orchestrate SegmentManager, TimelineViewModel, and ha
 
 #### Implementation Spec:
 ```csharp
-namespace Bref.ViewModels
+namespace SpartaCut.ViewModels
 {
     /// <summary>
     /// Main window ViewModel orchestrating video editing operations
@@ -802,7 +802,7 @@ public void InitializeVideo(VideoMetadata metadata)
 
 ### Task 7: Integration Testing
 **Estimated Time:** 3 hours
-**Test File:** `src/Bref.Tests/Integration/SelectionDeletionIntegrationTests.cs`
+**Test File:** `src/SpartaCut.Tests/Integration/SelectionDeletionIntegrationTests.cs`
 
 #### Test Scenarios:
 ```csharp
@@ -871,7 +871,7 @@ public async Task Scenario_BackwardDrag_Works()
 
 #### Version Update:
 - Increment version to **0.6.0** (major feature: selection & deletion UI)
-- Update `src/Bref/Bref.csproj`
+- Update `src/Bref/SpartaCut.csproj`
 
 #### Documentation:
 - Add Week 6 summary to plan file
@@ -926,13 +926,13 @@ src/Bref/Models/
 src/Bref/ViewModels/
   └── MainWindowViewModel.cs                  (~150 lines)
 
-src/Bref.Tests/Models/
+src/SpartaCut.Tests/Models/
   └── TimelineSelectionTests.cs               (~120 lines)
 
-src/Bref.Tests/ViewModels/
+src/SpartaCut.Tests/ViewModels/
   └── MainWindowViewModelTests.cs             (~150 lines)
 
-src/Bref.Tests/Integration/
+src/SpartaCut.Tests/Integration/
   └── SelectionDeletionIntegrationTests.cs    (~200 lines)
 ```
 

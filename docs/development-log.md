@@ -9,7 +9,7 @@
 ### Completed Tasks
 
 1. ✅ Verified development environment (.NET 8 SDK, Homebrew, FFmpeg)
-2. ✅ Created solution and project structure (Bref.sln, Bref.csproj, Bref.Tests.csproj)
+2. ✅ Created solution and project structure (SpartaCut.sln, SpartaCut.csproj, SpartaCut.Tests.csproj)
 3. ✅ Installed NuGet dependencies (Avalonia, FFmpeg.AutoGen, Serilog, etc.)
 4. ✅ Created project directory structure (Models, ViewModels, Views, Services, FFmpeg, Utilities)
 5. ✅ Setup Serilog logging with console and file sinks

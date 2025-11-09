@@ -44,15 +44,15 @@ Implement full playback with:
 
 **Files:**
 - Create: `src/Bref/Models/PlaybackState.cs`
-- Test: `src/Bref.Tests/Models/PlaybackStateTests.cs`
+- Test: `src/SpartaCut.Tests/Models/PlaybackStateTests.cs`
 
 ### Step 1: Write the failing test
 
 ```csharp
-using Bref.Models;
+using SpartaCut.Models;
 using Xunit;
 
-namespace Bref.Tests.Models;
+namespace SpartaCut.Tests.Models;
 
 public class PlaybackStateTests
 {
@@ -90,7 +90,7 @@ Expected: Compilation error - PlaybackState type not found
 File: `src/Bref/Models/PlaybackState.cs`
 
 ```csharp
-namespace Bref.Models;
+namespace SpartaCut.Models;
 
 /// <summary>
 /// Represents the current state of video playback
@@ -137,7 +137,7 @@ Expected: All 3 tests pass
 ### Step 5: Commit
 
 ```bash
-git add src/Bref/Models/PlaybackState.cs src/Bref.Tests/Models/PlaybackStateTests.cs
+git add src/Bref/Models/PlaybackState.cs src/SpartaCut.Tests/Models/PlaybackStateTests.cs
 git commit -m "feat: add PlaybackState enum with extension methods"
 ```
 
@@ -147,16 +147,16 @@ git commit -m "feat: add PlaybackState enum with extension methods"
 
 **Files:**
 - Create: `src/Bref/Services/AudioPlayer.cs`
-- Test: `src/Bref.Tests/Services/AudioPlayerTests.cs`
+- Test: `src/SpartaCut.Tests/Services/AudioPlayerTests.cs`
 
 ### Step 1: Write the failing test
 
 ```csharp
 using System;
-using Bref.Services;
+using SpartaCut.Services;
 using Xunit;
 
-namespace Bref.Tests.Services;
+namespace SpartaCut.Tests.Services;
 
 public class AudioPlayerTests
 {
@@ -212,7 +212,7 @@ using System;
 using NAudio.Wave;
 using Serilog;
 
-namespace Bref.Services;
+namespace SpartaCut.Services;
 
 /// <summary>
 /// Handles audio playback synchronized with video frames
@@ -316,7 +316,7 @@ Expected: All 4 tests pass
 ### Step 5: Commit
 
 ```bash
-git add src/Bref/Services/AudioPlayer.cs src/Bref.Tests/Services/AudioPlayerTests.cs
+git add src/Bref/Services/AudioPlayer.cs src/SpartaCut.Tests/Services/AudioPlayerTests.cs
 git commit -m "feat: add AudioPlayer service stub"
 ```
 
@@ -326,18 +326,18 @@ git commit -m "feat: add AudioPlayer service stub"
 
 **Files:**
 - Create: `src/Bref/Services/PlaybackEngine.cs`
-- Test: `src/Bref.Tests/Services/PlaybackEngineTests.cs`
+- Test: `src/SpartaCut.Tests/Services/PlaybackEngineTests.cs`
 
 ### Step 1: Write the failing test
 
 ```csharp
 using System;
 using System.Threading.Tasks;
-using Bref.Models;
-using Bref.Services;
+using SpartaCut.Models;
+using SpartaCut.Services;
 using Xunit;
 
-namespace Bref.Tests.Services;
+namespace SpartaCut.Tests.Services;
 
 public class PlaybackEngineTests
 {
@@ -394,10 +394,10 @@ File: `src/Bref/Services/PlaybackEngine.cs`
 ```csharp
 using System;
 using System.Timers;
-using Bref.Models;
+using SpartaCut.Models;
 using Serilog;
 
-namespace Bref.Services;
+namespace SpartaCut.Services;
 
 /// <summary>
 /// Manages video playback state and frame scheduling
@@ -615,7 +615,7 @@ Expected: All 5 tests pass
 ### Step 5: Commit
 
 ```bash
-git add src/Bref/Services/PlaybackEngine.cs src/Bref.Tests/Services/PlaybackEngineTests.cs
+git add src/Bref/Services/PlaybackEngine.cs src/SpartaCut.Tests/Services/PlaybackEngineTests.cs
 git commit -m "feat: add PlaybackEngine with Play/Pause/Stop"
 ```
 
@@ -625,11 +625,11 @@ git commit -m "feat: add PlaybackEngine with Play/Pause/Stop"
 
 **Files:**
 - Modify: `src/Bref/ViewModels/MainWindowViewModel.cs`
-- Test: `src/Bref.Tests/ViewModels/MainWindowViewModelTests.cs`
+- Test: `src/SpartaCut.Tests/ViewModels/MainWindowViewModelTests.cs`
 
 ### Step 1: Write the failing test
 
-Add to `src/Bref.Tests/ViewModels/MainWindowViewModelTests.cs`:
+Add to `src/SpartaCut.Tests/ViewModels/MainWindowViewModelTests.cs`:
 
 ```csharp
 [Fact]
@@ -698,7 +698,7 @@ Modify `src/Bref/ViewModels/MainWindowViewModel.cs`:
 
 ```csharp
 using CommunityToolkit.Mvvm.Input;
-using Bref.Services;
+using SpartaCut.Services;
 
 public partial class MainWindowViewModel : ObservableObject
 {
@@ -797,7 +797,7 @@ Expected: New tests pass (note: some may fail due to missing FrameCache paramete
 ### Step 5: Commit
 
 ```bash
-git add src/Bref/ViewModels/MainWindowViewModel.cs src/Bref.Tests/ViewModels/MainWindowViewModelTests.cs
+git add src/Bref/ViewModels/MainWindowViewModel.cs src/SpartaCut.Tests/ViewModels/MainWindowViewModelTests.cs
 git commit -m "feat: integrate PlaybackEngine into MainWindowViewModel"
 ```
 
@@ -900,7 +900,7 @@ git commit -m "feat: add Play/Pause buttons to toolbar"
 
 **Files:**
 - Modify: `src/Bref/Services/PlaybackEngine.cs`
-- Test: `src/Bref.Tests/Services/PlaybackEngineTests.cs`
+- Test: `src/SpartaCut.Tests/Services/PlaybackEngineTests.cs`
 
 ### Step 1: Write the failing test
 
@@ -1015,7 +1015,7 @@ Expected: Test passes (note: may need to create MockFrameCache for this test)
 ### Step 5: Commit
 
 ```bash
-git add src/Bref/Services/PlaybackEngine.cs src/Bref.Tests/Services/PlaybackEngineTests.cs
+git add src/Bref/Services/PlaybackEngine.cs src/SpartaCut.Tests/Services/PlaybackEngineTests.cs
 git commit -m "feat: implement frame preloading for smooth playback"
 ```
 
@@ -1025,7 +1025,7 @@ git commit -m "feat: implement frame preloading for smooth playback"
 
 **Files:**
 - Modify: `src/Bref/Services/PlaybackEngine.cs`
-- Test: `src/Bref.Tests/Services/PlaybackEngineTests.cs`
+- Test: `src/SpartaCut.Tests/Services/PlaybackEngineTests.cs`
 
 ### Step 1: Write the failing test
 
@@ -1149,7 +1149,7 @@ Expected: Test passes
 ### Step 5: Commit
 
 ```bash
-git add src/Bref/Services/PlaybackEngine.cs src/Bref.Tests/Services/PlaybackEngineTests.cs
+git add src/Bref/Services/PlaybackEngine.cs src/SpartaCut.Tests/Services/PlaybackEngineTests.cs
 git commit -m "feat: skip deleted segments during playback"
 ```
 
@@ -1158,7 +1158,7 @@ git commit -m "feat: skip deleted segments during playback"
 ## Task 8: Integration Testing
 
 **Files:**
-- Create: `src/Bref.Tests/Integration/PlaybackEngineIntegrationTests.cs`
+- Create: `src/SpartaCut.Tests/Integration/PlaybackEngineIntegrationTests.cs`
 
 ### Step 1: Write comprehensive integration tests
 
@@ -1166,11 +1166,11 @@ git commit -m "feat: skip deleted segments during playback"
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Bref.Models;
-using Bref.Services;
+using SpartaCut.Models;
+using SpartaCut.Services;
 using Xunit;
 
-namespace Bref.Tests.Integration;
+namespace SpartaCut.Tests.Integration;
 
 /// <summary>
 /// Integration tests for PlaybackEngine with real SegmentManager and FrameCache
@@ -1296,7 +1296,7 @@ Expected: All tests pass (may need MockFrameCache implementation)
 ### Step 3: Commit
 
 ```bash
-git add src/Bref.Tests/Integration/PlaybackEngineIntegrationTests.cs
+git add src/SpartaCut.Tests/Integration/PlaybackEngineIntegrationTests.cs
 git commit -m "test: add PlaybackEngine integration tests"
 ```
 
@@ -1386,12 +1386,12 @@ git commit -m "docs: add Week 7 manual testing checklist"
 ## Task 10: Update Version and Documentation
 
 **Files:**
-- Modify: `src/Bref/Bref.csproj`
+- Modify: `src/Bref/SpartaCut.csproj`
 - Create: `docs/plans/2025-01-07-week7-completion-notes.md`
 
 ### Step 1: Update version to 0.7.0
 
-Modify `src/Bref/Bref.csproj`:
+Modify `src/Bref/SpartaCut.csproj`:
 
 ```xml
 <!-- Version Information -->
@@ -1477,7 +1477,7 @@ Expected: All tests pass
 ### Step 5: Commit
 
 ```bash
-git add src/Bref/Bref.csproj docs/plans/2025-01-07-week7-completion-notes.md
+git add src/Bref/SpartaCut.csproj docs/plans/2025-01-07-week7-completion-notes.md
 git commit -m "chore: bump version to 0.7.0 - Week 7 complete"
 ```
 
