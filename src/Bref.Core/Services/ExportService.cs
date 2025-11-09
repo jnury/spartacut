@@ -4,7 +4,10 @@ using FFMpegCore;
 using Serilog;
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -22,26 +25,63 @@ public class ExportService : IExportService
         "h264_amf",         // AMD
     };
 
+    // Encoding quality constants
+    private const int DefaultCRF = 23;  // Constant Rate Factor (18-28, lower = better quality)
+    private const string DefaultAudioBitrate = "192k";  // AAC audio bitrate
+    private const string DefaultPreset = "medium";  // libx264 encoding speed preset
+    private const int ProgressUpdateThrottleMs = 200;  // Max 5 updates per second
+
+    // Encoder detection caching
+    private static string[]? _cachedEncoders = null;
+    private static readonly SemaphoreSlim _encoderDetectionLock = new(1, 1);
+
+    // FFmpeg error tracking
+    private readonly StringBuilder _ffmpegErrors = new();
+    private static readonly Regex FrameRegex = new(@"frame=\s*(\d+)", RegexOptions.Compiled);
+
+    // Progress throttling
+    private DateTime _lastProgressUpdate = DateTime.MinValue;
+
     public async Task<string[]> DetectHardwareEncodersAsync()
     {
-        Log.Information("Detecting available hardware encoders...");
-        var availableEncoders = new System.Collections.Generic.List<string>();
-
-        foreach (var encoder in HardwareEncoders)
+        // Return cached result if available
+        if (_cachedEncoders != null)
         {
-            if (await IsEncoderAvailableAsync(encoder))
+            Log.Debug("Using cached hardware encoder detection results");
+            return _cachedEncoders;
+        }
+
+        await _encoderDetectionLock.WaitAsync();
+        try
+        {
+            // Double-check after acquiring lock
+            if (_cachedEncoders != null)
+                return _cachedEncoders;
+
+            Log.Information("Detecting available hardware encoders...");
+            var availableEncoders = new System.Collections.Generic.List<string>();
+
+            foreach (var encoder in HardwareEncoders)
             {
-                availableEncoders.Add(encoder);
-                Log.Information("Hardware encoder available: {Encoder}", encoder);
+                if (await IsEncoderAvailableAsync(encoder))
+                {
+                    availableEncoders.Add(encoder);
+                    Log.Information("Hardware encoder available: {Encoder}", encoder);
+                }
             }
-        }
 
-        if (availableEncoders.Count == 0)
+            if (availableEncoders.Count == 0)
+            {
+                Log.Information("No hardware encoders available, will use software encoding (libx264)");
+            }
+
+            _cachedEncoders = availableEncoders.ToArray();
+            return _cachedEncoders;
+        }
+        finally
         {
-            Log.Information("No hardware encoders available, will use software encoding (libx264)");
+            _encoderDetectionLock.Release();
         }
-
-        return availableEncoders.ToArray();
     }
 
     public async Task<string?> GetRecommendedEncoderAsync()
@@ -110,8 +150,15 @@ public class ExportService : IExportService
             var start = seg.SourceStart.TotalSeconds;
             var duration = seg.Duration.TotalSeconds;
 
-            return $"[0:v]trim=start={start}:duration={duration},setpts=PTS-STARTPTS[v]; " +
-                   $"[0:a]atrim=start={start}:duration={duration},asetpts=PTS-STARTPTS[a]";
+            if (metadata.HasAudio)
+            {
+                return $"[0:v]trim=start={start}:duration={duration},setpts=PTS-STARTPTS[v]; " +
+                       $"[0:a]atrim=start={start}:duration={duration},asetpts=PTS-STARTPTS[a]";
+            }
+            else
+            {
+                return $"[0:v]trim=start={start}:duration={duration},setpts=PTS-STARTPTS[v]";
+            }
         }
 
         // Multiple segments - concat filter
@@ -126,22 +173,28 @@ public class ExportService : IExportService
             var duration = seg.Duration.TotalSeconds;
 
             var vLabel = $"v{i}";
-            var aLabel = $"a{i}";
 
             // Trim and reset PTS for each segment
             filterParts.Add($"[0:v]trim=start={start}:duration={duration},setpts=PTS-STARTPTS[{vLabel}]");
-            filterParts.Add($"[0:a]atrim=start={start}:duration={duration},asetpts=PTS-STARTPTS[{aLabel}]");
-
             videoLabels.Add($"[{vLabel}]");
-            audioLabels.Add($"[{aLabel}]");
+
+            if (metadata.HasAudio)
+            {
+                var aLabel = $"a{i}";
+                filterParts.Add($"[0:a]atrim=start={start}:duration={duration},asetpts=PTS-STARTPTS[{aLabel}]");
+                audioLabels.Add($"[{aLabel}]");
+            }
         }
 
         // Concatenate all segments
         var videoConcat = string.Join("", videoLabels) + $"concat=n={keptSegments.Count}:v=1:a=0[v]";
-        var audioConcat = string.Join("", audioLabels) + $"concat=n={keptSegments.Count}:v=0:a=1[a]";
-
         filterParts.Add(videoConcat);
-        filterParts.Add(audioConcat);
+
+        if (metadata.HasAudio)
+        {
+            var audioConcat = string.Join("", audioLabels) + $"concat=n={keptSegments.Count}:v=0:a=1[a]";
+            filterParts.Add(audioConcat);
+        }
 
         return string.Join("; ", filterParts);
     }
@@ -162,13 +215,20 @@ public class ExportService : IExportService
         args.Append($"-filter_complex \"{filterComplex}\" ");
 
         // Map filtered video and audio
-        args.Append("-map \"[v]\" -map \"[a]\" ");
+        if (options.Metadata.HasAudio)
+        {
+            args.Append("-map \"[v]\" -map \"[a]\" ");
+        }
+        else
+        {
+            args.Append("-map \"[v]\" ");
+        }
 
         // Encoder settings
         if (encoder == "libx264")
         {
             // Software encoding
-            args.Append("-c:v libx264 -preset medium -crf 23 ");
+            args.Append($"-c:v libx264 -preset {DefaultPreset} -crf {DefaultCRF} ");
         }
         else
         {
@@ -178,20 +238,23 @@ public class ExportService : IExportService
             // Encoder-specific settings
             if (encoder == "h264_nvenc")
             {
-                args.Append("-preset p4 -rc vbr -cq 23 ");
+                args.Append($"-preset p4 -rc vbr -cq {DefaultCRF} ");
             }
             else if (encoder == "h264_qsv")
             {
-                args.Append("-preset medium -global_quality 23 ");
+                args.Append($"-preset {DefaultPreset} -global_quality {DefaultCRF} ");
             }
             else if (encoder == "h264_amf")
             {
-                args.Append("-quality balanced -rc cqp -qp 23 ");
+                args.Append($"-quality balanced -rc cqp -qp {DefaultCRF} ");
             }
         }
 
         // Audio encoding (copy if same codec, re-encode if needed)
-        args.Append("-c:a aac -b:a 192k ");
+        if (options.Metadata.HasAudio)
+        {
+            args.Append($"-c:a aac -b:a {DefaultAudioBitrate} ");
+        }
 
         // Output format
         args.Append("-movflags +faststart "); // Enable streaming
@@ -221,6 +284,11 @@ public class ExportService : IExportService
             throw new ArgumentException("Output file path is required", nameof(options));
         }
 
+        if (options.Metadata == null)
+        {
+            throw new ArgumentNullException(nameof(options), "Metadata is required");
+        }
+
         // Check if output directory exists
         var outputDir = Path.GetDirectoryName(options.OutputFilePath);
         if (!string.IsNullOrEmpty(outputDir) && !Directory.Exists(outputDir))
@@ -233,6 +301,41 @@ public class ExportService : IExportService
         if (File.Exists(options.OutputFilePath))
         {
             Log.Warning("Output file already exists, will overwrite: {File}", options.OutputFilePath);
+        }
+
+        // Check disk space
+        if (!string.IsNullOrEmpty(outputDir))
+        {
+            try
+            {
+                var drive = new DriveInfo(Path.GetPathRoot(options.OutputFilePath) ?? outputDir);
+                if (drive.IsReady)
+                {
+                    // Estimate ~2MB per second of video
+                    var estimatedSize = (long)(options.Segments.TotalDuration.TotalSeconds * 2_000_000);
+
+                    if (drive.AvailableFreeSpace < estimatedSize)
+                    {
+                        var neededMB = estimatedSize / 1_000_000;
+                        var availableMB = drive.AvailableFreeSpace / 1_000_000;
+
+                        throw new IOException(
+                            $"Insufficient disk space. Need approximately {neededMB}MB, but only {availableMB}MB available.");
+                    }
+
+                    Log.Debug("Disk space check passed: {Available}MB available, {Needed}MB estimated",
+                        drive.AvailableFreeSpace / 1_000_000, estimatedSize / 1_000_000);
+                }
+            }
+            catch (IOException)
+            {
+                throw; // Re-throw disk space errors
+            }
+            catch (Exception ex)
+            {
+                // Don't fail export if disk space check fails for other reasons
+                Log.Warning(ex, "Could not check disk space, proceeding with export");
+            }
         }
 
         Log.Information("Starting export: {Source} -> {Output}",
@@ -278,7 +381,10 @@ public class ExportService : IExportService
             // Start FFmpeg process
             var success = false;
 
-            var process = new Process
+            // Clear error buffer for this export
+            _ffmpegErrors.Clear();
+
+            using var process = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
@@ -295,10 +401,20 @@ public class ExportService : IExportService
             {
                 if (string.IsNullOrEmpty(e.Data)) return;
 
+                // Capture all FFmpeg output for error reporting
+                _ffmpegErrors.AppendLine(e.Data);
+
                 // Parse FFmpeg stderr for progress
                 var progressInfo = ParseFFmpegProgress(e.Data, totalFrames);
                 if (progressInfo.HasValue)
                 {
+                    // Throttle progress updates
+                    var now = DateTime.Now;
+                    if ((now - _lastProgressUpdate).TotalMilliseconds < ProgressUpdateThrottleMs)
+                        return; // Throttle updates to max 5 per second
+
+                    _lastProgressUpdate = now;
+
                     var elapsed = DateTime.Now - startTime;
                     TimeSpan? remaining = progressInfo.Value.percentage > 0
                         ? TimeSpan.FromSeconds(elapsed.TotalSeconds * (100 - progressInfo.Value.percentage) / progressInfo.Value.percentage)
@@ -317,57 +433,104 @@ public class ExportService : IExportService
                 }
             };
 
-            process.Start();
-            process.BeginErrorReadLine();
-
-            // Wait for completion or cancellation
-            while (!process.HasExited)
+            try
             {
-                if (cancellationToken.IsCancellationRequested)
+                process.Start();
+                process.BeginErrorReadLine();
+
+                // Wait for completion or cancellation
+                while (!process.HasExited)
                 {
-                    Log.Warning("Export cancelled by user");
-                    process.Kill();
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        Log.Warning("Export cancelled by user");
+
+                        try
+                        {
+                            process.Kill();
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Warning(ex, "Failed to kill FFmpeg process");
+                        }
+
+                        // Delete partial output file
+                        try
+                        {
+                            if (File.Exists(options.OutputFilePath))
+                            {
+                                File.Delete(options.OutputFilePath);
+                                Log.Information("Deleted partial export file: {File}", options.OutputFilePath);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Warning(ex, "Failed to delete partial export file: {File}", options.OutputFilePath);
+                        }
+
+                        progress.Report(new ExportProgress
+                        {
+                            Stage = ExportStage.Cancelled,
+                            Percentage = 0,
+                            Message = "Export cancelled"
+                        });
+
+                        return false;
+                    }
+
+                    await Task.Delay(100, CancellationToken.None);
+                }
+
+                success = process.ExitCode == 0;
+
+                if (success)
+                {
+                    Log.Information("Export completed successfully in {Elapsed}", DateTime.Now - startTime);
 
                     progress.Report(new ExportProgress
                     {
-                        Stage = ExportStage.Cancelled,
-                        Percentage = 0,
-                        Message = "Export cancelled"
+                        Stage = ExportStage.Complete,
+                        Percentage = 100,
+                        Message = "Export complete!",
+                        ElapsedTime = DateTime.Now - startTime
                     });
+                }
+                else
+                {
+                    var errorDetails = _ffmpegErrors.ToString();
+                    var errorMessage = ExtractFFmpegError(errorDetails);
 
-                    return false;
+                    Log.Error("Export failed with exit code {ExitCode}. Error: {Error}",
+                        process.ExitCode, errorMessage);
+
+                    progress.Report(new ExportProgress
+                    {
+                        Stage = ExportStage.Failed,
+                        Percentage = 0,
+                        Message = $"Export failed: {errorMessage}"
+                    });
                 }
 
-                await Task.Delay(100, CancellationToken.None);
+                return success;
             }
-
-            success = process.ExitCode == 0;
-
-            if (success)
+            catch (Exception processEx)
             {
-                Log.Information("Export completed successfully in {Elapsed}", DateTime.Now - startTime);
+                Log.Error(processEx, "Failed to execute FFmpeg process");
 
-                progress.Report(new ExportProgress
+                try
                 {
-                    Stage = ExportStage.Complete,
-                    Percentage = 100,
-                    Message = "Export complete!",
-                    ElapsedTime = DateTime.Now - startTime
-                });
-            }
-            else
-            {
-                Log.Error("Export failed with exit code {ExitCode}", process.ExitCode);
-
-                progress.Report(new ExportProgress
+                    if (!process.HasExited)
+                    {
+                        process.Kill();
+                    }
+                }
+                catch (Exception killEx)
                 {
-                    Stage = ExportStage.Failed,
-                    Percentage = 0,
-                    Message = $"Export failed (exit code {process.ExitCode})"
-                });
-            }
+                    Log.Warning(killEx, "Failed to kill FFmpeg process after exception");
+                }
 
-            return success;
+                throw;
+            }
         }
         catch (Exception ex)
         {
@@ -394,7 +557,7 @@ public class ExportService : IExportService
 
         try
         {
-            var frameMatch = System.Text.RegularExpressions.Regex.Match(line, @"frame=\s*(\d+)");
+            var frameMatch = FrameRegex.Match(line);
             if (!frameMatch.Success) return null;
 
             var frame = long.Parse(frameMatch.Groups[1].Value);
@@ -406,5 +569,24 @@ public class ExportService : IExportService
         {
             return null;
         }
+    }
+
+    /// <summary>
+    /// Extract meaningful error message from FFmpeg stderr output
+    /// </summary>
+    private string ExtractFFmpegError(string stderr)
+    {
+        if (string.IsNullOrEmpty(stderr))
+            return "Unknown error";
+
+        var lines = stderr.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+
+        // Look for common FFmpeg error patterns
+        var errorLine = lines.LastOrDefault(l =>
+            l.Contains("Error", StringComparison.OrdinalIgnoreCase) ||
+            l.Contains("failed", StringComparison.OrdinalIgnoreCase) ||
+            l.Contains("Invalid", StringComparison.OrdinalIgnoreCase));
+
+        return errorLine?.Trim() ?? "Export failed - check logs for details";
     }
 }

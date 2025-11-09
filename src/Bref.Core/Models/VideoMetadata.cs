@@ -58,6 +58,11 @@ public record VideoMetadata
     public WaveformData? Waveform { get; init; }
 
     /// <summary>
+    /// Whether video has audio track
+    /// </summary>
+    public bool HasAudio { get; init; } = true;
+
+    /// <summary>
     /// Check if this is a supported format (MP4/H.264 for MVP).
     /// </summary>
     public bool IsSupported()

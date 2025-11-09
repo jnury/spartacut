@@ -392,6 +392,11 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private string _exportMessage = string.Empty;
 
+    [ObservableProperty]
+    private string _exportTimeInfo = string.Empty;
+
+    private CancellationTokenSource? _exportCancellation;
+
     /// <summary>
     /// Callback to show save file dialog (set by MainWindow)
     /// </summary>
@@ -433,26 +438,53 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
             ExportProgress = p.Percentage;
             ExportMessage = p.Message;
 
-            if (p.Stage == ExportStage.Complete)
+            // Update time info if available
+            if (p.ElapsedTime.HasValue && p.EstimatedTimeRemaining.HasValue)
             {
-                IsExporting = false;
-                Log.Information("Export finished: {Output}", options.OutputFilePath);
+                ExportTimeInfo = $"Elapsed: {p.ElapsedTime.Value:hh\\:mm\\:ss} | Remaining: {p.EstimatedTimeRemaining.Value:hh\\:mm\\:ss}";
             }
-            else if (p.Stage == ExportStage.Failed || p.Stage == ExportStage.Cancelled)
+
+            if (p.Stage == ExportStage.Complete || p.Stage == ExportStage.Failed || p.Stage == ExportStage.Cancelled)
             {
                 IsExporting = false;
+                _exportCancellation?.Dispose();
+                _exportCancellation = null;
+
+                if (p.Stage == ExportStage.Complete)
+                {
+                    Log.Information("Export finished: {Output}", options.OutputFilePath);
+                }
             }
         });
 
         IsExporting = true;
+        _exportCancellation = new CancellationTokenSource();
 
-        // Start export
-        var success = await _exportService.ExportAsync(options, progress, CancellationToken.None);
-
-        if (success)
+        try
         {
-            ExportMessage = "Export complete!";
+            var success = await _exportService.ExportAsync(options, progress, _exportCancellation.Token);
+
+            if (success)
+            {
+                ExportMessage = "Export complete!";
+            }
         }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Export failed with exception");
+            ExportMessage = $"Export error: {ex.Message}";
+            IsExporting = false;
+        }
+    }
+
+    /// <summary>
+    /// Cancel ongoing export
+    /// </summary>
+    [RelayCommand]
+    public void CancelExport()
+    {
+        _exportCancellation?.Cancel();
+        Log.Information("Export cancellation requested by user");
     }
 
     /// <summary>
