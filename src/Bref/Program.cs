@@ -1,5 +1,6 @@
 using Avalonia;
 using System;
+using System.Reflection;
 using Bref.Utilities;
 using Serilog;
 
@@ -18,6 +19,9 @@ class Program
             // Initialize Serilog first
             LoggerSetup.Initialize();
 
+            // Log version information
+            var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "Unknown";
+            Log.Information("Bref {Version} is running", version);
             Log.Information("Starting Avalonia application");
             BuildAvaloniaApp()
                 .StartWithClassicDesktopLifetime(args);

@@ -83,7 +83,7 @@
             <Button Name="UndoButton"
                     Content="Undo"
                     Command="{Binding UndoCommand}"
-                    IsEnabled="{Binding CanUndoState}"
+                    IsEnabled="{Binding UndoEnabled}"
                     HotKey="Ctrl+Z"
                     Padding="15,10"
                     FontSize="14"/>
@@ -91,7 +91,7 @@
             <Button Name="RedoButton"
                     Content="Redo"
                     Command="{Binding RedoCommand}"
-                    IsEnabled="{Binding CanRedoState}"
+                    IsEnabled="{Binding RedoEnabled}"
                     HotKey="Ctrl+Y"
                     Padding="15,10"
                     FontSize="14"/>

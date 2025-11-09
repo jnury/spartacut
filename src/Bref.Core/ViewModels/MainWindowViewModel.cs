@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Bref.Core.Models;
@@ -13,11 +14,12 @@ namespace Bref.Core.ViewModels;
 /// <summary>
 /// Main window ViewModel orchestrating video editing operations
 /// </summary>
-public partial class MainWindowViewModel : ObservableObject
+public partial class MainWindowViewModel : ObservableObject, IDisposable
 {
     private readonly SegmentManager _segmentManager = new();
     private readonly IPlaybackEngine _playbackEngine;
     private readonly SynchronizationContext? _uiContext;
+    private bool _disposed = false;
 
     [ObservableProperty]
     private TimelineViewModel _timeline = new();
@@ -26,10 +28,10 @@ public partial class MainWindowViewModel : ObservableObject
     private bool _isPlaying = false;
 
     [ObservableProperty]
-    private bool _canUndoState = false;
+    private bool _undoEnabled = false;
 
     [ObservableProperty]
-    private bool _canRedoState = false;
+    private bool _redoEnabled = false;
 
     private double _volume = 1.0;
     private double _volumeBeforeMute = 1.0;
@@ -98,15 +100,7 @@ public partial class MainWindowViewModel : ObservableObject
         _uiContext = SynchronizationContext.Current;
 
         // Subscribe to Timeline property changes to update command states
-        Timeline.PropertyChanged += (s, e) =>
-        {
-            if (e.PropertyName == nameof(Timeline.CanDeleteSelection))
-            {
-                // Selection changed - update Delete command state
-                OnPropertyChanged(nameof(CanDelete));
-                DeleteSelectionCommand.NotifyCanExecuteChanged();
-            }
-        };
+        Timeline.PropertyChanged += OnTimelinePropertyChanged;
 
         // Subscribe to playback state changes
         _playbackEngine.StateChanged += OnPlaybackStateChanged;
@@ -114,6 +108,16 @@ public partial class MainWindowViewModel : ObservableObject
 
         // Subscribe to timeline seeks (user clicking timeline)
         Timeline.CurrentTimeChanged += OnTimelineSeek;
+    }
+
+    private void OnTimelinePropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(Timeline.CanDeleteSelection))
+        {
+            // Selection changed - update Delete command state
+            OnPropertyChanged(nameof(CanDelete));
+            DeleteSelectionCommand.NotifyCanExecuteChanged();
+        }
     }
 
     private bool _updatingFromPlayback = false;
@@ -200,26 +204,6 @@ public partial class MainWindowViewModel : ObservableObject
     public bool CanDelete => Timeline.CanDeleteSelection;
 
     /// <summary>
-    /// Can undo?
-    /// </summary>
-    public bool CanUndo()
-    {
-        var canUndo = _segmentManager.CanUndo;
-        Log.Debug("CanUndo() queried: {CanUndo}", canUndo);
-        return canUndo;
-    }
-
-    /// <summary>
-    /// Can redo?
-    /// </summary>
-    public bool CanRedo()
-    {
-        var canRedo = _segmentManager.CanRedo;
-        Log.Debug("CanRedo() queried: {CanRedo}", canRedo);
-        return canRedo;
-    }
-
-    /// <summary>
     /// Can play? (video loaded and not playing)
     /// </summary>
     public bool CanPlay => _playbackEngine.CanPlay && !IsPlaying;
@@ -252,13 +236,10 @@ public partial class MainWindowViewModel : ObservableObject
         _playbackEngine.Initialize(metadata.FilePath, _segmentManager, metadata);
 
         // Initialize button states
-        CanUndoState = false;
-        CanRedoState = false;
-
+        UndoEnabled = false;
+        RedoEnabled = false;
         OnPropertyChanged(nameof(CanPlay));
         PlayCommand.NotifyCanExecuteChanged();
-        UndoCommand.NotifyCanExecuteChanged();
-        RedoCommand.NotifyCanExecuteChanged();
     }
 
     /// <summary>
@@ -287,9 +268,12 @@ public partial class MainWindowViewModel : ObservableObject
     /// <summary>
     /// Undo last operation
     /// </summary>
-    [RelayCommand(CanExecute = nameof(CanUndo))]
+    [RelayCommand]
     public async Task Undo()
     {
+        if (!_segmentManager.CanUndo) return;
+
+        Log.Debug("Undo() executed");
         _segmentManager.Undo();
         await UpdateAfterEditAsync();
     }
@@ -297,9 +281,12 @@ public partial class MainWindowViewModel : ObservableObject
     /// <summary>
     /// Redo last undone operation
     /// </summary>
-    [RelayCommand(CanExecute = nameof(CanRedo))]
+    [RelayCommand]
     public async Task Redo()
     {
+        if (!_segmentManager.CanRedo) return;
+
+        Log.Debug("Redo() executed");
         _segmentManager.Redo();
         await UpdateAfterEditAsync();
     }
@@ -331,20 +318,15 @@ public partial class MainWindowViewModel : ObservableObject
                 // Update timeline to reflect new virtual duration and deleted segments
                 Timeline.NotifySegmentsChanged();
 
-                Log.Debug("UpdateAfterEditAsync: About to notify command changes. CanUndo={CanUndo}, CanRedo={CanRedo}",
-                    _segmentManager.CanUndo, _segmentManager.CanRedo);
+                // Update button enabled states
+                UndoEnabled = _segmentManager.CanUndo;
+                RedoEnabled = _segmentManager.CanRedo;
 
-                // Update observable button states
-                CanUndoState = _segmentManager.CanUndo;
-                CanRedoState = _segmentManager.CanRedo;
+                Log.Debug("UpdateAfterEditAsync: Button states updated - UndoEnabled={UndoEnabled}, RedoEnabled={RedoEnabled}",
+                    UndoEnabled, RedoEnabled);
 
                 // Notify command state changes
                 DeleteSelectionCommand.NotifyCanExecuteChanged();
-                UndoCommand.NotifyCanExecuteChanged();
-                RedoCommand.NotifyCanExecuteChanged();
-
-                Log.Debug("UpdateAfterEditAsync: Button states updated - CanUndoState={CanUndoState}, CanRedoState={CanRedoState}",
-                    CanUndoState, CanRedoState);
 
                 OnPropertyChanged(nameof(VirtualDuration));
                 OnPropertyChanged(nameof(SegmentCount));
@@ -355,18 +337,15 @@ public partial class MainWindowViewModel : ObservableObject
             // Fallback for tests (no UI context)
             Timeline.NotifySegmentsChanged();
 
-            Log.Debug("UpdateAfterEditAsync: About to notify command changes. CanUndo={CanUndo}, CanRedo={CanRedo}",
-                _segmentManager.CanUndo, _segmentManager.CanRedo);
+            // Update button enabled states
+            UndoEnabled = _segmentManager.CanUndo;
+            RedoEnabled = _segmentManager.CanRedo;
 
-            // Update observable button states
-            CanUndoState = _segmentManager.CanUndo;
-            CanRedoState = _segmentManager.CanRedo;
+            Log.Debug("UpdateAfterEditAsync: Button states updated (no UI context) - UndoEnabled={UndoEnabled}, RedoEnabled={RedoEnabled}",
+                UndoEnabled, RedoEnabled);
 
+            // Notify command state changes
             DeleteSelectionCommand.NotifyCanExecuteChanged();
-            UndoCommand.NotifyCanExecuteChanged();
-            RedoCommand.NotifyCanExecuteChanged();
-
-            Log.Debug("UpdateAfterEditAsync: Button states updated (no UI context)");
 
             OnPropertyChanged(nameof(VirtualDuration));
             OnPropertyChanged(nameof(SegmentCount));
@@ -403,10 +382,22 @@ public partial class MainWindowViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Dispose resources
+    /// Dispose resources and unsubscribe from events
     /// </summary>
     public void Dispose()
     {
+        if (_disposed)
+            return;
+
+        // Unsubscribe from events to prevent memory leaks
+        Timeline.PropertyChanged -= OnTimelinePropertyChanged;
+        _playbackEngine.StateChanged -= OnPlaybackStateChanged;
+        _playbackEngine.TimeChanged -= OnPlaybackTimeChanged;
+        Timeline.CurrentTimeChanged -= OnTimelineSeek;
+
+        // Dispose managed resources
         _playbackEngine?.Dispose();
+
+        _disposed = true;
     }
 }

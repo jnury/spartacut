@@ -59,7 +59,7 @@ public class VideoService : IVideoService
             VideoMetadata metadata = null!;
             await Task.Run(() =>
             {
-                using var extractor = new FrameExtractor();
+                var extractor = new FrameExtractor();
                 metadata = extractor.ExtractMetadata(filePath);
             }, cancellationToken);
 

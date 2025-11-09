@@ -101,7 +101,9 @@
       "Bash(/usr/local/share/dotnet/dotnet publish:*)",
       "Bash(pkill:*)",
       "Bash(dotnet sln:*)",
-      "Bash(dotnet clean:*)"
+      "Bash(dotnet clean:*)",
+      "Bash(chmod:*)",
+      "Bash(dos2unix:*)"
     ],
     "deny": [],
     "ask": []

@@ -8,10 +8,10 @@ namespace Bref.Core.FFmpeg;
 
 /// <summary>
 /// Extracts metadata from video files using FFMpegCore.
+/// No disposal needed - FFMpegCore shells out to external ffmpeg process.
 /// </summary>
-public class FrameExtractor : IDisposable
+public class FrameExtractor
 {
-    private bool _isDisposed = false;
 
     /// <summary>
     /// Extract metadata from a video file.
@@ -66,11 +66,5 @@ public class FrameExtractor : IDisposable
             Log.Error(ex, "Failed to extract metadata from {FilePath}", filePath);
             throw new InvalidOperationException($"Failed to parse video file: {ex.Message}", ex);
         }
-    }
-
-    public void Dispose()
-    {
-        if (_isDisposed) return;
-        _isDisposed = true;
     }
 }
