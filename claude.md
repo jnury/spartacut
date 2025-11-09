@@ -1,143 +1,98 @@
-# Claude Code Context - Bref
+# Sparta Cut - Video Editor Context
 
-## Project Overview
+**Target:** Windows video editor for MP4/H.264 segment removal → Microsoft Store (MSIX)
 
-**Bref** is a Windows video editor for removing unwanted segments from MP4/H.264 videos.
+## Stack
+- **UI:** Avalonia 11.x (XAML + MVVM), C# .NET 8
+- **Playback:** LibVLCSharp 3.8.5 (requires x64 Rosetta on macOS M-series)
+- **Analysis:** FFMpegCore 5.1.0, NAudio, Serilog
+- **MVVM:** CommunityToolkit.Mvvm
 
-**Primary Use Case:** Trim Teams meeting recordings, screen captures, and other recordings.
+## Core Architecture
+- **Virtual Timeline:** Edits tracked as timestamps in `SegmentList`, original never modified
+- **SegmentManager:** Undo/redo (50 levels), virtual↔source time conversion
+- **VlcPlaybackEngine:** Segment boundary jumping (50ms timer, seeks past deleted regions)
 
-**Target:** Microsoft Store release
+## CRITICAL: Button State Pattern
 
-## Core Design Decision
-
-**Virtual Timeline (Non-Destructive Editing)**
-- Original video NEVER modified
-- All edits tracked as timestamps in `SegmentList`
-- Playback engine skips deleted segments seamlessly
-- Single re-encode only at final export
-- Instant deletion preview, clean undo/redo
-
-## Technology Stack
-
-```
-UI:       Avalonia UI 11.x (XAML + MVVM)
-Language: C# (.NET 8)
-Video:    FFmpeg 7.x (hardware acceleration)
-Platform: Windows 11 (64-bit)
-Package:  MSIX (Microsoft Store)
-```
-
-## Key Libraries
-
-- `FFmpeg.AutoGen` - Low-level FFmpeg bindings
-- `FFMpegCore` - High-level FFmpeg wrapper
-- `NAudio` - Waveform generation
-- `CommunityToolkit.Mvvm` - MVVM helpers
-- `Serilog` - Logging
-
-## MVP Constraints
-
-**INCLUDED:**
-- ✅ MP4/H.264 only (validate format strictly)
-- ✅ Click-and-drag segment deletion
-- ✅ Waveform + thumbnail timeline
-- ✅ Auto-optimal export (hardware acceleration)
-- ✅ Full undo/redo (50 levels)
-- ✅ Save/load projects (.bref files)
-
-**EXCLUDED (defer to v1.1+):**
-- ❌ Other formats (AVI, MOV, MKV)
-- ❌ Export quality presets
-- ❌ Variable speed playback
-- ❌ Light theme
-- ❌ Localization
-
-## Project Structure
-
-```
-src/Bref/
-├── Models/              # Data models (VideoProject, SegmentList, etc.)
-├── ViewModels/          # MVVM ViewModels
-├── Views/               # XAML UI
-├── Services/            # Business logic (SegmentManager, PlaybackEngine, etc.)
-├── FFmpeg/              # FFmpeg integration layer
-└── Utilities/           # Helpers (LRUCache, etc.)
-```
-
-## Critical Data Models
-
-**SegmentList** - Virtual timeline (kept segments only)
+**DO THIS** - Observable property + IsEnabled binding:
 ```csharp
-List<VideoSegment> KeptSegments;  // Non-overlapping, sorted by SourceStart
-TimeSpan VirtualToSourceTime(TimeSpan virtualTime);
-void DeleteSegment(TimeSpan virtualStart, TimeSpan virtualEnd);
+[ObservableProperty]
+private bool _undoEnabled = false;
+
+UndoEnabled = _segmentManager.CanUndo;  // Direct update
+
+[RelayCommand]  // NO CanExecute!
+public async Task Undo() {
+    if (!_segmentManager.CanUndo) return;
+    ...
+}
+```
+```xml
+<Button Command="{Binding UndoCommand}" IsEnabled="{Binding UndoEnabled}"/>
 ```
 
-**VideoSegment** - Continuous portion of source video
-```csharp
-TimeSpan SourceStart;  // Position in original file
-TimeSpan SourceEnd;    // Position in original file
+**DON'T DO:**
+- ❌ `[RelayCommand(CanExecute = nameof(CanUndo))]` - unreliable in Avalonia
+- ❌ Mix Command + manual IsEnabled - they conflict
+- ❌ `OnPropertyChanged(nameof(CanUndo))` on computed properties - doesn't work
+
+## macOS Development
+
+**Build/Run (x64 required for LibVLC):**
+```bash
+cd src && ./build-and-run.sh  # Clean build script
 ```
 
-**EditHistory** - Undo/redo stack
-```csharp
-void PushState(SegmentList currentState);
-SegmentList Undo(SegmentList currentState);
-SegmentList Redo(SegmentList currentState);
+**Manual:**
+```bash
+dotnet publish src/SpartaCut/SpartaCut.csproj --runtime osx-x64 --self-contained -c Debug
+arch -x86_64 ./src/SpartaCut/bin/Debug/net8.0/osx-x64/publish/SpartaCut
 ```
 
-## Key Services
+## Key Patterns
+- **Time:** UI=virtual (post-deletions), Source=original file positions
+- **Segment Jumps:** Poll `SourceToVirtualTime()` → null = deleted → seek to next+100ms
+- **Audio:** LibVLC handles playback/sync automatically, no manual coordination
 
-- **VideoService** - Load/validate videos, extract metadata
-- **SegmentManager** - Manage virtual timeline, undo/redo
-- **PlaybackEngine** - Play through kept segments seamlessly
-- **FrameCache** - LRU cache (60 frames ~370MB for 1080p)
-- **WaveformGenerator** - Pre-generate audio waveform on load
-- **ThumbnailGenerator** - Pre-generate timeline thumbnails
-- **ExportService** - FFmpeg export with hardware acceleration
+## Rules
+- Version bumps: patch for fixes, minor for features
+- Commit/tag/push only when asked
+- Ask before updating this file
+- No unrequested features
 
-## Development Principles
+## Today I Learned
 
-1. **YAGNI** - Resist feature creep, defer complexity
-2. **Performance First** - Profile early, optimize critical paths
-3. **Test Core Logic** - Unit tests for SegmentList, time conversion
-4. **AI-Assisted** - Use Claude Code for boilerplate, focus on creative work
+### Week 9: Export Service (January 2025)
 
-## Common Patterns
+**FFmpeg Export Architecture:**
+- Use FFMpegCore for process execution and argument building
+- Build filter_complex commands for segment concatenation
+- Single segment: simple trim filter
+- Multiple segments: concat filter with PTS reset
 
-**Time Conversion:**
-- UI uses "virtual time" (deleted segments removed)
-- FFmpeg uses "source time" (original file positions)
-- Always convert via `SegmentList.VirtualToSourceTime()`
+**Hardware Acceleration:**
+- Auto-detect NVENC (NVIDIA), Quick Sync (Intel), AMF (AMD)
+- Priority: NVENC > Quick Sync > AMF > libx264 (software)
+- Parse `ffmpeg -encoders` output to check availability
+- Fallback to software encoding if hardware unavailable
 
-**State Management:**
-- Before any edit: `History.PushState(CurrentSegments.Clone())`
-- On undo: Restore previous SegmentList from stack
-- Clear redo stack on new action
+**Progress Monitoring:**
+- Parse FFmpeg stderr for "frame=" progress lines
+- Calculate percentage from current frame / total frames
+- Estimate time remaining from elapsed time and percentage
+- Update UI every ~100ms during encoding
 
-**Error Handling:**
-- Validate MP4/H.264 early (before processing)
-- Show user-friendly messages ("Only MP4 H.264 supported")
-- Log technical details with Serilog
+**Cancellation:**
+- CancellationToken support for user cancellation
+- Kill FFmpeg process on cancellation
+- Report Cancelled stage to UI
 
-## Documentation Locations
+**Edge Cases:**
+- Validate source file exists
+- Validate at least one segment to export
+- Create output directory if needed
+- Warn on output file overwrite
 
-**Detailed Specs:**
-- Architecture: `docs/plans/architecture.md`
-- User Flow: `docs/plans/user-flow.md`
-- Technical: `docs/plans/technical-specification.md`
-- Roadmap: `docs/plans/mvp-scope-roadmap.md`
-
-## Critical Rules (Never Violate)
-- Keep evything simple so a beginer/medium experimented developer can understand and maintain the code.
-- No external library except if it greatly simplify the code and it's a very well maintened library. Always ask me if you want to add a library and expose the pros/cons of building your own code vs adding a library.
-- Each time you touch the code, update package version with the following rule: if you just implemented a new important feature, increment the minor version digit; else increment the patch version digit.
-- Commit the repository only when I ask. When you create a commit, tag it with the current app verion. Always push after you commited.
-- If you learn something interesting and usefull for the rest of the project, update this CLAUDE.md file in section "Today I learned". But before, ask me if your new knowledge is correct.
-- If you made a mistake in your interpretation of the specs, architecture, features etc. update this CLAUDE.md file in section "Never again". But before, ask me if your new knowledge is correct.
-- Always ask questions when you need clarification or if you have the choice between multiple solutions.
-- Always ask for validation before commiting changes
-- Never add features that weren't explicitly requested (like the Auto-save toggle I added to Settings). Always implement exactly what was asked for, but DO propose good ideas as suggestions for the user to accept or decline. Frame additional features as questions: "Would you also like me to add [feature], or should we keep it as-is for now?"
-
-## Always Think Step by Step
-- Read specification → Check dependencies → Validate data flow → Implement incrementally → Test immediately
+## Never Again
+**Button State Hell:** RelayCommand CanExecute doesn't reliably update button states in Avalonia. Use simple observable properties (see pattern above). Hours wasted trying CanExecute variants - all failed.

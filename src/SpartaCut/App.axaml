@@ -1,0 +1,18 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="SpartaCut.App"
+             Name="SpartaCut"
+             RequestedThemeVariant="Default">
+             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+
+    <NativeMenu.Menu>
+        <NativeMenu>
+            <!-- Application menu - About Sparta Cut -->
+            <NativeMenuItem Header="About Sparta Cut" Click="AboutMenuItem_Click" />
+        </NativeMenu>
+    </NativeMenu.Menu>
+
+    <Application.Styles>
+        <FluentTheme />
+    </Application.Styles>
+</Application>

@@ -1,4 +1,4 @@
-# Bref - Architecture Design
+# Sparta Cut - Architecture Design
 
 **Date:** 2025-11-01
 **Version:** 1.0 - MVP Design
@@ -6,7 +6,7 @@
 
 ## Executive Summary
 
-Bref is a Windows video editing application for cutting unwanted segments from MP4/H.264 videos using an intuitive iterative workflow. Built with Avalonia UI + C# + FFmpeg, it uses a virtual timeline approach for non-destructive editing with instant preview and clean undo/redo.
+Sparta Cut is a Windows video editing application for cutting unwanted segments from MP4/H.264 videos using an intuitive iterative workflow. Built with Avalonia UI + C# + FFmpeg, it uses a virtual timeline approach for non-destructive editing with instant preview and clean undo/redo.
 
 **Key Design Decision:** Virtual Timeline (Approach 1)
 - Original video never modified
@@ -387,7 +387,7 @@ Success notification to user
 
 ## Conclusion
 
-This architecture provides a solid foundation for Bref's MVP, balancing performance, user experience, and development speed. The virtual timeline approach enables instant feedback and clean undo/redo, while hardware acceleration ensures smooth playback and fast exports.
+This architecture provides a solid foundation for SpartaCut's MVP, balancing performance, user experience, and development speed. The virtual timeline approach enables instant feedback and clean undo/redo, while hardware acceleration ensures smooth playback and fast exports.
 
 The three-layer architecture maintains clear separation of concerns, making the codebase maintainable and testable. FFmpeg integration provides professional-grade video processing capabilities, while Avalonia UI delivers a modern, responsive interface.
 

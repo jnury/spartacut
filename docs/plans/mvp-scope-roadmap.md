@@ -1,4 +1,4 @@
-# Bref - MVP Scope & Roadmap
+# Sparta Cut - MVP Scope & Roadmap
 
 **Date:** 2025-11-01
 **Version:** 1.0 - MVP Definition
@@ -6,7 +6,7 @@
 
 ## Executive Summary
 
-This document defines the exact scope for Bref's Minimum Viable Product (MVP) - a focused, releasable video editing tool for removing unwanted segments from MP4/H.264 videos. The MVP targets a **3-month development timeline** with clear milestones and deliverables.
+This document defines the exact scope for SpartaCut's Minimum Viable Product (MVP) - a focused, releasable video editing tool for removing unwanted segments from MP4/H.264 videos. The MVP targets a **3-month development timeline** with clear milestones and deliverables.
 
 **MVP Goal:** Ship a functional, performant video segment removal tool to Microsoft Store that solves the core use case: trimming Teams meeting recordings and similar screen capture videos.
 
@@ -67,7 +67,7 @@ This document defines the exact scope for Bref's Minimum Viable Product (MVP) - 
 - Success/error notifications
 
 **8. Session Management**
-- Save project (.bref files with timestamps only)
+- Save project (.spartacut files with timestamps only)
 - Load project (restore edit session)
 - Unsaved changes warning on close
 
@@ -324,13 +324,13 @@ This document defines the exact scope for Bref's Minimum Viable Product (MVP) - 
 **Goal:** Save/load projects, handle unsaved changes
 
 **Tasks:**
-- Design .bref file format (JSON)
+- Design .spartacut file format (JSON)
 - Implement project serialization/deserialization
 - Save Project dialog and logic
 - Load Project dialog and logic
 - Recent files list
 - Unsaved changes warning on close
-- File associations (.mp4, .bref)
+- File associations (.mp4, .spartacut)
 
 **Deliverable:** Can save/load editing sessions
 

@@ -1,10 +1,10 @@
-# Windows Video Editing Stack Comparison for "Bref"
+# Windows Video Editing Stack Comparison for "Sparta Cut"
 
 **Comprehensive Technical Analysis for Teams Meeting Recording Trimmer**
 
 ## 1. Executive Summary
 
-After extensive research across five technology stacks and cross-cutting architectural concerns, the **clear recommendation for Bref is Avalonia UI + C# + FFmpeg** as the optimal balance of performance, development speed, and maintainability for a non-professional developer using AI-assisted tools.
+After extensive research across five technology stacks and cross-cutting architectural concerns, the **clear recommendation for Sparta Cut is Avalonia UI + C# + FFmpeg** as the optimal balance of performance, development speed, and maintainability for a non-professional developer using AI-assisted tools.
 
 ### Key Findings
 
@@ -445,8 +445,8 @@ winget install Microsoft.DotNet.SDK.8
 dotnet new install Avalonia.Templates
 
 # Create project
-dotnet new avalonia.mvvm -n Bref -o Bref
-cd Bref
+dotnet new avalonia.mvvm -n Sparta Cut -o SpartaCut
+cd SpartaCut
 
 # Add essential packages
 dotnet add package FFmpeg.AutoGen --version 7.0.*

@@ -1,0 +1,44 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SpartaCut.Views.LoadingDialog"
+        Title="Loading Video"
+        Width="400" Height="200"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="#1E1E1E">
+
+    <Grid Margin="30">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Status Message -->
+        <TextBlock Grid.Row="0"
+                   Name="StatusTextBlock"
+                   Text="Loading video..."
+                   FontSize="16"
+                   Foreground="White"
+                   TextAlignment="Center"/>
+
+        <!-- Progress Bar -->
+        <ProgressBar Grid.Row="2"
+                     Name="LoadProgressBar"
+                     Height="10"
+                     Minimum="0"
+                     Maximum="100"
+                     Value="0"
+                     Foreground="#007ACC"/>
+
+        <!-- Percentage Text -->
+        <TextBlock Grid.Row="4"
+                   Name="PercentageTextBlock"
+                   Text="0%"
+                   FontSize="14"
+                   Foreground="#CCCCCC"
+                   TextAlignment="Center"/>
+    </Grid>
+</Window>

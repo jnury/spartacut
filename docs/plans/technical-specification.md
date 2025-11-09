@@ -1,4 +1,4 @@
-# Bref - Technical Specification
+# Sparta Cut - Technical Specification
 
 **Date:** 2025-11-01
 **Version:** 1.0 - MVP Implementation
@@ -66,10 +66,10 @@
 ## Project Structure
 
 ```
-Bref/
-├── Bref.sln
+SpartaCut/
+├── SpartaCut.sln
 ├── src/
-│   ├── Bref/                          # Main application
+│   ├── SpartaCut/                          # Main application
 │   │   ├── App.axaml                  # Application definition
 │   │   ├── App.axaml.cs
 │   │   ├── Program.cs                 # Entry point
@@ -107,7 +107,7 @@ Bref/
 │   │   └── Utilities/
 │   │       ├── LRUCache.cs
 │   │       └── TimeSpanExtensions.cs
-│   └── Bref.Tests/                    # Unit tests
+│   └── SpartaCut.Tests/                    # Unit tests
 │       ├── Models/
 │       ├── Services/
 │       └── FFmpeg/
@@ -129,7 +129,7 @@ Bref/
 ```csharp
 using System;
 
-namespace Bref.Models
+namespace SpartaCut.Models
 {
     /// <summary>
     /// Represents a complete video editing session
@@ -179,7 +179,7 @@ namespace Bref.Models
 ```csharp
 using System;
 
-namespace Bref.Models
+namespace SpartaCut.Models
 {
     /// <summary>
     /// Technical metadata about video file
@@ -256,7 +256,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Bref.Models
+namespace SpartaCut.Models
 {
     /// <summary>
     /// Manages the virtual timeline of kept segments
@@ -428,7 +428,7 @@ namespace Bref.Models
 ```csharp
 using System;
 
-namespace Bref.Models
+namespace SpartaCut.Models
 {
     /// <summary>
     /// Represents a continuous portion of the source video (kept segment)
@@ -464,7 +464,7 @@ namespace Bref.Models
 ```csharp
 using System.Collections.Generic;
 
-namespace Bref.Models
+namespace SpartaCut.Models
 {
     /// <summary>
     /// Manages undo/redo stack for segment operations
@@ -557,7 +557,7 @@ namespace Bref.Models
 ```csharp
 using System;
 
-namespace Bref.Models
+namespace SpartaCut.Models
 {
     /// <summary>
     /// Represents current timeline selection state (UI state)
@@ -627,9 +627,9 @@ namespace Bref.Models
 
 ```csharp
 using System;
-using Bref.Models;
+using SpartaCut.Models;
 
-namespace Bref.Services
+namespace SpartaCut.Services
 {
     /// <summary>
     /// Core business logic for managing video segments and edit operations
@@ -722,7 +722,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 
-namespace Bref.FFmpeg
+namespace SpartaCut.FFmpeg
 {
     /// <summary>
     /// Detects available hardware video encoders
@@ -824,7 +824,7 @@ namespace Bref.FFmpeg
 using System;
 using System.Collections.Generic;
 
-namespace Bref.Utilities
+namespace SpartaCut.Utilities
 {
     /// <summary>
     /// Least Recently Used cache with fixed capacity
@@ -1073,7 +1073,7 @@ public class ExportService
   },
   "Export": {
     "PreferredEncoder": "auto",
-    "TempDirectory": "%TEMP%\\Bref",
+    "TempDirectory": "%TEMP%\\SpartaCut",
     "DefaultOutputDirectory": "%USERPROFILE%\\Videos"
   },
   "UI": {
@@ -1094,7 +1094,7 @@ public class ExportService
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .WriteTo.File(
-        path: "logs/bref-.log",
+        path: "logs/spartacut-.log",
         rollingInterval: RollingInterval.Day,
         retainedFileCountLimit: 7,
         outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
@@ -1118,12 +1118,12 @@ Log.Logger = new LoggerConfiguration()
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10">
-  <Identity Name="Bref"
+  <Identity Name="Sparta Cut"
             Publisher="CN=Publisher"
             Version="1.0.0.0" />
 
   <Properties>
-    <DisplayName>Bref - Video Editor</DisplayName>
+    <DisplayName>Sparta Cut - Video Editor</DisplayName>
     <PublisherDisplayName>Publisher Name</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -1139,8 +1139,8 @@ Log.Logger = new LoggerConfiguration()
   </Capabilities>
 
   <Applications>
-    <Application Id="Bref" Executable="Bref.exe" EntryPoint="Windows.FullTrustApplication">
-      <uap:VisualElements DisplayName="Bref"
+    <Application Id="Sparta Cut" Executable="SpartaCut.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements DisplayName="Sparta Cut"
                           Description="Video editing tool for removing unwanted segments"
                           BackgroundColor="transparent"
                           Square150x150Logo="Assets\Square150x150Logo.png"
@@ -1157,9 +1157,9 @@ Log.Logger = new LoggerConfiguration()
         </uap3:Extension>
 
         <uap3:Extension Category="windows.fileTypeAssociation">
-          <uap3:FileTypeAssociation Name="bref">
+          <uap3:FileTypeAssociation Name="spartacut">
             <uap:SupportedFileTypes>
-              <uap:FileType>.bref</uap:FileType>
+              <uap:FileType>.spartacut</uap:FileType>
             </uap:SupportedFileTypes>
           </uap3:FileTypeAssociation>
         </uap3:Extension>
@@ -1182,17 +1182,17 @@ dotnet build -c Release
 dotnet publish -c Release -r win-x64 --self-contained true
 
 # Create MSIX package
-makeappx pack /d publish/win-x64 /p Bref.msix
+makeappx pack /d publish/win-x64 /p SpartaCut.msix
 
 # Sign package
-signtool sign /fd SHA256 /a Bref.msix
+signtool sign /fd SHA256 /a SpartaCut.msix
 ```
 
 ---
 
 ## Conclusion
 
-This technical specification provides complete implementation details for Bref MVP, covering:
+This technical specification provides complete implementation details for Sparta Cut MVP, covering:
 - ✓ Complete data models with C# code
 - ✓ Core algorithms (segment management, time conversion)
 - ✓ FFmpeg integration strategy
