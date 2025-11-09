@@ -13,7 +13,7 @@
 ## Task 1: Create PersistentFrameDecoder Class
 
 **Files:**
-- Create: `src/Bref/Services/PersistentFrameDecoder.cs`
+- Create: `src/SpartaCut/Services/PersistentFrameDecoder.cs`
 - Create: `src/SpartaCut.Tests/Services/PersistentFrameDecoderTests.cs`
 
 **Step 1: Write the failing test**
@@ -113,7 +113,7 @@ Expected: FAIL - PersistentFrameDecoder type does not exist
 
 **Step 3: Write minimal implementation**
 
-Create `src/Bref/Services/PersistentFrameDecoder.cs`:
+Create `src/SpartaCut/Services/PersistentFrameDecoder.cs`:
 
 ```csharp
 using System;
@@ -401,7 +401,7 @@ Expected: PASS (all 5 tests)
 **Step 5: Commit**
 
 ```bash
-git add src/Bref/Services/PersistentFrameDecoder.cs src/SpartaCut.Tests/Services/PersistentFrameDecoderTests.cs
+git add src/SpartaCut/Services/PersistentFrameDecoder.cs src/SpartaCut.Tests/Services/PersistentFrameDecoderTests.cs
 git commit -m "feat: add PersistentFrameDecoder with 640×360 scaling
 
 - Keep video file open between frames (20-40× faster)
@@ -415,12 +415,12 @@ git commit -m "feat: add PersistentFrameDecoder with 640×360 scaling
 ## Task 2: Update FrameCache to Use PersistentFrameDecoder
 
 **Files:**
-- Modify: `src/Bref/Services/FrameCache.cs:19-37, 71`
+- Modify: `src/SpartaCut/Services/FrameCache.cs:19-37, 71`
 - Modify: `src/SpartaCut.Tests/Services/FrameCacheTests.cs` (if needed)
 
 **Step 1: Update FrameCache to use PersistentFrameDecoder**
 
-In `src/Bref/Services/FrameCache.cs`, update the decoder field and initialization:
+In `src/SpartaCut/Services/FrameCache.cs`, update the decoder field and initialization:
 
 ```csharp
 // Line 19-20: Change decoder type
@@ -448,7 +448,7 @@ var frame = _decoder.DecodeFrameAt(TimeSpan.FromTicks(cacheKey));
 
 **Step 2: Build to verify changes compile**
 
-Run: `/usr/local/share/dotnet/dotnet build src/Bref/SpartaCut.csproj`
+Run: `/usr/local/share/dotnet/dotnet build src/SpartaCut/SpartaCut.csproj`
 
 Expected: Build succeeds
 
@@ -461,7 +461,7 @@ Expected: All tests pass (functionality unchanged, just faster)
 **Step 4: Commit**
 
 ```bash
-git add src/Bref/Services/FrameCache.cs
+git add src/SpartaCut/Services/FrameCache.cs
 git commit -m "refactor: use PersistentFrameDecoder in FrameCache
 
 - Replace FrameDecoder with PersistentFrameDecoder
@@ -474,11 +474,11 @@ git commit -m "refactor: use PersistentFrameDecoder in FrameCache
 ## Task 3: Update Preload Radius to 30 Frames
 
 **Files:**
-- Modify: `src/Bref/Views/MainWindow.axaml.cs:157`
+- Modify: `src/SpartaCut/Views/MainWindow.axaml.cs:157`
 
 **Step 1: Update preload radius from 10 to 30**
 
-In `src/Bref/Views/MainWindow.axaml.cs`, line 157:
+In `src/SpartaCut/Views/MainWindow.axaml.cs`, line 157:
 
 ```csharp
 // OLD:
@@ -499,7 +499,7 @@ Manual test: Run app, load video, drag timeline - should feel smoother with larg
 **Step 3: Commit**
 
 ```bash
-git add src/Bref/Views/MainWindow.axaml.cs
+git add src/SpartaCut/Views/MainWindow.axaml.cs
 git commit -m "perf: increase preload radius to 30 frames (±1 second)
 
 - Better coverage during timeline scrubbing
@@ -511,19 +511,19 @@ git commit -m "perf: increase preload radius to 30 frames (±1 second)
 ## Task 4: Remove Old FrameDecoder (Optional Cleanup)
 
 **Files:**
-- Delete: `src/Bref/Services/FrameDecoder.cs`
+- Delete: `src/SpartaCut/Services/FrameDecoder.cs`
 - Review: `src/SpartaCut.Tests/Services/FrameDecoderTests.cs` (delete if exists)
 
 **Step 1: Check if FrameDecoder is used elsewhere**
 
-Run: `grep -r "FrameDecoder" src/Bref --exclude-dir=bin --exclude-dir=obj`
+Run: `grep -r "FrameDecoder" src/SpartaCut --exclude-dir=bin --exclude-dir=obj`
 
 Expected: Only references in comments or old code
 
 **Step 2: Delete old FrameDecoder**
 
 ```bash
-git rm src/Bref/Services/FrameDecoder.cs
+git rm src/SpartaCut/Services/FrameDecoder.cs
 ```
 
 If tests exist:
@@ -667,11 +667,11 @@ git commit -m "docs: document frame decoder performance improvements
 ## Task 6: Update Package Version and Tag
 
 **Files:**
-- Modify: `src/Bref/SpartaCut.csproj` (version number)
+- Modify: `src/SpartaCut/SpartaCut.csproj` (version number)
 
 **Step 1: Increment version**
 
-In `src/Bref/SpartaCut.csproj`, find `<Version>` tag and increment minor version:
+In `src/SpartaCut/SpartaCut.csproj`, find `<Version>` tag and increment minor version:
 
 ```xml
 <!-- Example: 0.3.0 → 0.4.0 -->
@@ -685,7 +685,7 @@ Run: `/usr/local/share/dotnet/dotnet build`
 **Step 3: Commit and tag**
 
 ```bash
-git add src/Bref/SpartaCut.csproj
+git add src/SpartaCut/SpartaCut.csproj
 git commit -m "chore: bump version to 0.4.0
 
 Week 4 milestone: Persistent decoder with 640×360 scrubbing"

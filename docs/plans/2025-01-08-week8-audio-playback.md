@@ -22,7 +22,7 @@
 ## Task 1: Add Volume Control to VlcPlaybackEngine
 
 **Files:**
-- Modify: `src/Bref/Services/VlcPlaybackEngine.cs`
+- Modify: `src/SpartaCut/Services/VlcPlaybackEngine.cs`
 - Modify: `src/SpartaCut.Core/Services/Interfaces/IPlaybackEngine.cs`
 - Test: `src/SpartaCut.Tests/Mocks/MockPlaybackEngine.cs`
 
@@ -51,7 +51,7 @@ public interface IPlaybackEngine : IDisposable
 
 **Step 2: Implement Volume in VlcPlaybackEngine**
 
-Modify `src/Bref/Services/VlcPlaybackEngine.cs`:
+Modify `src/SpartaCut/Services/VlcPlaybackEngine.cs`:
 
 Add private field after line 30:
 ```csharp
@@ -89,7 +89,7 @@ public void SetVolume(float volume)
 
 **Step 3: Initialize volume in Initialize method**
 
-Modify `src/Bref/Services/VlcPlaybackEngine.cs:154` after setting media:
+Modify `src/SpartaCut/Services/VlcPlaybackEngine.cs:154` after setting media:
 
 ```csharp
 _mediaPlayer!.Media = _media;
@@ -125,14 +125,14 @@ public void SetVolume(float volume)
 
 **Step 5: Build and verify**
 
-Run: `/usr/local/share/dotnet/dotnet build src/Bref/SpartaCut.csproj`
+Run: `/usr/local/share/dotnet/dotnet build src/SpartaCut/SpartaCut.csproj`
 Expected: Build succeeds with 0 errors
 
 **Step 6: Commit**
 
 ```bash
 git add src/SpartaCut.Core/Services/Interfaces/IPlaybackEngine.cs \
-        src/Bref/Services/VlcPlaybackEngine.cs \
+        src/SpartaCut/Services/VlcPlaybackEngine.cs \
         src/SpartaCut.Tests/Mocks/MockPlaybackEngine.cs
 git commit -m "feat: add volume control to playback engine
 
@@ -148,7 +148,7 @@ git commit -m "feat: add volume control to playback engine
 
 **Files:**
 - Modify: `src/SpartaCut.Core/ViewModels/MainWindowViewModel.cs`
-- Modify: `src/Bref/Views/MainWindow.axaml`
+- Modify: `src/SpartaCut/Views/MainWindow.axaml`
 
 **Step 1: Add Volume property to MainWindowViewModel**
 
@@ -179,7 +179,7 @@ public double Volume
 
 **Step 2: Add volume slider to MainWindow**
 
-Modify `src/Bref/Views/MainWindow.axaml` around line 50 (in the playback controls Grid):
+Modify `src/SpartaCut/Views/MainWindow.axaml` around line 50 (in the playback controls Grid):
 
 Find the existing controls Grid and add volume slider after the playback buttons:
 
@@ -217,14 +217,14 @@ Update the parent Grid ColumnDefinitions to accommodate the new column:
 
 **Step 3: Build and verify**
 
-Run: `/usr/local/share/dotnet/dotnet build src/Bref/SpartaCut.csproj`
+Run: `/usr/local/share/dotnet/dotnet build src/SpartaCut/SpartaCut.csproj`
 Expected: Build succeeds, volume slider appears in UI
 
 **Step 4: Commit**
 
 ```bash
 git add src/SpartaCut.Core/ViewModels/MainWindowViewModel.cs \
-        src/Bref/Views/MainWindow.axaml
+        src/SpartaCut/Views/MainWindow.axaml
 git commit -m "feat: add volume control slider to UI
 
 - Add Volume property to MainWindowViewModel
@@ -344,7 +344,7 @@ git commit -m "test: add unit tests for volume control
 
 **Step 1: Run application with sample video**
 
-Run: `/usr/local/share/dotnet/dotnet run --project src/Bref/SpartaCut.csproj`
+Run: `/usr/local/share/dotnet/dotnet run --project src/SpartaCut/SpartaCut.csproj`
 
 Load: `samples/sample-30s.mp4`
 
@@ -368,11 +368,11 @@ Note any issues in console output. Expected: Audio plays synchronized with video
 ## Task 5: Add Audio Synchronization Monitoring
 
 **Files:**
-- Modify: `src/Bref/Services/VlcPlaybackEngine.cs`
+- Modify: `src/SpartaCut/Services/VlcPlaybackEngine.cs`
 
 **Step 1: Add audio sync verification logging**
 
-Modify `src/Bref/Services/VlcPlaybackEngine.cs` in the Play method (around line 175):
+Modify `src/SpartaCut/Services/VlcPlaybackEngine.cs` in the Play method (around line 175):
 
 ```csharp
 _mediaPlayer!.Play();
@@ -396,7 +396,7 @@ _positionMonitor!.Start();
 
 **Step 2: Add audio track verification in Initialize**
 
-Modify `src/Bref/Services/VlcPlaybackEngine.cs` in the Initialize method after setting media (around line 145):
+Modify `src/SpartaCut/Services/VlcPlaybackEngine.cs` in the Initialize method after setting media (around line 145):
 
 ```csharp
 _media = new Media(_libVLC, videoFilePath, FromType.FromPath);
@@ -419,7 +419,7 @@ _mediaPlayer.Time = 0;
 
 **Step 3: Build and test**
 
-Run: `/usr/local/share/dotnet/dotnet build src/Bref/SpartaCut.csproj`
+Run: `/usr/local/share/dotnet/dotnet build src/SpartaCut/SpartaCut.csproj`
 Expected: Build succeeds
 
 Run the app and load a video, check console for audio track logging.
@@ -427,7 +427,7 @@ Run the app and load a video, check console for audio track logging.
 **Step 4: Commit**
 
 ```bash
-git add src/Bref/Services/VlcPlaybackEngine.cs
+git add src/SpartaCut/Services/VlcPlaybackEngine.cs
 git commit -m "feat: add audio track logging and verification
 
 - Log audio track count on media load
@@ -441,13 +441,13 @@ git commit -m "feat: add audio track logging and verification
 ## Task 6: Handle Segment Boundary Audio Seeking
 
 **Files:**
-- Modify: `src/Bref/Services/VlcPlaybackEngine.cs`
+- Modify: `src/SpartaCut/Services/VlcPlaybackEngine.cs`
 
 **Step 1: Verify audio seeks during segment jumps**
 
 The OnPositionMonitorTick method already calls Seek when hitting deleted segments. Verify audio seeks too.
 
-Modify `src/Bref/Services/VlcPlaybackEngine.cs` in OnPositionMonitorTick (around line 270):
+Modify `src/SpartaCut/Services/VlcPlaybackEngine.cs` in OnPositionMonitorTick (around line 270):
 
 ```csharp
 if (Math.Abs((targetTime - _lastSeekTarget).TotalMilliseconds) > 50)
@@ -483,7 +483,7 @@ Document in `docs/testing/week8-audio-manual-tests.md` that brief audio gaps are
 **Step 4: Commit**
 
 ```bash
-git add src/Bref/Services/VlcPlaybackEngine.cs
+git add src/SpartaCut/Services/VlcPlaybackEngine.cs
 git commit -m "feat: add audio seek logging for segment boundaries
 
 - Log audio track count before segment boundary seeks
@@ -497,7 +497,7 @@ git commit -m "feat: add audio seek logging for segment boundaries
 
 **Files:**
 - Modify: `src/SpartaCut.Core/ViewModels/MainWindowViewModel.cs`
-- Modify: `src/Bref/Views/MainWindow.axaml.cs`
+- Modify: `src/SpartaCut/Views/MainWindow.axaml.cs`
 
 **Step 1: Add mute state to ViewModel**
 
@@ -536,7 +536,7 @@ public void ToggleMute()
 
 **Step 2: Add M key handler in MainWindow**
 
-Modify `src/Bref/Views/MainWindow.axaml.cs` in the KeyDown handler (around line 120):
+Modify `src/SpartaCut/Views/MainWindow.axaml.cs` in the KeyDown handler (around line 120):
 
 ```csharp
 protected override void OnKeyDown(KeyEventArgs e)
@@ -565,7 +565,7 @@ protected override void OnKeyDown(KeyEventArgs e)
 
 **Step 3: Update volume slider tooltip**
 
-Modify `src/Bref/Views/MainWindow.axaml`:
+Modify `src/SpartaCut/Views/MainWindow.axaml`:
 
 ```xml
 <Slider Name="VolumeSlider"
@@ -588,8 +588,8 @@ Run app, press M key:
 
 ```bash
 git add src/SpartaCut.Core/ViewModels/MainWindowViewModel.cs \
-        src/Bref/Views/MainWindow.axaml.cs \
-        src/Bref/Views/MainWindow.axaml
+        src/SpartaCut/Views/MainWindow.axaml.cs \
+        src/SpartaCut/Views/MainWindow.axaml
 git commit -m "feat: add M key mute/unmute toggle
 
 - Add ToggleMute method to MainWindowViewModel
@@ -819,7 +819,7 @@ git commit -m "docs: document Week 8 audio playback learnings
 ## Task 12: Final Verification and Version Bump
 
 **Files:**
-- Modify: `src/Bref/SpartaCut.csproj`
+- Modify: `src/SpartaCut/SpartaCut.csproj`
 - Modify: `src/SpartaCut.Core/SpartaCut.Core.csproj`
 
 **Step 1: Run full test suite**
@@ -829,12 +829,12 @@ Expected: All tests pass (115+ tests)
 
 **Step 2: Build release configuration**
 
-Run: `/usr/local/share/dotnet/dotnet build src/Bref/SpartaCut.csproj -c Release`
+Run: `/usr/local/share/dotnet/dotnet build src/SpartaCut/SpartaCut.csproj -c Release`
 Expected: Build succeeds with 0 errors
 
 **Step 3: Bump version to 0.11.0**
 
-Modify `src/Bref/SpartaCut.csproj` line 6:
+Modify `src/SpartaCut/SpartaCut.csproj` line 6:
 ```xml
 <Version>0.11.0</Version>
 ```
@@ -847,7 +847,7 @@ Modify `src/SpartaCut.Core/SpartaCut.Core.csproj` line 6:
 **Step 4: Commit and tag**
 
 ```bash
-git add src/Bref/SpartaCut.csproj src/SpartaCut.Core/SpartaCut.Core.csproj
+git add src/SpartaCut/SpartaCut.csproj src/SpartaCut.Core/SpartaCut.Core.csproj
 git commit -m "chore: bump version to 0.11.0 - Week 8 audio complete
 
 Week 8 deliverables:

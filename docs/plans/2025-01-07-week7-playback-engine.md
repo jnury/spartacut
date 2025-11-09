@@ -43,7 +43,7 @@ Implement full playback with:
 ## Task 1: PlaybackState Model
 
 **Files:**
-- Create: `src/Bref/Models/PlaybackState.cs`
+- Create: `src/SpartaCut/Models/PlaybackState.cs`
 - Test: `src/SpartaCut.Tests/Models/PlaybackStateTests.cs`
 
 ### Step 1: Write the failing test
@@ -87,7 +87,7 @@ Expected: Compilation error - PlaybackState type not found
 
 ### Step 3: Write minimal implementation
 
-File: `src/Bref/Models/PlaybackState.cs`
+File: `src/SpartaCut/Models/PlaybackState.cs`
 
 ```csharp
 namespace SpartaCut.Models;
@@ -137,7 +137,7 @@ Expected: All 3 tests pass
 ### Step 5: Commit
 
 ```bash
-git add src/Bref/Models/PlaybackState.cs src/SpartaCut.Tests/Models/PlaybackStateTests.cs
+git add src/SpartaCut/Models/PlaybackState.cs src/SpartaCut.Tests/Models/PlaybackStateTests.cs
 git commit -m "feat: add PlaybackState enum with extension methods"
 ```
 
@@ -146,7 +146,7 @@ git commit -m "feat: add PlaybackState enum with extension methods"
 ## Task 2: AudioPlayer Service
 
 **Files:**
-- Create: `src/Bref/Services/AudioPlayer.cs`
+- Create: `src/SpartaCut/Services/AudioPlayer.cs`
 - Test: `src/SpartaCut.Tests/Services/AudioPlayerTests.cs`
 
 ### Step 1: Write the failing test
@@ -205,7 +205,7 @@ Expected: Compilation error - AudioPlayer type not found
 
 ### Step 3: Write minimal implementation
 
-File: `src/Bref/Services/AudioPlayer.cs`
+File: `src/SpartaCut/Services/AudioPlayer.cs`
 
 ```csharp
 using System;
@@ -316,7 +316,7 @@ Expected: All 4 tests pass
 ### Step 5: Commit
 
 ```bash
-git add src/Bref/Services/AudioPlayer.cs src/SpartaCut.Tests/Services/AudioPlayerTests.cs
+git add src/SpartaCut/Services/AudioPlayer.cs src/SpartaCut.Tests/Services/AudioPlayerTests.cs
 git commit -m "feat: add AudioPlayer service stub"
 ```
 
@@ -325,7 +325,7 @@ git commit -m "feat: add AudioPlayer service stub"
 ## Task 3: PlaybackEngine Core
 
 **Files:**
-- Create: `src/Bref/Services/PlaybackEngine.cs`
+- Create: `src/SpartaCut/Services/PlaybackEngine.cs`
 - Test: `src/SpartaCut.Tests/Services/PlaybackEngineTests.cs`
 
 ### Step 1: Write the failing test
@@ -389,7 +389,7 @@ Expected: Compilation error - PlaybackEngine type not found
 
 ### Step 3: Write minimal implementation
 
-File: `src/Bref/Services/PlaybackEngine.cs`
+File: `src/SpartaCut/Services/PlaybackEngine.cs`
 
 ```csharp
 using System;
@@ -615,7 +615,7 @@ Expected: All 5 tests pass
 ### Step 5: Commit
 
 ```bash
-git add src/Bref/Services/PlaybackEngine.cs src/SpartaCut.Tests/Services/PlaybackEngineTests.cs
+git add src/SpartaCut/Services/PlaybackEngine.cs src/SpartaCut.Tests/Services/PlaybackEngineTests.cs
 git commit -m "feat: add PlaybackEngine with Play/Pause/Stop"
 ```
 
@@ -624,7 +624,7 @@ git commit -m "feat: add PlaybackEngine with Play/Pause/Stop"
 ## Task 4: Integrate PlaybackEngine into MainWindowViewModel
 
 **Files:**
-- Modify: `src/Bref/ViewModels/MainWindowViewModel.cs`
+- Modify: `src/SpartaCut/ViewModels/MainWindowViewModel.cs`
 - Test: `src/SpartaCut.Tests/ViewModels/MainWindowViewModelTests.cs`
 
 ### Step 1: Write the failing test
@@ -694,7 +694,7 @@ Expected: Compilation error - PlayCommand, IsPlaying properties not found
 
 ### Step 3: Implement playback integration
 
-Modify `src/Bref/ViewModels/MainWindowViewModel.cs`:
+Modify `src/SpartaCut/ViewModels/MainWindowViewModel.cs`:
 
 ```csharp
 using CommunityToolkit.Mvvm.Input;
@@ -797,7 +797,7 @@ Expected: New tests pass (note: some may fail due to missing FrameCache paramete
 ### Step 5: Commit
 
 ```bash
-git add src/Bref/ViewModels/MainWindowViewModel.cs src/SpartaCut.Tests/ViewModels/MainWindowViewModelTests.cs
+git add src/SpartaCut/ViewModels/MainWindowViewModel.cs src/SpartaCut.Tests/ViewModels/MainWindowViewModelTests.cs
 git commit -m "feat: integrate PlaybackEngine into MainWindowViewModel"
 ```
 
@@ -806,14 +806,14 @@ git commit -m "feat: integrate PlaybackEngine into MainWindowViewModel"
 ## Task 5: Add Play/Pause Button to UI
 
 **Files:**
-- Modify: `src/Bref/Views/MainWindow.axaml`
-- Modify: `src/Bref/Views/MainWindow.axaml.cs`
+- Modify: `src/SpartaCut/Views/MainWindow.axaml`
+- Modify: `src/SpartaCut/Views/MainWindow.axaml.cs`
 
 ### Step 1: No test needed (UI change)
 
 ### Step 2: Add Play/Pause button to XAML
 
-Modify `src/Bref/Views/MainWindow.axaml`:
+Modify `src/SpartaCut/Views/MainWindow.axaml`:
 
 ```xml
 <!-- Load Video Button and Edit Toolbar -->
@@ -865,7 +865,7 @@ Modify `src/Bref/Views/MainWindow.axaml`:
 
 ### Step 3: Update MainWindow.axaml.cs to pass FrameCache
 
-Modify `LoadVideoButton_Click` method in `src/Bref/Views/MainWindow.axaml.cs`:
+Modify `LoadVideoButton_Click` method in `src/SpartaCut/Views/MainWindow.axaml.cs`:
 
 ```csharp
 // Change from:
@@ -890,7 +890,7 @@ Expected: Build succeeds, UI shows Play/Pause buttons
 ### Step 5: Commit
 
 ```bash
-git add src/Bref/Views/MainWindow.axaml src/Bref/Views/MainWindow.axaml.cs
+git add src/SpartaCut/Views/MainWindow.axaml src/SpartaCut/Views/MainWindow.axaml.cs
 git commit -m "feat: add Play/Pause buttons to toolbar"
 ```
 
@@ -899,7 +899,7 @@ git commit -m "feat: add Play/Pause buttons to toolbar"
 ## Task 6: Implement Frame Preloading
 
 **Files:**
-- Modify: `src/Bref/Services/PlaybackEngine.cs`
+- Modify: `src/SpartaCut/Services/PlaybackEngine.cs`
 - Test: `src/SpartaCut.Tests/Services/PlaybackEngineTests.cs`
 
 ### Step 1: Write the failing test
@@ -1015,7 +1015,7 @@ Expected: Test passes (note: may need to create MockFrameCache for this test)
 ### Step 5: Commit
 
 ```bash
-git add src/Bref/Services/PlaybackEngine.cs src/SpartaCut.Tests/Services/PlaybackEngineTests.cs
+git add src/SpartaCut/Services/PlaybackEngine.cs src/SpartaCut.Tests/Services/PlaybackEngineTests.cs
 git commit -m "feat: implement frame preloading for smooth playback"
 ```
 
@@ -1024,7 +1024,7 @@ git commit -m "feat: implement frame preloading for smooth playback"
 ## Task 7: Handle Segment Boundaries
 
 **Files:**
-- Modify: `src/Bref/Services/PlaybackEngine.cs`
+- Modify: `src/SpartaCut/Services/PlaybackEngine.cs`
 - Test: `src/SpartaCut.Tests/Services/PlaybackEngineTests.cs`
 
 ### Step 1: Write the failing test
@@ -1149,7 +1149,7 @@ Expected: Test passes
 ### Step 5: Commit
 
 ```bash
-git add src/Bref/Services/PlaybackEngine.cs src/SpartaCut.Tests/Services/PlaybackEngineTests.cs
+git add src/SpartaCut/Services/PlaybackEngine.cs src/SpartaCut.Tests/Services/PlaybackEngineTests.cs
 git commit -m "feat: skip deleted segments during playback"
 ```
 
@@ -1386,12 +1386,12 @@ git commit -m "docs: add Week 7 manual testing checklist"
 ## Task 10: Update Version and Documentation
 
 **Files:**
-- Modify: `src/Bref/SpartaCut.csproj`
+- Modify: `src/SpartaCut/SpartaCut.csproj`
 - Create: `docs/plans/2025-01-07-week7-completion-notes.md`
 
 ### Step 1: Update version to 0.7.0
 
-Modify `src/Bref/SpartaCut.csproj`:
+Modify `src/SpartaCut/SpartaCut.csproj`:
 
 ```xml
 <!-- Version Information -->
@@ -1477,7 +1477,7 @@ Expected: All tests pass
 ### Step 5: Commit
 
 ```bash
-git add src/Bref/SpartaCut.csproj docs/plans/2025-01-07-week7-completion-notes.md
+git add src/SpartaCut/SpartaCut.csproj docs/plans/2025-01-07-week7-completion-notes.md
 git commit -m "chore: bump version to 0.7.0 - Week 7 complete"
 ```
 

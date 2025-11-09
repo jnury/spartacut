@@ -44,7 +44,7 @@ Implement the core virtual timeline logic that enables non-destructive video edi
 ### Task 1: Implement VideoSegment Model (TDD)
 **Estimated Time:** 2 hours
 **Test File:** `src/SpartaCut.Tests/Models/VideoSegmentTests.cs`
-**Implementation File:** `src/Bref/Models/VideoSegment.cs`
+**Implementation File:** `src/SpartaCut/Models/VideoSegment.cs`
 
 #### Test Cases to Write First:
 ```csharp
@@ -117,7 +117,7 @@ namespace SpartaCut.Models
 ### Task 2: Implement SegmentList Model (TDD - Part 1: Basic Operations)
 **Estimated Time:** 4 hours
 **Test File:** `src/SpartaCut.Tests/Models/SegmentListTests.cs`
-**Implementation File:** `src/Bref/Models/SegmentList.cs`
+**Implementation File:** `src/SpartaCut/Models/SegmentList.cs`
 
 #### Test Cases to Write First:
 ```csharp
@@ -250,7 +250,7 @@ namespace SpartaCut.Models
 ### Task 3: Implement SegmentList.DeleteSegment() (TDD - Part 2: Deletion Logic)
 **Estimated Time:** 5 hours
 **Test File:** `src/SpartaCut.Tests/Models/SegmentListTests.cs` (add to existing)
-**Implementation File:** `src/Bref/Models/SegmentList.cs` (add method)
+**Implementation File:** `src/SpartaCut/Models/SegmentList.cs` (add method)
 
 #### Test Cases to Write First:
 ```csharp
@@ -386,7 +386,7 @@ public void DeleteSegment(TimeSpan virtualStart, TimeSpan virtualEnd)
 ### Task 4: Implement EditHistory Model (TDD)
 **Estimated Time:** 3 hours
 **Test File:** `src/SpartaCut.Tests/Models/EditHistoryTests.cs`
-**Implementation File:** `src/Bref/Models/EditHistory.cs`
+**Implementation File:** `src/SpartaCut/Models/EditHistory.cs`
 
 #### Test Cases to Write First:
 ```csharp
@@ -532,7 +532,7 @@ namespace SpartaCut.Models
 ### Task 5: Implement SegmentManager Service (TDD)
 **Estimated Time:** 4 hours
 **Test File:** `src/SpartaCut.Tests/Services/SegmentManagerTests.cs`
-**Implementation File:** `src/Bref/Services/SegmentManager.cs`
+**Implementation File:** `src/SpartaCut/Services/SegmentManager.cs`
 
 #### Test Cases to Write First:
 ```csharp
@@ -774,7 +774,7 @@ public void Scenario_MaxHistoryDepth_RemovesOldest()
 
 #### Version Update:
 - Increment version to **0.5.0** (major feature: segment management)
-- Update `src/Bref/SpartaCut.csproj`
+- Update `src/SpartaCut/SpartaCut.csproj`
 
 #### Documentation:
 - Add XML documentation to all public members
@@ -910,12 +910,12 @@ public void Scenario_MaxHistoryDepth_RemovesOldest()
 
 ### New Files Created:
 ```
-src/Bref/Models/
+src/SpartaCut/Models/
   ├── VideoSegment.cs                    (~20 lines)
   ├── SegmentList.cs                     (~150 lines)
   └── EditHistory.cs                     (~80 lines)
 
-src/Bref/Services/
+src/SpartaCut/Services/
   └── SegmentManager.cs                  (~120 lines)
 
 src/SpartaCut.Tests/Models/
@@ -1053,7 +1053,7 @@ This plan provides a complete roadmap for implementing the virtual timeline core
 
 ### Executive Summary
 
-Week 5 has been successfully completed, implementing the core virtual timeline logic for Bref's non-destructive video editing system. All 8 tasks were completed using strict TDD methodology, resulting in 47 passing tests with 100% success rate.
+Week 5 has been successfully completed, implementing the core virtual timeline logic for SpartaCut's non-destructive video editing system. All 8 tasks were completed using strict TDD methodology, resulting in 47 passing tests with 100% success rate.
 
 ### Tasks Completed
 
@@ -1082,12 +1082,12 @@ Week 5 has been successfully completed, implementing the core virtual timeline l
 ### Files Created
 
 **Models (3 files):**
-- `src/Bref/Models/VideoSegment.cs` (30 lines)
-- `src/Bref/Models/SegmentList.cs` (180 lines)
-- `src/Bref/Models/EditHistory.cs` (80 lines)
+- `src/SpartaCut/Models/VideoSegment.cs` (30 lines)
+- `src/SpartaCut/Models/SegmentList.cs` (180 lines)
+- `src/SpartaCut/Models/EditHistory.cs` (80 lines)
 
 **Services (1 file):**
-- `src/Bref/Services/SegmentManager.cs` (142 lines)
+- `src/SpartaCut/Services/SegmentManager.cs` (142 lines)
 
 **Tests (5 files):**
 - `src/SpartaCut.Tests/Models/VideoSegmentTests.cs` (78 lines)

@@ -41,7 +41,7 @@ public class WaveformGenerator
         {
             // Step 1: Extract audio to temporary WAV file (0-50%)
             progress.Report(10);
-            var tempWavPath = Path.Combine(Path.GetTempPath(), $"bref_audio_{Guid.NewGuid()}.wav");
+            var tempWavPath = Path.Combine(Path.GetTempPath(), $"spartacut_audio_{Guid.NewGuid()}.wav");
 
             try
             {

@@ -21,7 +21,7 @@ class Program
 
             // Log version information
             var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "Unknown";
-            Log.Information("Bref {Version} is running", version);
+            Log.Information("Sparta Cut {Version} is running", version);
             Log.Information("Starting Avalonia application");
             BuildAvaloniaApp()
                 .StartWithClassicDesktopLifetime(args);

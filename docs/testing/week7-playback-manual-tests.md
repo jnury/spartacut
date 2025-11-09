@@ -30,7 +30,7 @@ Before starting manual tests:
 Verify that Play/Pause buttons appear and function correctly.
 
 ### Steps
-1. Launch Bref application
+1. Launch Sparta Cut application
 2. Click "Load MP4 Video" button
 3. Select a test video file
 4. Verify Play and Pause buttons appear in toolbar

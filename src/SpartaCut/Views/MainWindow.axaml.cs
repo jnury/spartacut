@@ -196,18 +196,18 @@ public partial class MainWindow : Window
             catch (Exception ex)
             {
                 Log.Error(ex, "Failed to initialize video player");
-                Title = $"Bref - Error: {ex.Message}";
+                Title = $"Sparta Cut - Error: {ex.Message}";
             }
         }
         catch (NotSupportedException ex)
         {
             Log.Warning(ex, "Unsupported video format");
-            Title = $"Bref - Error: Unsupported format";
+            Title = $"Sparta Cut - Error: Unsupported format";
         }
         catch (Exception ex)
         {
             Log.Error(ex, "Failed to load video");
-            Title = $"Bref - Error: {ex.Message}";
+            Title = $"Sparta Cut - Error: {ex.Message}";
         }
     }
 
@@ -342,14 +342,14 @@ public partial class MainWindow : Window
 
         if (metadata == null)
         {
-            Title = "Bref";
+            Title = "Sparta Cut";
             return;
         }
 
         var fileName = System.IO.Path.GetFileName(metadata.FilePath);
         var virtualDuration = _viewModel?.VirtualDuration ?? metadata.Duration;
 
-        Title = $"Bref - {fileName} | {metadata.Width}x{metadata.Height} @ {metadata.FrameRate:F0}fps | Duration: {virtualDuration:hh\\:mm\\:ss}";
+        Title = $"Sparta Cut - {fileName} | {metadata.Width}x{metadata.Height} @ {metadata.FrameRate:F0}fps | Duration: {virtualDuration:hh\\:mm\\:ss}";
     }
 
     /// <summary>

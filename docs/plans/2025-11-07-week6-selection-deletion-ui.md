@@ -42,7 +42,7 @@ Implement the user interface for selecting and deleting video segments on the ti
 ### Task 1: Implement TimelineSelection Model
 **Estimated Time:** 2 hours
 **Test File:** `src/SpartaCut.Tests/Models/TimelineSelectionTests.cs`
-**Implementation File:** `src/Bref/Models/TimelineSelection.cs`
+**Implementation File:** `src/SpartaCut/Models/TimelineSelection.cs`
 
 #### Purpose
 Model to track the currently selected range on the timeline (in virtual time).
@@ -183,7 +183,7 @@ namespace SpartaCut.Models
 ### Task 2: Add Selection Properties to TimelineViewModel
 **Estimated Time:** 2 hours
 **Test File:** `src/SpartaCut.Tests/ViewModels/TimelineViewModelTests.cs` (add to existing)
-**Implementation File:** `src/Bref/ViewModels/TimelineViewModel.cs` (modify existing)
+**Implementation File:** `src/SpartaCut/ViewModels/TimelineViewModel.cs` (modify existing)
 
 #### Purpose
 Extend TimelineViewModel to manage selection state and expose it to the UI.
@@ -292,7 +292,7 @@ public void SelectionNormalizedStartPixel_AlwaysLeftmost()
 
 ### Task 3: Update TimelineControl for Selection Rendering
 **Estimated Time:** 4 hours
-**Files:** `src/Bref/Controls/TimelineControl.axaml.cs`
+**Files:** `src/SpartaCut/Controls/TimelineControl.axaml.cs`
 
 #### Purpose
 Modify TimelineControl to:
@@ -437,7 +437,7 @@ private void DrawSelectionHandle(SKCanvas canvas, float x, float height)
 ### Task 4: Create MainWindowViewModel
 **Estimated Time:** 3 hours
 **Test File:** `src/SpartaCut.Tests/ViewModels/MainWindowViewModelTests.cs`
-**Implementation File:** `src/Bref/ViewModels/MainWindowViewModel.cs`
+**Implementation File:** `src/SpartaCut/ViewModels/MainWindowViewModel.cs`
 
 #### Purpose
 Create a main ViewModel to orchestrate SegmentManager, TimelineViewModel, and handle Delete command.
@@ -620,8 +620,8 @@ public void CanDelete_FalseWhenNoSelection()
 ### Task 5: Wire MainWindowViewModel to MainWindow
 **Estimated Time:** 3 hours
 **Files:**
-- `src/Bref/Views/MainWindow.axaml` (add controls)
-- `src/Bref/Views/MainWindow.axaml.cs` (wire ViewModel)
+- `src/SpartaCut/Views/MainWindow.axaml` (add controls)
+- `src/SpartaCut/Views/MainWindow.axaml.cs` (wire ViewModel)
 
 #### XAML Updates:
 ```xml
@@ -703,8 +703,8 @@ private async Task LoadVideoFile(string filePath)
 ### Task 6: Update Timeline Rendering After Deletions
 **Estimated Time:** 5 hours
 **Files:**
-- `src/Bref/Models/TimelineMetrics.cs` (update for virtual timeline)
-- `src/Bref/ViewModels/TimelineViewModel.cs` (adapt to segments)
+- `src/SpartaCut/Models/TimelineMetrics.cs` (update for virtual timeline)
+- `src/SpartaCut/ViewModels/TimelineViewModel.cs` (adapt to segments)
 
 #### Challenge
 Currently, TimelineMetrics assumes a continuous timeline from 0 to Duration. After deletions, the timeline should show only kept segments, contracted to remove deleted portions.
@@ -871,7 +871,7 @@ public async Task Scenario_BackwardDrag_Works()
 
 #### Version Update:
 - Increment version to **0.6.0** (major feature: selection & deletion UI)
-- Update `src/Bref/SpartaCut.csproj`
+- Update `src/SpartaCut/SpartaCut.csproj`
 
 #### Documentation:
 - Add Week 6 summary to plan file
@@ -920,10 +920,10 @@ public async Task Scenario_BackwardDrag_Works()
 
 ### New Files Created:
 ```
-src/Bref/Models/
+src/SpartaCut/Models/
   └── TimelineSelection.cs                    (~80 lines)
 
-src/Bref/ViewModels/
+src/SpartaCut/ViewModels/
   └── MainWindowViewModel.cs                  (~150 lines)
 
 src/SpartaCut.Tests/Models/
@@ -938,17 +938,17 @@ src/SpartaCut.Tests/Integration/
 
 ### Modified Files:
 ```
-src/Bref/ViewModels/
+src/SpartaCut/ViewModels/
   └── TimelineViewModel.cs                    (+80 lines)
 
-src/Bref/Controls/
+src/SpartaCut/Controls/
   └── TimelineControl.axaml.cs                (+120 lines)
 
-src/Bref/Views/
+src/SpartaCut/Views/
   ├── MainWindow.axaml                        (+30 lines)
   └── MainWindow.axaml.cs                     (+20 lines)
 
-src/Bref/Models/
+src/SpartaCut/Models/
   └── TimelineMetrics.cs                      (may need updates)
 ```
 

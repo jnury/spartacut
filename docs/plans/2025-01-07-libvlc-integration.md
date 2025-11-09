@@ -19,11 +19,11 @@
 ### Task 1: Add LibVLCSharp NuGet Packages
 
 **Files:**
-- Modify: `src/Bref/SpartaCut.csproj`
+- Modify: `src/SpartaCut/SpartaCut.csproj`
 
 **Step 1: Add package references**
 
-Open `src/Bref/SpartaCut.csproj` and add these packages to the `<ItemGroup>` with other packages:
+Open `src/SpartaCut/SpartaCut.csproj` and add these packages to the `<ItemGroup>` with other packages:
 
 ```xml
 <!-- LibVLC for video playback -->
@@ -34,20 +34,20 @@ Open `src/Bref/SpartaCut.csproj` and add these packages to the `<ItemGroup>` wit
 
 **Step 2: Restore packages**
 
-Run: `dotnet restore src/Bref/SpartaCut.csproj`
+Run: `dotnet restore src/SpartaCut/SpartaCut.csproj`
 
 Expected: All packages restore successfully, no errors
 
 **Step 3: Verify build**
 
-Run: `dotnet build src/Bref/SpartaCut.csproj`
+Run: `dotnet build src/SpartaCut/SpartaCut.csproj`
 
 Expected: Build succeeds with no errors
 
 **Step 4: Commit**
 
 ```bash
-git add src/Bref/SpartaCut.csproj
+git add src/SpartaCut/SpartaCut.csproj
 git commit -m "feat: add LibVLCSharp NuGet packages"
 ```
 
@@ -101,7 +101,7 @@ Expected: Compilation error - VlcPlaybackEngine type not found
 
 **Step 3: Create minimal VlcPlaybackEngine stub**
 
-Create `src/Bref/Services/VlcPlaybackEngine.cs`:
+Create `src/SpartaCut/Services/VlcPlaybackEngine.cs`:
 
 ```csharp
 using System;
@@ -153,7 +153,7 @@ Expected: Both tests pass
 **Step 5: Commit**
 
 ```bash
-git add src/Bref/Services/VlcPlaybackEngine.cs src/SpartaCut.Tests/Services/VlcPlaybackEngineTests.cs
+git add src/SpartaCut/Services/VlcPlaybackEngine.cs src/SpartaCut.Tests/Services/VlcPlaybackEngineTests.cs
 git commit -m "feat: add VlcPlaybackEngine with LibVLC initialization"
 ```
 
@@ -162,18 +162,18 @@ git commit -m "feat: add VlcPlaybackEngine with LibVLC initialization"
 ### Task 3: Create VlcPlayerControl (Avalonia VideoView Wrapper)
 
 **Files:**
-- Create: `src/Bref/Views/Controls/VlcPlayerControl.axaml`
-- Create: `src/Bref/Views/Controls/VlcPlayerControl.axaml.cs`
+- Create: `src/SpartaCut/Views/Controls/VlcPlayerControl.axaml`
+- Create: `src/SpartaCut/Views/Controls/VlcPlayerControl.axaml.cs`
 
 **Step 1: Create XAML control**
 
-Create `src/Bref/Views/Controls/VlcPlayerControl.axaml`:
+Create `src/SpartaCut/Views/Controls/VlcPlayerControl.axaml`:
 
 ```xml
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vlc="clr-namespace:LibVLCSharp.Avalonia;assembly=LibVLCSharp.Avalonia"
-             x:Class="Bref.Views.Controls.VlcPlayerControl"
+             x:Class="SpartaCut.Views.Controls.VlcPlayerControl"
              Background="Black">
     <vlc:VideoView x:Name="VideoView" />
 </UserControl>
@@ -181,7 +181,7 @@ Create `src/Bref/Views/Controls/VlcPlayerControl.axaml`:
 
 **Step 2: Create code-behind**
 
-Create `src/Bref/Views/Controls/VlcPlayerControl.axaml.cs`:
+Create `src/SpartaCut/Views/Controls/VlcPlayerControl.axaml.cs`:
 
 ```csharp
 using Avalonia.Controls;
@@ -211,14 +211,14 @@ public partial class VlcPlayerControl : UserControl
 
 **Step 3: Build to verify**
 
-Run: `dotnet build src/Bref/SpartaCut.csproj`
+Run: `dotnet build src/SpartaCut/SpartaCut.csproj`
 
 Expected: Build succeeds
 
 **Step 4: Commit**
 
 ```bash
-git add src/Bref/Views/Controls/VlcPlayerControl.axaml src/Bref/Views/Controls/VlcPlayerControl.axaml.cs
+git add src/SpartaCut/Views/Controls/VlcPlayerControl.axaml src/SpartaCut/Views/Controls/VlcPlayerControl.axaml.cs
 git commit -m "feat: add VlcPlayerControl wrapper for LibVLCSharp VideoView"
 ```
 
@@ -229,7 +229,7 @@ git commit -m "feat: add VlcPlayerControl wrapper for LibVLCSharp VideoView"
 ### Task 4: Add PlaybackState Properties to VlcPlaybackEngine
 
 **Files:**
-- Modify: `src/Bref/Services/VlcPlaybackEngine.cs`
+- Modify: `src/SpartaCut/Services/VlcPlaybackEngine.cs`
 - Modify: `src/SpartaCut.Tests/Services/VlcPlaybackEngineTests.cs`
 
 **Step 1: Write the failing test**
@@ -260,7 +260,7 @@ Expected: Compilation error - State and CurrentTime properties not found
 
 **Step 3: Add properties to VlcPlaybackEngine**
 
-Modify `src/Bref/Services/VlcPlaybackEngine.cs`:
+Modify `src/SpartaCut/Services/VlcPlaybackEngine.cs`:
 
 ```csharp
 using System;
@@ -341,7 +341,7 @@ Expected: All tests pass
 **Step 5: Commit**
 
 ```bash
-git add src/Bref/Services/VlcPlaybackEngine.cs src/SpartaCut.Tests/Services/VlcPlaybackEngineTests.cs
+git add src/SpartaCut/Services/VlcPlaybackEngine.cs src/SpartaCut.Tests/Services/VlcPlaybackEngineTests.cs
 git commit -m "feat: add State and CurrentTime properties to VlcPlaybackEngine"
 ```
 
@@ -350,7 +350,7 @@ git commit -m "feat: add State and CurrentTime properties to VlcPlaybackEngine"
 ### Task 5: Implement Initialize Method
 
 **Files:**
-- Modify: `src/Bref/Services/VlcPlaybackEngine.cs`
+- Modify: `src/SpartaCut/Services/VlcPlaybackEngine.cs`
 - Modify: `src/SpartaCut.Tests/Services/VlcPlaybackEngineTests.cs`
 
 **Step 1: Write the failing test**
@@ -397,7 +397,7 @@ Expected: Compilation error - Initialize and CanPlay not found
 
 **Step 3: Implement Initialize method**
 
-Modify `src/Bref/Services/VlcPlaybackEngine.cs`:
+Modify `src/SpartaCut/Services/VlcPlaybackEngine.cs`:
 
 ```csharp
 using System;
@@ -502,7 +502,7 @@ Expected: All tests pass (Initialize test will pass even without real file - Lib
 **Step 5: Commit**
 
 ```bash
-git add src/Bref/Services/VlcPlaybackEngine.cs src/SpartaCut.Tests/Services/VlcPlaybackEngineTests.cs
+git add src/SpartaCut/Services/VlcPlaybackEngine.cs src/SpartaCut.Tests/Services/VlcPlaybackEngineTests.cs
 git commit -m "feat: implement Initialize method for VlcPlaybackEngine"
 ```
 
@@ -511,7 +511,7 @@ git commit -m "feat: implement Initialize method for VlcPlaybackEngine"
 ### Task 6: Implement Play/Pause Methods
 
 **Files:**
-- Modify: `src/Bref/Services/VlcPlaybackEngine.cs`
+- Modify: `src/SpartaCut/Services/VlcPlaybackEngine.cs`
 - Modify: `src/SpartaCut.Tests/Services/VlcPlaybackEngineTests.cs`
 
 **Step 1: Write the failing test**
@@ -579,7 +579,7 @@ Expected: Compilation error - Play and Pause methods not found
 
 **Step 3: Implement Play and Pause methods**
 
-Modify `src/Bref/Services/VlcPlaybackEngine.cs`, add these methods:
+Modify `src/SpartaCut/Services/VlcPlaybackEngine.cs`, add these methods:
 
 ```csharp
 /// <summary>
@@ -637,7 +637,7 @@ Expected: All tests pass
 **Step 5: Commit**
 
 ```bash
-git add src/Bref/Services/VlcPlaybackEngine.cs src/SpartaCut.Tests/Services/VlcPlaybackEngineTests.cs
+git add src/SpartaCut/Services/VlcPlaybackEngine.cs src/SpartaCut.Tests/Services/VlcPlaybackEngineTests.cs
 git commit -m "feat: implement Play and Pause methods"
 ```
 
@@ -646,7 +646,7 @@ git commit -m "feat: implement Play and Pause methods"
 ### Task 7: Implement Seek Method with Throttling
 
 **Files:**
-- Modify: `src/Bref/Services/VlcPlaybackEngine.cs`
+- Modify: `src/SpartaCut/Services/VlcPlaybackEngine.cs`
 - Modify: `src/SpartaCut.Tests/Services/VlcPlaybackEngineTests.cs`
 
 **Step 1: Write the failing test**
@@ -689,7 +689,7 @@ Expected: Compilation error - Seek method not found
 
 **Step 3: Implement Seek method**
 
-Modify `src/Bref/Services/VlcPlaybackEngine.cs`, add these fields and method:
+Modify `src/SpartaCut/Services/VlcPlaybackEngine.cs`, add these fields and method:
 
 ```csharp
 // Add these fields at the top of the class
@@ -744,7 +744,7 @@ Expected: All tests pass
 **Step 5: Commit**
 
 ```bash
-git add src/Bref/Services/VlcPlaybackEngine.cs src/SpartaCut.Tests/Services/VlcPlaybackEngineTests.cs
+git add src/SpartaCut/Services/VlcPlaybackEngine.cs src/SpartaCut.Tests/Services/VlcPlaybackEngineTests.cs
 git commit -m "feat: implement Seek method with 50ms throttling"
 ```
 
@@ -753,11 +753,11 @@ git commit -m "feat: implement Seek method with 50ms throttling"
 ### Task 8: Implement Position Monitor with Segment Boundary Detection
 
 **Files:**
-- Modify: `src/Bref/Services/VlcPlaybackEngine.cs`
+- Modify: `src/SpartaCut/Services/VlcPlaybackEngine.cs`
 
 **Step 1: Add position monitor timer to constructor**
 
-Modify `src/Bref/Services/VlcPlaybackEngine.cs`:
+Modify `src/SpartaCut/Services/VlcPlaybackEngine.cs`:
 
 ```csharp
 using System;
@@ -933,7 +933,7 @@ public void Dispose()
 
 **Step 5: Build and verify**
 
-Run: `dotnet build src/Bref/SpartaCut.csproj`
+Run: `dotnet build src/SpartaCut/SpartaCut.csproj`
 
 Expected: Build succeeds
 
@@ -946,7 +946,7 @@ Expected: All tests pass
 **Step 7: Commit**
 
 ```bash
-git add src/Bref/Services/VlcPlaybackEngine.cs
+git add src/SpartaCut/Services/VlcPlaybackEngine.cs
 git commit -m "feat: add position monitor with segment boundary detection"
 ```
 
@@ -957,12 +957,12 @@ git commit -m "feat: add position monitor with segment boundary detection"
 ### Task 9: Replace VideoPlayerControl with VlcPlayerControl in MainWindow
 
 **Files:**
-- Modify: `src/Bref/Views/MainWindow.axaml`
-- Modify: `src/Bref/Views/MainWindow.axaml.cs`
+- Modify: `src/SpartaCut/Views/MainWindow.axaml`
+- Modify: `src/SpartaCut/Views/MainWindow.axaml.cs`
 
 **Step 1: Update XAML to use VlcPlayerControl**
 
-Modify `src/Bref/Views/MainWindow.axaml`, find the `<controls:VideoPlayerControl>` element and replace it with:
+Modify `src/SpartaCut/Views/MainWindow.axaml`, find the `<controls:VideoPlayerControl>` element and replace it with:
 
 ```xml
 <!-- VLC Video Player -->
@@ -975,7 +975,7 @@ Also update the namespace at the top if needed to include VlcPlayerControl.
 
 **Step 2: Update code-behind to use VlcPlayerControl**
 
-Modify `src/Bref/Views/MainWindow.axaml.cs`:
+Modify `src/SpartaCut/Views/MainWindow.axaml.cs`:
 
 Find the field declaration for video player (likely `VideoPlayerControl? _videoPlayer`) and change to:
 
@@ -991,14 +991,14 @@ _vlcPlayer = this.FindControl<VlcPlayerControl>("VlcPlayer");
 
 **Step 3: Build to verify**
 
-Run: `dotnet build src/Bref/SpartaCut.csproj`
+Run: `dotnet build src/SpartaCut/SpartaCut.csproj`
 
 Expected: Build succeeds (might have warnings about unused _vlcPlayer, that's ok)
 
 **Step 4: Commit**
 
 ```bash
-git add src/Bref/Views/MainWindow.axaml src/Bref/Views/MainWindow.axaml.cs
+git add src/SpartaCut/Views/MainWindow.axaml src/SpartaCut/Views/MainWindow.axaml.cs
 git commit -m "feat: replace VideoPlayerControl with VlcPlayerControl in MainWindow"
 ```
 
@@ -1007,11 +1007,11 @@ git commit -m "feat: replace VideoPlayerControl with VlcPlayerControl in MainWin
 ### Task 10: Update MainWindowViewModel to Use VlcPlaybackEngine
 
 **Files:**
-- Modify: `src/Bref/ViewModels/MainWindowViewModel.cs`
+- Modify: `src/SpartaCut/ViewModels/MainWindowViewModel.cs`
 
 **Step 1: Replace PlaybackEngine with VlcPlaybackEngine**
 
-Modify `src/Bref/ViewModels/MainWindowViewModel.cs`:
+Modify `src/SpartaCut/ViewModels/MainWindowViewModel.cs`:
 
 Find the `PlaybackEngine` field (likely `private readonly PlaybackEngine _playbackEngine`) and replace with:
 
@@ -1103,14 +1103,14 @@ public void Dispose()
 
 **Step 6: Build to verify**
 
-Run: `dotnet build src/Bref/SpartaCut.csproj`
+Run: `dotnet build src/SpartaCut/SpartaCut.csproj`
 
 Expected: Build succeeds
 
 **Step 7: Commit**
 
 ```bash
-git add src/Bref/ViewModels/MainWindowViewModel.cs
+git add src/SpartaCut/ViewModels/MainWindowViewModel.cs
 git commit -m "feat: update MainWindowViewModel to use VlcPlaybackEngine"
 ```
 
@@ -1119,11 +1119,11 @@ git commit -m "feat: update MainWindowViewModel to use VlcPlaybackEngine"
 ### Task 11: Wire VLC MediaPlayer to VlcPlayerControl
 
 **Files:**
-- Modify: `src/Bref/Views/MainWindow.axaml.cs`
+- Modify: `src/SpartaCut/Views/MainWindow.axaml.cs`
 
 **Step 1: Expose MediaPlayer from VlcPlaybackEngine**
 
-Modify `src/Bref/Services/VlcPlaybackEngine.cs`, add this property:
+Modify `src/SpartaCut/Services/VlcPlaybackEngine.cs`, add this property:
 
 ```csharp
 /// <summary>
@@ -1134,7 +1134,7 @@ public MediaPlayer? MediaPlayer => _mediaPlayer;
 
 **Step 2: Bind MediaPlayer in MainWindow code-behind**
 
-Modify `src/Bref/Views/MainWindow.axaml.cs`.
+Modify `src/SpartaCut/Views/MainWindow.axaml.cs`.
 
 Find where video is loaded (likely in `LoadVideoButton_Click` or similar) and after initializing the ViewModel, add:
 
@@ -1159,14 +1159,14 @@ public VlcPlaybackEngine VlcPlaybackEngine => _vlcPlaybackEngine;
 
 **Step 3: Build to verify**
 
-Run: `dotnet build src/Bref/SpartaCut.csproj`
+Run: `dotnet build src/SpartaCut/SpartaCut.csproj`
 
 Expected: Build succeeds
 
 **Step 4: Commit**
 
 ```bash
-git add src/Bref/Services/VlcPlaybackEngine.cs src/Bref/ViewModels/MainWindowViewModel.cs src/Bref/Views/MainWindow.axaml.cs
+git add src/SpartaCut/Services/VlcPlaybackEngine.cs src/SpartaCut/ViewModels/MainWindowViewModel.cs src/SpartaCut/Views/MainWindow.axaml.cs
 git commit -m "feat: wire VLC MediaPlayer to VlcPlayerControl"
 ```
 
@@ -1175,7 +1175,7 @@ git commit -m "feat: wire VLC MediaPlayer to VlcPlayerControl"
 ### Task 12: Connect Timeline Scrubbing to VLC Seek
 
 **Files:**
-- Modify: `src/Bref/ViewModels/MainWindowViewModel.cs`
+- Modify: `src/SpartaCut/ViewModels/MainWindowViewModel.cs`
 
 **Step 1: Subscribe to Timeline.CurrentTimeChanged**
 
@@ -1209,14 +1209,14 @@ private void OnTimelineScrubbed(TimeSpan virtualTime)
 
 **Step 3: Build to verify**
 
-Run: `dotnet build src/Bref/SpartaCut.csproj`
+Run: `dotnet build src/SpartaCut/SpartaCut.csproj`
 
 Expected: Build succeeds
 
 **Step 4: Commit**
 
 ```bash
-git add src/Bref/ViewModels/MainWindowViewModel.cs
+git add src/SpartaCut/ViewModels/MainWindowViewModel.cs
 git commit -m "feat: connect timeline scrubbing to VLC seek"
 ```
 
@@ -1227,31 +1227,31 @@ git commit -m "feat: connect timeline scrubbing to VLC seek"
 ### Task 13: Remove Old FFmpeg Video Player Components
 
 **Files:**
-- Delete: `src/Bref/Services/FrameDecoder.cs`
-- Delete: `src/Bref/Services/FrameCache.cs`
-- Delete: `src/Bref/Services/PlaybackEngine.cs`
-- Delete: `src/Bref/Models/VideoFrame.cs`
-- Delete: `src/Bref/Utilities/LRUCache.cs`
-- Delete: `src/Bref/Views/Controls/VideoPlayerControl.axaml`
-- Delete: `src/Bref/Views/Controls/VideoPlayerControl.axaml.cs`
+- Delete: `src/SpartaCut/Services/FrameDecoder.cs`
+- Delete: `src/SpartaCut/Services/FrameCache.cs`
+- Delete: `src/SpartaCut/Services/PlaybackEngine.cs`
+- Delete: `src/SpartaCut/Models/VideoFrame.cs`
+- Delete: `src/SpartaCut/Utilities/LRUCache.cs`
+- Delete: `src/SpartaCut/Views/Controls/VideoPlayerControl.axaml`
+- Delete: `src/SpartaCut/Views/Controls/VideoPlayerControl.axaml.cs`
 
 **Step 1: Delete old service files**
 
 Run these commands:
 
 ```bash
-rm src/Bref/Services/FrameDecoder.cs
-rm src/Bref/Services/FrameCache.cs
-rm src/Bref/Services/PlaybackEngine.cs
-rm src/Bref/Models/VideoFrame.cs
-rm src/Bref/Utilities/LRUCache.cs
-rm src/Bref/Views/Controls/VideoPlayerControl.axaml
-rm src/Bref/Views/Controls/VideoPlayerControl.axaml.cs
+rm src/SpartaCut/Services/FrameDecoder.cs
+rm src/SpartaCut/Services/FrameCache.cs
+rm src/SpartaCut/Services/PlaybackEngine.cs
+rm src/SpartaCut/Models/VideoFrame.cs
+rm src/SpartaCut/Utilities/LRUCache.cs
+rm src/SpartaCut/Views/Controls/VideoPlayerControl.axaml
+rm src/SpartaCut/Views/Controls/VideoPlayerControl.axaml.cs
 ```
 
 **Step 2: Verify build still works**
 
-Run: `dotnet build src/Bref/SpartaCut.csproj`
+Run: `dotnet build src/SpartaCut/SpartaCut.csproj`
 
 Expected: Build succeeds (should have no references to deleted files)
 
@@ -1400,11 +1400,11 @@ git commit -m "docs: add LibVLC integration manual testing checklist"
 ### Task 16: Update Version to 0.8.0
 
 **Files:**
-- Modify: `src/Bref/SpartaCut.csproj`
+- Modify: `src/SpartaCut/SpartaCut.csproj`
 
 **Step 1: Update version number**
 
-Modify `src/Bref/SpartaCut.csproj`, find the version properties and update:
+Modify `src/SpartaCut/SpartaCut.csproj`, find the version properties and update:
 
 ```xml
 <!-- Version Information -->
@@ -1416,14 +1416,14 @@ Modify `src/Bref/SpartaCut.csproj`, find the version properties and update:
 
 **Step 2: Build to verify**
 
-Run: `dotnet build src/Bref/SpartaCut.csproj`
+Run: `dotnet build src/SpartaCut/SpartaCut.csproj`
 
 Expected: Build succeeds with version 0.8.0
 
 **Step 3: Commit**
 
 ```bash
-git add src/Bref/SpartaCut.csproj
+git add src/SpartaCut/SpartaCut.csproj
 git commit -m "chore: bump version to 0.8.0 - LibVLC integration complete"
 ```
 

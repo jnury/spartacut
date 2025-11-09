@@ -1,4 +1,4 @@
-# Bref - User Flow Documentation
+# Sparta Cut - User Flow Documentation
 
 **Date:** 2025-11-01
 **Version:** 1.0 - MVP Design
@@ -6,7 +6,7 @@
 
 ## Overview
 
-This document details the complete user experience for Bref, a video editing tool designed for quickly removing unwanted segments from MP4/H.264 videos using an iterative, preview-based workflow.
+This document details the complete user experience for SpartaCut, a video editing tool designed for quickly removing unwanted segments from MP4/H.264 videos using an iterative, preview-based workflow.
 
 **Core User Experience Principles:**
 - Instant feedback on all operations
@@ -19,15 +19,15 @@ This document details the complete user experience for Bref, a video editing too
 
 ### 1. Application Launch
 
-**Entry Point:** User double-clicks Bref icon or opens from Start Menu
+**Entry Point:** User double-clicks Sparta Cut icon or opens from Start Menu
 
 **Initial State:**
 ```
 ┌─────────────────────────────────────────┐
-│ Bref                              ═ □ ✕ │
+│ Sparta Cut                              ═ □ ✕ │
 ├─────────────────────────────────────────┤
 │                                         │
-│              [Bref Logo]                │
+│              [Sparta Cut Logo]                │
 │                                         │
 │         ┌─────────────────┐             │
 │         │  Open Video     │             │
@@ -63,7 +63,7 @@ This document details the complete user experience for Bref, a video editing too
 **Loading Screen:**
 ```
 ┌─────────────────────────────────────────┐
-│ Bref - Loading...                 ═ □ ✕ │
+│ Sparta Cut - Loading...                 ═ □ ✕ │
 ├─────────────────────────────────────────┤
 │                                         │
 │         Loading: meeting.mp4            │
@@ -100,7 +100,7 @@ This document details the complete user experience for Bref, a video editing too
 **View After Load:**
 ```
 ┌─────────────────────────────────────────────────────────┐
-│ Bref - meeting.mp4                            ═ □ ✕     │
+│ Sparta Cut - meeting.mp4                            ═ □ ✕     │
 ├─────────────────────────────────────────────────────────┤
 │ File   Edit                                             │
 ├─────────────────────────────────────────────────────────┤
@@ -441,9 +441,9 @@ Segments: 4
 
 **Dialog:**
 ```
-Save Bref Project
+Save Sparta Cut Project
 
-Save As: meeting_edited.bref
+Save As: meeting_edited.spartacut
 Location: C:\Users\...\Videos
 
 [Cancel]  [Save]
@@ -462,7 +462,7 @@ Location: C:\Users\...\Videos
 **Action:** File → Load Project
 
 **Behavior:**
-- Opens file picker (.bref files)
+- Opens file picker (.spartacut files)
 - Loads source video
 - Restores segment list and edit history
 - Positions playhead to saved location
@@ -510,7 +510,7 @@ Location: C:\Users\...\Videos
 │                                         │
 │ Reason: Not an MP4 H.264 video          │
 │                                         │
-│ Bref currently only supports:           │
+│ Sparta Cut currently only supports:           │
 │ • MP4 container format                  │
 │ • H.264 (AVC) video codec               │
 │                                         │

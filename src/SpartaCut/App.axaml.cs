@@ -37,7 +37,7 @@ public partial class App : Application
 
         var aboutDialog = new Window
         {
-            Title = "About Bref",
+            Title = "About Sparta Cut",
             Width = 400,
             Height = 300,
             CanResize = false,
@@ -53,7 +53,7 @@ public partial class App : Application
 
         content.Children.Add(new TextBlock
         {
-            Text = "Bref",
+            Text = "Sparta Cut",
             FontSize = 32,
             FontWeight = Avalonia.Media.FontWeight.Bold,
             Foreground = Avalonia.Media.Brushes.White,

@@ -106,17 +106,17 @@ Create a note of:
 
 **Files:**
 - Create: `SpartaCut.sln`
-- Create: `src/Bref/SpartaCut.csproj`
+- Create: `src/SpartaCut/SpartaCut.csproj`
 - Create: `src/SpartaCut.Tests/SpartaCut.Tests.csproj`
-- Create: `src/Bref/App.axaml`
-- Create: `src/Bref/App.axaml.cs`
-- Create: `src/Bref/Program.cs`
+- Create: `src/SpartaCut/App.axaml`
+- Create: `src/SpartaCut/App.axaml.cs`
+- Create: `src/SpartaCut/Program.cs`
 
 **Step 1: Create solution file**
 
 ```bash
-cd /Users/jnury-perso/Repositories/Bref
-dotnet new sln -n Bref
+cd /Users/jnury-perso/Repositories/SpartaCut
+dotnet new sln -n SpartaCut
 ```
 
 Expected: `SpartaCut.sln` created in root directory
@@ -124,21 +124,21 @@ Expected: `SpartaCut.sln` created in root directory
 **Step 2: Create src directory and main project**
 
 ```bash
-mkdir -p src/Bref
-cd src/Bref
-dotnet new avalonia.app -n Bref
+mkdir -p src/SpartaCut
+cd src/SpartaCut
+dotnet new avalonia.app -n SpartaCut
 ```
 
-Expected: Avalonia project files created in `src/Bref/`
+Expected: Avalonia project files created in `src/SpartaCut/`
 
 **Step 3: Return to root and add project to solution**
 
 ```bash
-cd /Users/jnury-perso/Repositories/Bref
-dotnet sln add src/Bref/SpartaCut.csproj
+cd /Users/jnury-perso/Repositories/SpartaCut
+dotnet sln add src/SpartaCut/SpartaCut.csproj
 ```
 
-Expected: `Project 'src/Bref/SpartaCut.csproj' added to the solution.`
+Expected: `Project 'src/SpartaCut/SpartaCut.csproj' added to the solution.`
 
 **Step 4: Create test project**
 
@@ -153,7 +153,7 @@ Expected: xUnit test project created
 **Step 5: Add test project to solution**
 
 ```bash
-cd /Users/jnury-perso/Repositories/Bref
+cd /Users/jnury-perso/Repositories/SpartaCut
 dotnet sln add src/SpartaCut.Tests/SpartaCut.Tests.csproj
 ```
 
@@ -161,15 +161,15 @@ dotnet sln add src/SpartaCut.Tests/SpartaCut.Tests.csproj
 
 ```bash
 cd src/SpartaCut.Tests
-dotnet add reference ../Bref/SpartaCut.csproj
+dotnet add reference ../SpartaCut/SpartaCut.csproj
 ```
 
-Expected: `Reference '../Bref/SpartaCut.csproj' added to the project.`
+Expected: `Reference '../SpartaCut/SpartaCut.csproj' added to the project.`
 
 **Step 7: Verify solution builds**
 
 ```bash
-cd /Users/jnury-perso/Repositories/Bref
+cd /Users/jnury-perso/Repositories/SpartaCut
 dotnet build
 ```
 
@@ -206,12 +206,12 @@ git commit -m "feat: create solution and project structure
 ## Task 3: Install NuGet Dependencies
 
 **Files:**
-- Modify: `src/Bref/SpartaCut.csproj`
+- Modify: `src/SpartaCut/SpartaCut.csproj`
 
 **Step 1: Add NuGet packages to main project**
 
 ```bash
-cd /Users/jnury-perso/Repositories/Bref/src/Bref
+cd /Users/jnury-perso/Repositories/SpartaCut/src/SpartaCut
 dotnet add package FFmpeg.AutoGen --version 7.0.0
 dotnet add package FFMpegCore --version 5.1.0
 dotnet add package NAudio --version 2.2.1
@@ -262,7 +262,7 @@ Expected: Should contain all PackageReferences:
 **Step 3: Restore packages**
 
 ```bash
-cd /Users/jnury-perso/Repositories/Bref
+cd /Users/jnury-perso/Repositories/SpartaCut
 dotnet restore
 ```
 
@@ -279,7 +279,7 @@ Expected: `Build succeeded. 0 Warning(s) 0 Error(s)`
 **Step 5: Commit dependency additions**
 
 ```bash
-git add src/Bref/SpartaCut.csproj
+git add src/SpartaCut/SpartaCut.csproj
 git commit -m "feat: add NuGet dependencies
 
 - FFmpeg.AutoGen 7.0.0 for low-level FFmpeg bindings
@@ -294,17 +294,17 @@ git commit -m "feat: add NuGet dependencies
 ## Task 4: Create Project Directory Structure
 
 **Files:**
-- Create: `src/Bref/Models/.gitkeep`
-- Create: `src/Bref/ViewModels/.gitkeep`
-- Create: `src/Bref/Views/.gitkeep`
-- Create: `src/Bref/Services/.gitkeep`
-- Create: `src/Bref/FFmpeg/.gitkeep`
-- Create: `src/Bref/Utilities/.gitkeep`
+- Create: `src/SpartaCut/Models/.gitkeep`
+- Create: `src/SpartaCut/ViewModels/.gitkeep`
+- Create: `src/SpartaCut/Views/.gitkeep`
+- Create: `src/SpartaCut/Services/.gitkeep`
+- Create: `src/SpartaCut/FFmpeg/.gitkeep`
+- Create: `src/SpartaCut/Utilities/.gitkeep`
 
 **Step 1: Create directory structure**
 
 ```bash
-cd /Users/jnury-perso/Repositories/Bref/src/Bref
+cd /Users/jnury-perso/Repositories/SpartaCut/src/SpartaCut
 mkdir -p Models ViewModels Views Services FFmpeg Utilities
 ```
 
@@ -346,12 +346,12 @@ git commit -m "feat: create project directory structure
 ## Task 5: Setup Serilog Logging
 
 **Files:**
-- Create: `src/Bref/Utilities/LoggerSetup.cs`
-- Modify: `src/Bref/Program.cs`
+- Create: `src/SpartaCut/Utilities/LoggerSetup.cs`
+- Modify: `src/SpartaCut/Program.cs`
 
 **Step 1: Write LoggerSetup utility class**
 
-Create `src/Bref/Utilities/LoggerSetup.cs`:
+Create `src/SpartaCut/Utilities/LoggerSetup.cs`:
 
 ```csharp
 using Serilog;
@@ -368,12 +368,12 @@ public static class LoggerSetup
 {
     /// <summary>
     /// Initialize Serilog with console and file sinks.
-    /// Log file location: ~/Library/Application Support/Bref/logs/bref-{Date}.log (macOS)
+    /// Log file location: ~/Library/Application Support/SpartaCut/logs/spartacut-{Date}.log (macOS)
     /// </summary>
     public static void Initialize()
     {
         var logDirectory = GetLogDirectory();
-        var logFilePath = Path.Combine(logDirectory, "bref-.log");
+        var logFilePath = Path.Combine(logDirectory, "spartacut-.log");
 
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
@@ -386,20 +386,20 @@ public static class LoggerSetup
                 outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} {Level:u3}] {Message:lj}{NewLine}{Exception}")
             .CreateLogger();
 
-        Log.Information("Bref application starting");
+        Log.Information("Sparta Cut application starting");
         Log.Information("Log directory: {LogDirectory}", logDirectory);
     }
 
     /// <summary>
     /// Get platform-specific log directory.
-    /// macOS: ~/Library/Application Support/Bref/logs
-    /// Windows: %APPDATA%\Bref\logs
-    /// Linux: ~/.local/share/Bref/logs
+    /// macOS: ~/Library/Application Support/SpartaCut/logs
+    /// Windows: %APPDATA%\SpartaCut\logs
+    /// Linux: ~/.local/share/SpartaCut/logs
     /// </summary>
     private static string GetLogDirectory()
     {
         var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        var logDirectory = Path.Combine(appDataPath, "Bref", "logs");
+        var logDirectory = Path.Combine(appDataPath, "Sparta Cut", "logs");
 
         if (!Directory.Exists(logDirectory))
         {
@@ -415,7 +415,7 @@ public static class LoggerSetup
     /// </summary>
     public static void Shutdown()
     {
-        Log.Information("Bref application shutting down");
+        Log.Information("Sparta Cut application shutting down");
         Log.CloseAndFlush();
     }
 }
@@ -423,7 +423,7 @@ public static class LoggerSetup
 
 **Step 2: Modify Program.cs to initialize logger**
 
-Edit `src/Bref/Program.cs`:
+Edit `src/SpartaCut/Program.cs`:
 
 ```csharp
 using Avalonia;
@@ -473,7 +473,7 @@ class Program
 **Step 3: Build to verify no compilation errors**
 
 ```bash
-cd /Users/jnury-perso/Repositories/Bref
+cd /Users/jnury-perso/Repositories/SpartaCut
 dotnet build
 ```
 
@@ -482,15 +482,15 @@ Expected: `Build succeeded. 0 Warning(s) 0 Error(s)`
 **Step 4: Run application to test logging**
 
 ```bash
-dotnet run --project src/Bref/SpartaCut.csproj
+dotnet run --project src/SpartaCut/SpartaCut.csproj
 ```
 
 Expected:
 - Avalonia window opens
 - Console shows log messages like:
   ```
-  [12:34:56 INF] Bref application starting
-  [12:34:56 INF] Log directory: /Users/jnury-perso/Library/Application Support/Bref/logs
+  [12:34:56 INF] Sparta Cut application starting
+  [12:34:56 INF] Log directory: /Users/jnury-perso/Library/Application Support/SpartaCut/logs
   [12:34:56 INF] Starting Avalonia application
   ```
 
@@ -499,13 +499,13 @@ Close the application (Cmd+Q).
 **Step 5: Verify log file was created**
 
 ```bash
-ls -la ~/Library/Application\ Support/Bref/logs/
+ls -la ~/Library/Application\ Support/SpartaCut/logs/
 ```
 
-Expected: File like `bref-20251102.log` exists
+Expected: File like `spartacut-20251102.log` exists
 
 ```bash
-cat ~/Library/Application\ Support/Bref/logs/bref-*.log
+cat ~/Library/Application\ Support/SpartaCut/logs/spartacut-*.log
 ```
 
 Expected: Log entries showing application startup and shutdown
@@ -513,12 +513,12 @@ Expected: Log entries showing application startup and shutdown
 **Step 6: Commit logging setup**
 
 ```bash
-git add src/Bref/Utilities/LoggerSetup.cs src/Bref/Program.cs
+git add src/SpartaCut/Utilities/LoggerSetup.cs src/SpartaCut/Program.cs
 git commit -m "feat: setup Serilog logging
 
 - Add LoggerSetup utility for console and file logging
 - Configure rolling file logs (7 day retention)
-- Platform-specific log directory (~/Library/Application Support/Bref/logs on macOS)
+- Platform-specific log directory (~/Library/Application Support/SpartaCut/logs on macOS)
 - Initialize logger in Program.Main before Avalonia starts
 - Tested: logs written successfully"
 ```
@@ -528,7 +528,7 @@ git commit -m "feat: setup Serilog logging
 ## Task 6: Configure FFmpeg.AutoGen for macOS
 
 **Files:**
-- Create: `src/Bref/FFmpeg/FFmpegSetup.cs`
+- Create: `src/SpartaCut/FFmpeg/FFmpegSetup.cs`
 - Create: `src/SpartaCut.Tests/FFmpeg/FFmpegSetupTests.cs`
 
 **Step 1: Write the failing test**
@@ -590,7 +590,7 @@ public class FFmpegSetupTests : IDisposable
 **Step 2: Run test to verify it fails**
 
 ```bash
-cd /Users/jnury-perso/Repositories/Bref
+cd /Users/jnury-perso/Repositories/SpartaCut
 dotnet test --filter "FullyQualifiedName~FFmpegSetupTests"
 ```
 
@@ -598,7 +598,7 @@ Expected: FAIL with error like `The type or namespace name 'FFmpegSetup' could n
 
 **Step 3: Write minimal implementation**
 
-Create `src/Bref/FFmpeg/FFmpegSetup.cs`:
+Create `src/SpartaCut/FFmpeg/FFmpegSetup.cs`:
 
 ```csharp
 using FFmpeg.AutoGen;
@@ -733,7 +733,7 @@ ls /opt/homebrew/opt/ffmpeg/lib/*.dylib
 
 **Step 5: Manual verification - Run application with FFmpeg init**
 
-Modify `src/Bref/App.axaml.cs` temporarily to test FFmpeg initialization:
+Modify `src/SpartaCut/App.axaml.cs` temporarily to test FFmpeg initialization:
 
 ```csharp
 using Avalonia;
@@ -776,7 +776,7 @@ public partial class App : Application
 
 Run:
 ```bash
-dotnet run --project src/Bref/SpartaCut.csproj
+dotnet run --project src/SpartaCut/SpartaCut.csproj
 ```
 
 Expected: Console shows log line like:
@@ -790,7 +790,7 @@ Close application (Cmd+Q).
 **Step 6: Commit FFmpeg setup**
 
 ```bash
-git add src/Bref/FFmpeg/FFmpegSetup.cs src/SpartaCut.Tests/FFmpeg/FFmpegSetupTests.cs src/Bref/App.axaml.cs
+git add src/SpartaCut/FFmpeg/FFmpegSetup.cs src/SpartaCut.Tests/FFmpeg/FFmpegSetupTests.cs src/SpartaCut/App.axaml.cs
 git commit -m "feat: configure FFmpeg.AutoGen for macOS
 
 - Add FFmpegSetup utility to detect and initialize FFmpeg libraries
@@ -805,13 +805,13 @@ git commit -m "feat: configure FFmpeg.AutoGen for macOS
 ## Task 7: Create Basic Video Loading POC
 
 **Files:**
-- Create: `src/Bref/Models/VideoMetadata.cs`
-- Create: `src/Bref/FFmpeg/FrameExtractor.cs`
+- Create: `src/SpartaCut/Models/VideoMetadata.cs`
+- Create: `src/SpartaCut/FFmpeg/FrameExtractor.cs`
 - Create: `src/SpartaCut.Tests/FFmpeg/FrameExtractorTests.cs`
 
 **Step 1: Write VideoMetadata model**
 
-Create `src/Bref/Models/VideoMetadata.cs`:
+Create `src/SpartaCut/Models/VideoMetadata.cs`:
 
 ```csharp
 using System;
@@ -913,7 +913,7 @@ Expected: `Build succeeded.`
 **Step 3: Commit VideoMetadata model**
 
 ```bash
-git add src/Bref/Models/VideoMetadata.cs
+git add src/SpartaCut/Models/VideoMetadata.cs
 git commit -m "feat: add VideoMetadata model
 
 - Store video file information (duration, dimensions, codec, etc.)
@@ -995,7 +995,7 @@ Expected: FAIL with `The type or namespace name 'FrameExtractor' could not be fo
 
 **Step 6: Write minimal implementation**
 
-Create `src/Bref/FFmpeg/FrameExtractor.cs`:
+Create `src/SpartaCut/FFmpeg/FrameExtractor.cs`:
 
 ```csharp
 using FFmpeg.AutoGen;
@@ -1156,7 +1156,7 @@ Expected: PASS - FileNotFoundException test should pass
 **Step 9: Commit FrameExtractor implementation**
 
 ```bash
-git add src/Bref/FFmpeg/FrameExtractor.cs src/SpartaCut.Tests/FFmpeg/FrameExtractorTests.cs
+git add src/SpartaCut/FFmpeg/FrameExtractor.cs src/SpartaCut.Tests/FFmpeg/FrameExtractorTests.cs
 git commit -m "feat: add FrameExtractor for video metadata
 
 - Extract video metadata using FFmpeg.AutoGen (avformat)
@@ -1171,13 +1171,13 @@ git commit -m "feat: add FrameExtractor for video metadata
 ## Task 8: Create POC UI to Load and Display Video Info
 
 **Files:**
-- Modify: `src/Bref/Views/MainWindow.axaml`
-- Modify: `src/Bref/Views/MainWindow.axaml.cs`
-- Modify: `src/Bref/App.axaml.cs` (remove temporary FFmpeg test code)
+- Modify: `src/SpartaCut/Views/MainWindow.axaml`
+- Modify: `src/SpartaCut/Views/MainWindow.axaml.cs`
+- Modify: `src/SpartaCut/App.axaml.cs` (remove temporary FFmpeg test code)
 
 **Step 1: Design simple POC UI**
 
-Replace `src/Bref/Views/MainWindow.axaml`:
+Replace `src/SpartaCut/Views/MainWindow.axaml`:
 
 ```xml
 <Window xmlns="https://github.com/avaloniaui"
@@ -1185,8 +1185,8 @@ Replace `src/Bref/Views/MainWindow.axaml`:
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        x:Class="Bref.Views.MainWindow"
-        Title="Bref - Week 1 POC"
+        x:Class="SpartaCut.Views.MainWindow"
+        Title="Sparta Cut - Week 1 POC"
         Width="800" Height="600"
         Background="#1E1E1E">
 
@@ -1199,7 +1199,7 @@ Replace `src/Bref/Views/MainWindow.axaml`:
 
         <!-- Header -->
         <TextBlock Grid.Row="0"
-                   Text="Bref Video Editor - Week 1 POC"
+                   Text="Sparta Cut Video Editor - Week 1 POC"
                    FontSize="24"
                    FontWeight="Bold"
                    Foreground="White"
@@ -1237,7 +1237,7 @@ Replace `src/Bref/Views/MainWindow.axaml`:
 
 **Step 2: Implement code-behind with file picker**
 
-Replace `src/Bref/Views/MainWindow.axaml.cs`:
+Replace `src/SpartaCut/Views/MainWindow.axaml.cs`:
 
 ```csharp
 using Avalonia.Controls;
@@ -1363,7 +1363,7 @@ public partial class MainWindow : Window
 
 **Step 3: Clean up App.axaml.cs (remove temporary FFmpeg test)**
 
-Edit `src/Bref/App.axaml.cs` to remove the FFmpeg test code we added in Task 6:
+Edit `src/SpartaCut/App.axaml.cs` to remove the FFmpeg test code we added in Task 6:
 
 ```csharp
 using Avalonia;
@@ -1402,7 +1402,7 @@ Expected: `Build succeeded.`
 **Step 5: Run POC and test with real video**
 
 ```bash
-dotnet run --project src/Bref/SpartaCut.csproj
+dotnet run --project src/SpartaCut/SpartaCut.csproj
 ```
 
 Expected:
@@ -1435,7 +1435,7 @@ mkdir -p docs/screenshots
 **Step 7: Commit POC UI**
 
 ```bash
-git add src/Bref/Views/MainWindow.axaml src/Bref/Views/MainWindow.axaml.cs src/Bref/App.axaml.cs docs/screenshots/
+git add src/SpartaCut/Views/MainWindow.axaml src/SpartaCut/Views/MainWindow.axaml.cs src/SpartaCut/App.axaml.cs docs/screenshots/
 git commit -m "feat: create Week 1 POC UI
 
 - Add file picker to load MP4 videos
@@ -1453,12 +1453,12 @@ Week 1 POC: COMPLETE"
 ## Task 9: Update Version Number and Create Documentation
 
 **Files:**
-- Modify: `src/Bref/SpartaCut.csproj`
+- Modify: `src/SpartaCut/SpartaCut.csproj`
 - Create: `docs/development-log.md`
 
 **Step 1: Update project version to 0.1.0**
 
-Edit `src/Bref/SpartaCut.csproj` and add version properties:
+Edit `src/SpartaCut/SpartaCut.csproj` and add version properties:
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
@@ -1486,7 +1486,7 @@ Edit `src/Bref/SpartaCut.csproj` and add version properties:
 Create `docs/development-log.md`:
 
 ```markdown
-# Bref Development Log
+# Sparta Cut Development Log
 
 ## Version 0.1.0 - Week 1 POC (November 2, 2025)
 
@@ -1563,7 +1563,7 @@ Check that version appears in build output.
 **Step 4: Commit version update and documentation**
 
 ```bash
-git add src/Bref/SpartaCut.csproj docs/development-log.md
+git add src/SpartaCut/SpartaCut.csproj docs/development-log.md
 git commit -m "chore: bump version to 0.1.0 and add development log
 
 - Set version to 0.1.0 (Week 1 POC milestone)
@@ -1704,7 +1704,7 @@ ls /opt/homebrew/opt/ffmpeg/lib/*.dylib
 
 **Check logs:**
 ```bash
-cat ~/Library/Application\ Support/Bref/logs/bref-*.log
+cat ~/Library/Application\ Support/SpartaCut/logs/spartacut-*.log
 ```
 
 Look for errors in FFmpeg initialization or Avalonia setup.
@@ -1749,8 +1749,8 @@ Look for `Stream #0:0: Video: h264` in output.
 - **Avalonia Docs:** https://docs.avaloniaui.net/
 - **FFmpeg.AutoGen:** https://github.com/Ruslan-B/FFmpeg.AutoGen
 - **Serilog:** https://serilog.net/
-- **Bref Architecture:** `docs/plans/architecture.md`
-- **Bref Technical Spec:** `docs/plans/technical-specification.md`
+- **Sparta Cut Architecture:** `docs/plans/architecture.md`
+- **Sparta Cut Technical Spec:** `docs/plans/technical-specification.md`
 
 ---
 

@@ -28,7 +28,7 @@
 **Goal:** Generic least-recently-used cache with automatic eviction and disposal
 
 **Files:**
-- Create: `src/Bref/Utilities/LRUCache.cs`
+- Create: `src/SpartaCut/Utilities/LRUCache.cs`
 - Create: `src/SpartaCut.Tests/Utilities/LRUCacheTests.cs`
 
 ### Step 1: Write failing test for basic add/get
@@ -366,7 +366,7 @@ Expected: Build succeeds
 ### Step 8: Commit
 
 ```bash
-git add src/Bref/Utilities/LRUCache.cs src/SpartaCut.Tests/Utilities/LRUCacheTests.cs
+git add src/SpartaCut/Utilities/LRUCache.cs src/SpartaCut.Tests/Utilities/LRUCacheTests.cs
 git commit -m "feat: implement LRUCache with automatic eviction and disposal (TDD)"
 ```
 
@@ -377,7 +377,7 @@ git commit -m "feat: implement LRUCache with automatic eviction and disposal (TD
 **Goal:** Define data structure for decoded video frames
 
 **Files:**
-- Create: `src/Bref/Models/VideoFrame.cs`
+- Create: `src/SpartaCut/Models/VideoFrame.cs`
 
 ### Step 1: Create VideoFrame model
 
@@ -489,7 +489,7 @@ Expected: Build succeeds
 ### Step 3: Commit
 
 ```bash
-git add src/Bref/Models/VideoFrame.cs
+git add src/SpartaCut/Models/VideoFrame.cs
 git commit -m "feat: add VideoFrame model for decoded frame data"
 ```
 
@@ -500,7 +500,7 @@ git commit -m "feat: add VideoFrame model for decoded frame data"
 **Goal:** Extract individual frames from video at specific timestamps using FFmpeg
 
 **Files:**
-- Create: `src/Bref/Services/FrameDecoder.cs`
+- Create: `src/SpartaCut/Services/FrameDecoder.cs`
 - Create: `src/SpartaCut.Tests/Services/FrameDecoderTests.cs`
 
 ### Step 1: Write failing test
@@ -797,7 +797,7 @@ Expected: Build succeeds
 ### Step 6: Commit
 
 ```bash
-git add src/Bref/Services/FrameDecoder.cs src/SpartaCut.Tests/Services/FrameDecoderTests.cs
+git add src/SpartaCut/Services/FrameDecoder.cs src/SpartaCut.Tests/Services/FrameDecoderTests.cs
 git commit -m "feat: implement FrameDecoder for extracting frames at timestamps"
 ```
 
@@ -808,7 +808,7 @@ git commit -m "feat: implement FrameDecoder for extracting frames at timestamps"
 **Goal:** High-level cache for video frames with intelligent preloading
 
 **Files:**
-- Create: `src/Bref/Services/FrameCache.cs`
+- Create: `src/SpartaCut/Services/FrameCache.cs`
 - Create: `src/SpartaCut.Tests/Services/FrameCacheTests.cs`
 
 ### Step 1: Write failing test
@@ -1042,7 +1042,7 @@ Expected: Build succeeds
 ### Step 5: Commit
 
 ```bash
-git add src/Bref/Services/FrameCache.cs src/SpartaCut.Tests/Services/FrameCacheTests.cs
+git add src/SpartaCut/Services/FrameCache.cs src/SpartaCut.Tests/Services/FrameCacheTests.cs
 git commit -m "feat: implement FrameCache with LRU eviction and preloading"
 ```
 
@@ -1053,8 +1053,8 @@ git commit -m "feat: implement FrameCache with LRU eviction and preloading"
 **Goal:** Create custom control to display video frames with aspect ratio preservation
 
 **Files:**
-- Create: `src/Bref/Controls/VideoPlayerControl.axaml`
-- Create: `src/Bref/Controls/VideoPlayerControl.axaml.cs`
+- Create: `src/SpartaCut/Controls/VideoPlayerControl.axaml`
+- Create: `src/SpartaCut/Controls/VideoPlayerControl.axaml.cs`
 
 ### Step 1: Create VideoPlayerControl XAML
 
@@ -1064,7 +1064,7 @@ git commit -m "feat: implement FrameCache with LRU eviction and preloading"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="Bref.Controls.VideoPlayerControl"
+             x:Class="SpartaCut.Controls.VideoPlayerControl"
              Background="Black">
 
     <Grid>
@@ -1091,7 +1091,7 @@ Expected: Build succeeds
 ### Step 3: Commit
 
 ```bash
-git add src/Bref/Controls/VideoPlayerControl.axaml
+git add src/SpartaCut/Controls/VideoPlayerControl.axaml
 git commit -m "feat: add VideoPlayerControl XAML structure"
 ```
 
@@ -1102,7 +1102,7 @@ git commit -m "feat: add VideoPlayerControl XAML structure"
 **Goal:** Implement frame rendering with SkiaSharp and aspect ratio preservation
 
 **Files:**
-- Modify: `src/Bref/Controls/VideoPlayerControl.axaml.cs`
+- Modify: `src/SpartaCut/Controls/VideoPlayerControl.axaml.cs`
 
 ### Step 1: Create VideoPlayerControl code-behind
 
@@ -1250,7 +1250,7 @@ Expected: Build succeeds
 ### Step 3: Commit
 
 ```bash
-git add src/Bref/Controls/VideoPlayerControl.axaml.cs
+git add src/SpartaCut/Controls/VideoPlayerControl.axaml.cs
 git commit -m "feat: implement VideoPlayerControl rendering with aspect ratio preservation"
 ```
 
@@ -1261,9 +1261,9 @@ git commit -m "feat: implement VideoPlayerControl rendering with aspect ratio pr
 **Goal:** Wire up video player, frame cache, and timeline for interactive scrubbing
 
 **Files:**
-- Modify: `src/Bref/Views/MainWindow.axaml`
-- Modify: `src/Bref/Views/MainWindow.axaml.cs`
-- Modify: `src/Bref/ViewModels/TimelineViewModel.cs`
+- Modify: `src/SpartaCut/Views/MainWindow.axaml`
+- Modify: `src/SpartaCut/Views/MainWindow.axaml.cs`
+- Modify: `src/SpartaCut/ViewModels/TimelineViewModel.cs`
 
 ### Step 1: Update MainWindow.axaml to include VideoPlayerControl
 
@@ -1378,7 +1378,7 @@ Expected: Build succeeds
 
 ### Step 8: Manual test
 
-Run: `/usr/local/share/dotnet/dotnet run --project src/Bref/SpartaCut.csproj`
+Run: `/usr/local/share/dotnet/dotnet run --project src/SpartaCut/SpartaCut.csproj`
 Expected:
 - Load MP4 video
 - Video preview shows first frame
@@ -1389,7 +1389,7 @@ Expected:
 ### Step 9: Commit
 
 ```bash
-git add src/Bref/Views/MainWindow.axaml src/Bref/Views/MainWindow.axaml.cs src/Bref/ViewModels/TimelineViewModel.cs
+git add src/SpartaCut/Views/MainWindow.axaml src/SpartaCut/Views/MainWindow.axaml.cs src/SpartaCut/ViewModels/TimelineViewModel.cs
 git commit -m "feat: integrate VideoPlayer and FrameCache for interactive scrubbing"
 ```
 
@@ -1401,7 +1401,7 @@ git commit -m "feat: integrate VideoPlayer and FrameCache for interactive scrubb
 
 **Files:**
 - Create: `src/SpartaCut.Tests/Performance/FrameCachePerformanceTests.cs`
-- Modify: `src/Bref/Services/FrameCache.cs` (if optimizations needed)
+- Modify: `src/SpartaCut/Services/FrameCache.cs` (if optimizations needed)
 
 ### Step 1: Create performance tests
 
@@ -1542,7 +1542,7 @@ git commit -m "test: add performance tests for frame cache"
 **Goal:** Increment version to 0.4.0 for Week 4 milestone
 
 **Files:**
-- Modify: `src/Bref/SpartaCut.csproj`
+- Modify: `src/SpartaCut/SpartaCut.csproj`
 
 ### Step 1: Update version
 
@@ -1562,7 +1562,7 @@ Expected: Build succeeds
 ### Step 3: Commit and tag
 
 ```bash
-git add src/Bref/SpartaCut.csproj
+git add src/SpartaCut/SpartaCut.csproj
 git commit -m "chore: bump version to 0.4.0 for Week 4 milestone"
 git tag v0.4.0
 ```

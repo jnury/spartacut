@@ -781,7 +781,7 @@ git commit -m "feat: implement export with progress monitoring
 
 **Files:**
 - Modify: `src/SpartaCut.Core/ViewModels/MainWindowViewModel.cs`
-- Modify: `src/Bref/Views/MainWindow.axaml`
+- Modify: `src/SpartaCut/Views/MainWindow.axaml`
 
 **Step 1: Add Export command to ViewModel**
 
@@ -882,7 +882,7 @@ public async Task Export()
 
 **Step 2: Update MainWindow to show export progress**
 
-Modify `src/Bref/Views/MainWindow.axaml` to add export button and progress bar:
+Modify `src/SpartaCut/Views/MainWindow.axaml` to add export button and progress bar:
 
 ```xml
 <!-- Add Export button in toolbar -->
@@ -908,7 +908,7 @@ Modify `src/Bref/Views/MainWindow.axaml` to add export button and progress bar:
 
 **Step 3: Update SpartaCut.csproj version**
 
-Modify `src/Bref/SpartaCut.csproj`:
+Modify `src/SpartaCut/SpartaCut.csproj`:
 ```xml
 <Version>0.12.0</Version>
 ```
@@ -920,14 +920,14 @@ Modify `src/SpartaCut.Core/SpartaCut.Core.csproj`:
 
 **Step 4: Build and test**
 
-Run: `/usr/local/share/dotnet/dotnet build src/Bref/SpartaCut.csproj`
+Run: `/usr/local/share/dotnet/dotnet build src/SpartaCut/SpartaCut.csproj`
 
 **Step 5: Commit**
 
 ```bash
 git add src/SpartaCut.Core/ViewModels/MainWindowViewModel.cs \
-        src/Bref/Views/MainWindow.axaml \
-        src/Bref/SpartaCut.csproj \
+        src/SpartaCut/Views/MainWindow.axaml \
+        src/SpartaCut/SpartaCut.csproj \
         src/SpartaCut.Core/SpartaCut.Core.csproj
 git commit -m "feat: add export UI and command
 
@@ -1562,7 +1562,7 @@ git commit -m "docs: document Week 9 export service learnings
 ## Task 9: Final Verification and Release
 
 **Files:**
-- Modify: `src/Bref/SpartaCut.csproj`
+- Modify: `src/SpartaCut/SpartaCut.csproj`
 - Modify: `src/SpartaCut.Core/SpartaCut.Core.csproj`
 
 **Step 1: Run full test suite**
@@ -1572,7 +1572,7 @@ Expected: All tests pass (120+ tests)
 
 **Step 2: Build release configuration**
 
-Run: `/usr/local/share/dotnet/dotnet build src/Bref/SpartaCut.csproj -c Release`
+Run: `/usr/local/share/dotnet/dotnet build src/SpartaCut/SpartaCut.csproj -c Release`
 Expected: Build succeeds with 0 errors, 0 warnings
 
 **Step 3: Manual export test**
@@ -1586,7 +1586,7 @@ Expected: Build succeeds with 0 errors, 0 warnings
 **Step 4: Final commit and tag**
 
 ```bash
-git add src/Bref/SpartaCut.csproj src/SpartaCut.Core/SpartaCut.Core.csproj
+git add src/SpartaCut/SpartaCut.csproj src/SpartaCut.Core/SpartaCut.Core.csproj
 git commit -m "chore: release version 0.12.0 - Week 9 export complete
 
 Week 9 deliverables:
@@ -1664,6 +1664,6 @@ These are acceptable for MVP. Can be improved in v1.1+ if user feedback requests
 
 After completing Week 9:
 - Week 10: Session Management (Save/Load Projects)
-- Focus: .bref file format, project serialization
+- Focus: .spartacut file format, project serialization
 - Save/load editing sessions with segment data
 - Recent files list

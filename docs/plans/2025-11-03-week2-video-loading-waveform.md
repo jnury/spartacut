@@ -22,7 +22,7 @@
 **Goal:** Define progress reporting data structures
 
 **Files:**
-- Create: `src/Bref/Models/LoadProgress.cs`
+- Create: `src/SpartaCut/Models/LoadProgress.cs`
 
 ### Step 1: Create LoadProgress model
 
@@ -83,7 +83,7 @@ Expected: Build succeeds
 ### Step 3: Commit
 
 ```bash
-git add src/Bref/Models/LoadProgress.cs
+git add src/SpartaCut/Models/LoadProgress.cs
 git commit -m "feat: add LoadProgress model for video loading progress reporting"
 ```
 
@@ -94,8 +94,8 @@ git commit -m "feat: add LoadProgress model for video loading progress reporting
 **Goal:** Create service layer for video operations with testable interface
 
 **Files:**
-- Create: `src/Bref/Services/IVideoService.cs`
-- Create: `src/Bref/Services/VideoService.cs`
+- Create: `src/SpartaCut/Services/IVideoService.cs`
+- Create: `src/SpartaCut/Services/VideoService.cs`
 - Create: `src/SpartaCut.Tests/Services/VideoServiceTests.cs`
 
 ### Step 1: Write failing test for format validation
@@ -239,7 +239,7 @@ Expected: PASS
 ### Step 8: Commit
 
 ```bash
-git add src/Bref/Services/IVideoService.cs src/Bref/Services/VideoService.cs src/SpartaCut.Tests/Services/VideoServiceTests.cs
+git add src/SpartaCut/Services/IVideoService.cs src/SpartaCut/Services/VideoService.cs src/SpartaCut.Tests/Services/VideoServiceTests.cs
 git commit -m "feat: add VideoService with format and file validation (TDD)"
 ```
 
@@ -250,7 +250,7 @@ git commit -m "feat: add VideoService with format and file validation (TDD)"
 **Goal:** Integrate FrameExtractor into VideoService
 
 **Files:**
-- Modify: `src/Bref/Services/VideoService.cs`
+- Modify: `src/SpartaCut/Services/VideoService.cs`
 - Modify: `src/SpartaCut.Tests/Services/VideoServiceTests.cs`
 
 ### Step 1: Write failing test for metadata extraction
@@ -391,7 +391,7 @@ Expected: Build succeeds with no errors
 ### Step 5: Commit
 
 ```bash
-git add src/Bref/Services/VideoService.cs src/SpartaCut.Tests/Services/VideoServiceTests.cs
+git add src/SpartaCut/Services/VideoService.cs src/SpartaCut.Tests/Services/VideoServiceTests.cs
 git commit -m "feat: integrate metadata extraction into VideoService"
 ```
 
@@ -402,8 +402,8 @@ git commit -m "feat: integrate metadata extraction into VideoService"
 **Goal:** Extract audio samples from video for waveform visualization using NAudio
 
 **Files:**
-- Create: `src/Bref/Models/WaveformData.cs`
-- Create: `src/Bref/Services/WaveformGenerator.cs`
+- Create: `src/SpartaCut/Models/WaveformData.cs`
+- Create: `src/SpartaCut/Services/WaveformGenerator.cs`
 - Create: `src/SpartaCut.Tests/Services/WaveformGeneratorTests.cs`
 
 ### Step 1: Create WaveformData model
@@ -612,7 +612,7 @@ Note: Full integration test requires a real MP4 file. Add integration test in Ta
 ### Step 8: Commit
 
 ```bash
-git add src/Bref/Models/WaveformData.cs src/Bref/Services/WaveformGenerator.cs src/SpartaCut.Tests/Services/WaveformGeneratorTests.cs
+git add src/SpartaCut/Models/WaveformData.cs src/SpartaCut/Services/WaveformGenerator.cs src/SpartaCut.Tests/Services/WaveformGeneratorTests.cs
 git commit -m "feat: implement WaveformGenerator using NAudio"
 ```
 
@@ -623,8 +623,8 @@ git commit -m "feat: implement WaveformGenerator using NAudio"
 **Goal:** Complete VideoService by adding waveform generation
 
 **Files:**
-- Modify: `src/Bref/Services/VideoService.cs`
-- Modify: `src/Bref/Models/VideoMetadata.cs`
+- Modify: `src/SpartaCut/Services/VideoService.cs`
+- Modify: `src/SpartaCut/Models/VideoMetadata.cs`
 
 ### Step 1: Add WaveformData property to VideoMetadata
 
@@ -694,7 +694,7 @@ Expected: Build succeeds
 ### Step 4: Commit
 
 ```bash
-git add src/Bref/Services/VideoService.cs src/Bref/Models/VideoMetadata.cs
+git add src/SpartaCut/Services/VideoService.cs src/SpartaCut/Models/VideoMetadata.cs
 git commit -m "feat: integrate waveform generation into VideoService"
 ```
 
@@ -705,15 +705,15 @@ git commit -m "feat: integrate waveform generation into VideoService"
 **Goal:** Create loading dialog with progress bar and status text
 
 **Files:**
-- Create: `src/Bref/Views/LoadingDialog.axaml`
-- Create: `src/Bref/Views/LoadingDialog.axaml.cs`
+- Create: `src/SpartaCut/Views/LoadingDialog.axaml`
+- Create: `src/SpartaCut/Views/LoadingDialog.axaml.cs`
 
 ### Step 1: Create LoadingDialog XAML
 
 ```xml
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        x:Class="Bref.Views.LoadingDialog"
+        x:Class="SpartaCut.Views.LoadingDialog"
         Title="Loading Video"
         Width="400" Height="200"
         CanResize="False"
@@ -802,7 +802,7 @@ Expected: Build succeeds
 ### Step 4: Commit
 
 ```bash
-git add src/Bref/Views/LoadingDialog.axaml src/Bref/Views/LoadingDialog.axaml.cs
+git add src/SpartaCut/Views/LoadingDialog.axaml src/SpartaCut/Views/LoadingDialog.axaml.cs
 git commit -m "feat: add loading dialog UI with progress bar"
 ```
 
@@ -813,7 +813,7 @@ git commit -m "feat: add loading dialog UI with progress bar"
 **Goal:** Replace direct FrameExtractor usage with VideoService and loading dialog
 
 **Files:**
-- Modify: `src/Bref/Views/MainWindow.axaml.cs`
+- Modify: `src/SpartaCut/Views/MainWindow.axaml.cs`
 
 ### Step 1: Update LoadVideoButton_Click to use VideoService
 
@@ -927,7 +927,7 @@ Expected: Build succeeds
 
 ### Step 4: Manual test with real MP4 file
 
-Run: `/usr/local/share/dotnet/dotnet run --project src/Bref/SpartaCut.csproj`
+Run: `/usr/local/share/dotnet/dotnet run --project src/SpartaCut/SpartaCut.csproj`
 Expected:
 - App launches
 - Click "Load MP4 Video"
@@ -939,7 +939,7 @@ Expected:
 ### Step 5: Commit
 
 ```bash
-git add src/Bref/Views/MainWindow.axaml.cs
+git add src/SpartaCut/Views/MainWindow.axaml.cs
 git commit -m "feat: integrate VideoService and loading dialog into MainWindow"
 ```
 
@@ -1072,8 +1072,8 @@ git commit -m "test: add integration tests for video loading workflow"
 **Goal:** Increment version to 0.2.0 for Week 2 milestone
 
 **Files:**
-- Modify: `src/Bref/SpartaCut.csproj`
-- Modify: `src/Bref/App.axaml.cs` (About dialog)
+- Modify: `src/SpartaCut/SpartaCut.csproj`
+- Modify: `src/SpartaCut/App.axaml.cs` (About dialog)
 
 ### Step 1: Update version in SpartaCut.csproj
 
@@ -1101,7 +1101,7 @@ Expected: Build succeeds
 ### Step 4: Commit and tag
 
 ```bash
-git add src/Bref/SpartaCut.csproj src/Bref/App.axaml.cs
+git add src/SpartaCut/SpartaCut.csproj src/SpartaCut/App.axaml.cs
 git commit -m "chore: bump version to 0.2.0 for Week 2 milestone"
 git tag v0.2.0
 ```

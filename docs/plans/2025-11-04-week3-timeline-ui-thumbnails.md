@@ -22,8 +22,8 @@
 **Goal:** Define data structures for thumbnail management
 
 **Files:**
-- Create: `src/Bref/Models/ThumbnailData.cs`
-- Create: `src/Bref/Models/TimelineMetrics.cs`
+- Create: `src/SpartaCut/Models/ThumbnailData.cs`
+- Create: `src/SpartaCut/Models/TimelineMetrics.cs`
 
 ### Step 1: Create ThumbnailData model
 
@@ -107,7 +107,7 @@ Expected: Build succeeds
 ### Step 4: Commit
 
 ```bash
-git add src/Bref/Models/ThumbnailData.cs src/Bref/Models/TimelineMetrics.cs
+git add src/SpartaCut/Models/ThumbnailData.cs src/SpartaCut/Models/TimelineMetrics.cs
 git commit -m "feat: add ThumbnailData and TimelineMetrics models"
 ```
 
@@ -118,7 +118,7 @@ git commit -m "feat: add ThumbnailData and TimelineMetrics models"
 **Goal:** Extract video thumbnails at regular intervals using FFmpeg
 
 **Files:**
-- Create: `src/Bref/Services/ThumbnailGenerator.cs`
+- Create: `src/SpartaCut/Services/ThumbnailGenerator.cs`
 - Create: `src/SpartaCut.Tests/Services/ThumbnailGeneratorTests.cs`
 
 ### Step 1: Write failing test for invalid file
@@ -435,7 +435,7 @@ private byte[] FrameToJpeg(AVFrame* frame, int width, int height)
 
 ### Step 6: Add SkiaSharp package
 
-Modify `src/Bref/SpartaCut.csproj`:
+Modify `src/SpartaCut/SpartaCut.csproj`:
 ```xml
 <PackageReference Include="SkiaSharp" Version="2.88.8" />
 ```
@@ -448,7 +448,7 @@ Expected: Build succeeds
 ### Step 8: Commit
 
 ```bash
-git add src/Bref/Services/ThumbnailGenerator.cs src/SpartaCut.Tests/Services/ThumbnailGeneratorTests.cs src/Bref/SpartaCut.csproj
+git add src/SpartaCut/Services/ThumbnailGenerator.cs src/SpartaCut.Tests/Services/ThumbnailGeneratorTests.cs src/SpartaCut/SpartaCut.csproj
 git commit -m "feat: implement ThumbnailGenerator using FFmpeg and SkiaSharp"
 ```
 
@@ -459,7 +459,7 @@ git commit -m "feat: implement ThumbnailGenerator using FFmpeg and SkiaSharp"
 **Goal:** ViewModel to manage timeline state and interactions
 
 **Files:**
-- Create: `src/Bref/ViewModels/TimelineViewModel.cs`
+- Create: `src/SpartaCut/ViewModels/TimelineViewModel.cs`
 
 ### Step 1: Create TimelineViewModel
 
@@ -551,7 +551,7 @@ Expected: Build succeeds
 ### Step 3: Commit
 
 ```bash
-git add src/Bref/ViewModels/TimelineViewModel.cs
+git add src/SpartaCut/ViewModels/TimelineViewModel.cs
 git commit -m "feat: add TimelineViewModel for timeline state management"
 ```
 
@@ -562,8 +562,8 @@ git commit -m "feat: add TimelineViewModel for timeline state management"
 **Goal:** Create custom Avalonia control for timeline rendering
 
 **Files:**
-- Create: `src/Bref/Controls/TimelineControl.axaml`
-- Create: `src/Bref/Controls/TimelineControl.axaml.cs`
+- Create: `src/SpartaCut/Controls/TimelineControl.axaml`
+- Create: `src/SpartaCut/Controls/TimelineControl.axaml.cs`
 
 ### Step 1: Create TimelineControl XAML
 
@@ -573,7 +573,7 @@ git commit -m "feat: add TimelineViewModel for timeline state management"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="200"
-             x:Class="Bref.Controls.TimelineControl"
+             x:Class="SpartaCut.Controls.TimelineControl"
              Background="#2D2D2D">
 
     <Grid>
@@ -602,7 +602,7 @@ Expected: Build succeeds
 ### Step 3: Commit
 
 ```bash
-git add src/Bref/Controls/TimelineControl.axaml
+git add src/SpartaCut/Controls/TimelineControl.axaml
 git commit -m "feat: add TimelineControl XAML structure"
 ```
 
@@ -613,7 +613,7 @@ git commit -m "feat: add TimelineControl XAML structure"
 **Goal:** Implement custom rendering with SkiaSharp for waveform, thumbnails, ruler, and playhead
 
 **Files:**
-- Modify: `src/Bref/Controls/TimelineControl.axaml.cs`
+- Modify: `src/SpartaCut/Controls/TimelineControl.axaml.cs`
 
 ### Step 1: Create TimelineControl code-behind stub
 
@@ -884,7 +884,7 @@ Expected: Build succeeds
 ### Step 3: Commit
 
 ```bash
-git add src/Bref/Controls/TimelineControl.axaml.cs
+git add src/SpartaCut/Controls/TimelineControl.axaml.cs
 git commit -m "feat: implement TimelineControl rendering with SkiaSharp"
 ```
 
@@ -895,15 +895,15 @@ git commit -m "feat: implement TimelineControl rendering with SkiaSharp"
 **Goal:** Add TimelineControl to MainWindow and populate with video data
 
 **Files:**
-- Modify: `src/Bref/Views/MainWindow.axaml`
-- Modify: `src/Bref/Views/MainWindow.axaml.cs`
+- Modify: `src/SpartaCut/Views/MainWindow.axaml`
+- Modify: `src/SpartaCut/Views/MainWindow.axaml.cs`
 
 ### Step 1: Update MainWindow.axaml to include TimelineControl
 
 ```xml
 <!-- Add namespace reference at top -->
-xmlns:controls="using:Bref.Controls"
-xmlns:vm="using:Bref.ViewModels"
+xmlns:controls="using:SpartaCut.Controls"
+xmlns:vm="using:SpartaCut.ViewModels"
 
 <!-- Add after VideoInfoTextBlock -->
 <controls:TimelineControl Grid.Row="3"
@@ -971,7 +971,7 @@ Expected: Build succeeds
 
 ### Step 4: Manual test
 
-Run: `/usr/local/share/dotnet/dotnet run --project src/Bref/SpartaCut.csproj`
+Run: `/usr/local/share/dotnet/dotnet run --project src/SpartaCut/SpartaCut.csproj`
 Expected:
 - Load an MP4 video
 - Timeline should appear below video info
@@ -981,7 +981,7 @@ Expected:
 ### Step 5: Commit
 
 ```bash
-git add src/Bref/Views/MainWindow.axaml src/Bref/Views/MainWindow.axaml.cs
+git add src/SpartaCut/Views/MainWindow.axaml src/SpartaCut/Views/MainWindow.axaml.cs
 git commit -m "feat: integrate TimelineControl into MainWindow"
 ```
 
@@ -1211,8 +1211,8 @@ git commit -m "test: add unit tests for TimelineViewModel and TimelineMetrics"
 **Goal:** Increment version to 0.3.0 for Week 3 milestone
 
 **Files:**
-- Modify: `src/Bref/SpartaCut.csproj`
-- Modify: `src/Bref/App.axaml.cs`
+- Modify: `src/SpartaCut/SpartaCut.csproj`
+- Modify: `src/SpartaCut/App.axaml.cs`
 
 ### Step 1: Update version in SpartaCut.csproj
 
@@ -1239,7 +1239,7 @@ Expected: Build succeeds
 ### Step 4: Commit and tag
 
 ```bash
-git add src/Bref/SpartaCut.csproj src/Bref/App.axaml.cs
+git add src/SpartaCut/SpartaCut.csproj src/SpartaCut/App.axaml.cs
 git commit -m "chore: bump version to 0.3.0 for Week 3 milestone"
 git tag v0.3.0
 ```

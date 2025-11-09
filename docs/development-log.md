@@ -1,4 +1,4 @@
-# Bref Development Log
+# Sparta Cut Development Log
 
 ## Version 0.1.0 - Week 1 POC (November 2, 2025)
 

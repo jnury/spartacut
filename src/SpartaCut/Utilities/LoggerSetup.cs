@@ -12,12 +12,12 @@ public static class LoggerSetup
 {
     /// <summary>
     /// Initialize Serilog with console and file sinks.
-    /// Log file location: ~/Library/Application Support/Bref/logs/bref-{Date}.log (macOS)
+    /// Log file location: ~/Library/Application Support/SpartaCut/logs/spartacut-{Date}.log (macOS)
     /// </summary>
     public static void Initialize()
     {
         var logDirectory = GetLogDirectory();
-        var logFilePath = Path.Combine(logDirectory, "bref-.log");
+        var logFilePath = Path.Combine(logDirectory, "spartacut-.log");
 
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
@@ -30,20 +30,20 @@ public static class LoggerSetup
                 outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} {Level:u3}] {Message:lj}{NewLine}{Exception}")
             .CreateLogger();
 
-        Log.Information("Bref application starting");
+        Log.Information("Sparta Cut application starting");
         Log.Information("Log directory: {LogDirectory}", logDirectory);
     }
 
     /// <summary>
     /// Get platform-specific log directory.
-    /// macOS: ~/Library/Application Support/Bref/logs
-    /// Windows: %APPDATA%\Bref\logs
-    /// Linux: ~/.local/share/Bref/logs
+    /// macOS: ~/Library/Application Support/SpartaCut/logs
+    /// Windows: %APPDATA%\SpartaCut\logs
+    /// Linux: ~/.local/share/SpartaCut/logs
     /// </summary>
     private static string GetLogDirectory()
     {
         var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        var logDirectory = Path.Combine(appDataPath, "Bref", "logs");
+        var logDirectory = Path.Combine(appDataPath, "Sparta Cut", "logs");
 
         if (!Directory.Exists(logDirectory))
         {
@@ -59,7 +59,7 @@ public static class LoggerSetup
     /// </summary>
     public static void Shutdown()
     {
-        Log.Information("Bref application shutting down");
+        Log.Information("Sparta Cut application shutting down");
         Log.CloseAndFlush();
     }
 }
