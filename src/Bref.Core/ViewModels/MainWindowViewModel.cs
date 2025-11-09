@@ -18,6 +18,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
 {
     private readonly SegmentManager _segmentManager = new();
     private readonly IPlaybackEngine _playbackEngine;
+    private readonly IExportService _exportService;
     private readonly SynchronizationContext? _uiContext;
     private bool _disposed = false;
 
@@ -92,9 +93,10 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     /// <summary>
     /// Constructor - sets up Timeline property change subscription
     /// </summary>
-    public MainWindowViewModel(IPlaybackEngine playbackEngine)
+    public MainWindowViewModel(IPlaybackEngine playbackEngine, IExportService exportService)
     {
         _playbackEngine = playbackEngine ?? throw new ArgumentNullException(nameof(playbackEngine));
+        _exportService = exportService ?? throw new ArgumentNullException(nameof(exportService));
 
         // Capture UI synchronization context
         _uiContext = SynchronizationContext.Current;
@@ -379,6 +381,78 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         _playbackEngine.Pause();
         _playbackEngine.Seek(TimeSpan.Zero);
         Timeline.CurrentTime = TimeSpan.Zero;
+    }
+
+    [ObservableProperty]
+    private bool _isExporting = false;
+
+    [ObservableProperty]
+    private int _exportProgress = 0;
+
+    [ObservableProperty]
+    private string _exportMessage = string.Empty;
+
+    /// <summary>
+    /// Callback to show save file dialog (set by MainWindow)
+    /// </summary>
+    public Func<Task<string?>>? ShowSaveFileDialogCallback { get; set; }
+
+    /// <summary>
+    /// Export edited video
+    /// </summary>
+    [RelayCommand]
+    public async Task Export()
+    {
+        if (_segmentManager == null || Timeline.VideoMetadata == null)
+            return;
+
+        // Show file save dialog via callback
+        if (ShowSaveFileDialogCallback == null)
+        {
+            Log.Warning("ShowSaveFileDialogCallback not set, cannot export");
+            return;
+        }
+
+        var outputFilePath = await ShowSaveFileDialogCallback();
+        if (string.IsNullOrEmpty(outputFilePath))
+            return; // User cancelled
+
+        // Prepare export options
+        var options = new ExportOptions
+        {
+            SourceFilePath = Timeline.VideoMetadata.FilePath,
+            OutputFilePath = outputFilePath,
+            Segments = _segmentManager.CurrentSegments,
+            Metadata = Timeline.VideoMetadata,
+            UseHardwareAcceleration = true
+        };
+
+        // Progress reporter
+        var progress = new Progress<ExportProgress>(p =>
+        {
+            ExportProgress = p.Percentage;
+            ExportMessage = p.Message;
+
+            if (p.Stage == ExportStage.Complete)
+            {
+                IsExporting = false;
+                Log.Information("Export finished: {Output}", options.OutputFilePath);
+            }
+            else if (p.Stage == ExportStage.Failed || p.Stage == ExportStage.Cancelled)
+            {
+                IsExporting = false;
+            }
+        });
+
+        IsExporting = true;
+
+        // Start export
+        var success = await _exportService.ExportAsync(options, progress, CancellationToken.None);
+
+        if (success)
+        {
+            ExportMessage = "Export complete!";
+        }
     }
 
     /// <summary>

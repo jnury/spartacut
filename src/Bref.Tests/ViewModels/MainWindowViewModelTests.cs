@@ -12,7 +12,7 @@ public class MainWindowViewModelTests
     public void InitializeVideo_SetsUpSegmentManager()
     {
         // Arrange
-        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine(), new MockExportService());
         var metadata = new VideoMetadata
         {
             FilePath = "test.mp4",
@@ -38,7 +38,7 @@ public class MainWindowViewModelTests
     public void DeleteSelection_CallsSegmentManager()
     {
         // Arrange
-        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine(), new MockExportService());
         var metadata = new VideoMetadata
         {
             FilePath = "test.mp4",
@@ -70,7 +70,7 @@ public class MainWindowViewModelTests
     public void DeleteSelection_ClearsSelection()
     {
         // Arrange
-        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine(), new MockExportService());
         var metadata = new VideoMetadata
         {
             FilePath = "test.mp4",
@@ -100,7 +100,7 @@ public class MainWindowViewModelTests
     public void DeleteSelection_UpdatesVirtualDuration()
     {
         // Arrange
-        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine(), new MockExportService());
         var metadata = new VideoMetadata
         {
             FilePath = "test.mp4",
@@ -128,7 +128,7 @@ public class MainWindowViewModelTests
     public void Undo_RestoresState()
     {
         // Arrange
-        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine(), new MockExportService());
         var metadata = new VideoMetadata
         {
             FilePath = "test.mp4",
@@ -161,7 +161,7 @@ public class MainWindowViewModelTests
     public void CanDelete_FalseWhenNoSelection()
     {
         // Arrange
-        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine(), new MockExportService());
         var metadata = new VideoMetadata
         {
             FilePath = "test.mp4",
@@ -189,7 +189,7 @@ public class MainWindowViewModelTests
     public void PlaybackEngine_PropertyExists()
     {
         // Arrange
-        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine(), new MockExportService());
 
         // Assert - PlaybackEngine property should exist
         Assert.NotNull(viewModel.PlaybackEngine);
@@ -199,7 +199,7 @@ public class MainWindowViewModelTests
     public void PlayCommand_ExistsAndIsDisabledInitially()
     {
         // Arrange
-        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine(), new MockExportService());
 
         // Assert - Play command should exist but be disabled (no video loaded)
         Assert.NotNull(viewModel.PlayCommand);
@@ -211,7 +211,7 @@ public class MainWindowViewModelTests
     public void PauseCommand_ExistsAndIsDisabledInitially()
     {
         // Arrange
-        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine(), new MockExportService());
 
         // Assert - Pause command should exist but be disabled (not playing)
         Assert.NotNull(viewModel.PauseCommand);
@@ -223,7 +223,7 @@ public class MainWindowViewModelTests
     public void StopCommand_Exists()
     {
         // Arrange
-        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine(), new MockExportService());
 
         // Assert - Stop command should exist
         Assert.NotNull(viewModel.StopCommand);
@@ -234,7 +234,7 @@ public class MainWindowViewModelTests
     public void IsPlaying_InitiallyFalse()
     {
         // Arrange
-        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine(), new MockExportService());
 
         // Assert - IsPlaying should be false initially
         Assert.False(viewModel.IsPlaying);

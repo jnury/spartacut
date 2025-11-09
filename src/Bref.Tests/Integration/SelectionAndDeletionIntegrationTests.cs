@@ -16,7 +16,7 @@ public class SelectionAndDeletionIntegrationTests
     public void FullDeletionWorkflow_LoadVideoSelectDeleteVerify()
     {
         // Arrange - Initialize MainWindowViewModel with video
-        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine(), new MockExportService());
         var metadata = new VideoMetadata
         {
             FilePath = "test.mp4",
@@ -53,7 +53,7 @@ public class SelectionAndDeletionIntegrationTests
     public void MultipleDeletions_VirtualTimelineCalculationsCorrect()
     {
         // Arrange
-        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine(), new MockExportService());
         var metadata = new VideoMetadata
         {
             FilePath = "test.mp4",
@@ -99,7 +99,7 @@ public class SelectionAndDeletionIntegrationTests
     public void UndoRedoAfterDeletion_RestoresAndReapplies()
     {
         // Arrange
-        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine(), new MockExportService());
         var metadata = new VideoMetadata
         {
             FilePath = "test.mp4",
@@ -146,7 +146,7 @@ public class SelectionAndDeletionIntegrationTests
     public void SelectionAtVideoStart_DeletesCorrectly()
     {
         // Arrange
-        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine(), new MockExportService());
         var metadata = new VideoMetadata
         {
             FilePath = "test.mp4",
@@ -178,7 +178,7 @@ public class SelectionAndDeletionIntegrationTests
     public void SelectionAtVideoEnd_DeletesCorrectly()
     {
         // Arrange
-        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine(), new MockExportService());
         var metadata = new VideoMetadata
         {
             FilePath = "test.mp4",
@@ -210,7 +210,7 @@ public class SelectionAndDeletionIntegrationTests
     public void TimelineMetrics_UpdateAfterDeletion()
     {
         // Arrange
-        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine(), new MockExportService());
         var metadata = new VideoMetadata
         {
             FilePath = "test.mp4",
@@ -250,7 +250,7 @@ public class SelectionAndDeletionIntegrationTests
     public void PlayheadPosition_UpdatesCorrectlyAfterDeletion()
     {
         // Arrange
-        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine(), new MockExportService());
         var metadata = new VideoMetadata
         {
             FilePath = "test.mp4",
@@ -288,7 +288,7 @@ public class SelectionAndDeletionIntegrationTests
     public void DeletedRegions_ReflectInTimeline()
     {
         // Arrange
-        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine(), new MockExportService());
         var metadata = new VideoMetadata
         {
             FilePath = "test.mp4",
@@ -317,7 +317,7 @@ public class SelectionAndDeletionIntegrationTests
     public void MultipleUndoRedo_HandlesComplexHistory()
     {
         // Arrange
-        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine(), new MockExportService());
         var metadata = new VideoMetadata
         {
             FilePath = "test.mp4",
@@ -387,7 +387,7 @@ public class SelectionAndDeletionIntegrationTests
     public void VolumeControl_SetMultipleTimes_MaintainsCorrectValue()
     {
         // Arrange
-        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine(), new MockExportService());
         var metadata = new VideoMetadata
         {
             FilePath = "test.mp4",
@@ -421,7 +421,7 @@ public class SelectionAndDeletionIntegrationTests
     public void ToggleMute_PreservesVolumeLevel()
     {
         // Arrange
-        var viewModel = new MainWindowViewModel(new MockPlaybackEngine());
+        var viewModel = new MainWindowViewModel(new MockPlaybackEngine(), new MockExportService());
         viewModel.Volume = 0.8;
 
         // Act - Mute

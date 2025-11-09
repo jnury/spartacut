@@ -60,7 +60,7 @@ public class VlcPlaybackEngineVolumeTests
     {
         // Arrange
         var engine = new MockPlaybackEngine();
-        var viewModel = new MainWindowViewModel(engine);
+        var viewModel = new MainWindowViewModel(engine, new MockExportService());
 
         // Act
         viewModel.Volume = 0.75;

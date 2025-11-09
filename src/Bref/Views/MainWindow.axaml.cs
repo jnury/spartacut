@@ -43,11 +43,15 @@ public partial class MainWindow : Window
 
         // Initialize ViewModel with dependency injection
         var playbackEngine = new VlcPlaybackEngine();
-        _viewModel = new MainWindowViewModel(playbackEngine);
+        var exportService = new ExportService();
+        _viewModel = new MainWindowViewModel(playbackEngine, exportService);
         DataContext = _viewModel;
 
         // Set thumbnail regeneration callback
         _viewModel.RegenerateThumbnailsCallback = RegenerateThumbnailsAsync;
+
+        // Set save file dialog callback
+        _viewModel.ShowSaveFileDialogCallback = ShowSaveFileDialogAsync;
 
         // Wire timeline ViewModel
         if (TimelineControl != null)
@@ -228,6 +232,26 @@ public partial class MainWindow : Window
 
         var result = await StorageProvider.OpenFilePickerAsync(options);
         return result?.ToArray();
+    }
+
+    private async Task<string?> ShowSaveFileDialogAsync()
+    {
+        var options = new FilePickerSaveOptions
+        {
+            Title = "Export Video",
+            DefaultExtension = "mp4",
+            SuggestedFileName = "exported-video.mp4",
+            FileTypeChoices = new[]
+            {
+                new FilePickerFileType("MP4 Videos")
+                {
+                    Patterns = new[] { "*.mp4" }
+                }
+            }
+        };
+
+        var result = await StorageProvider.SaveFilePickerAsync(options);
+        return result?.Path.LocalPath;
     }
 
     /// <summary>
