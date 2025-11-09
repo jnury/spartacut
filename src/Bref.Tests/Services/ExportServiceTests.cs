@@ -1,3 +1,4 @@
+using Bref.Core.Models;
 using Bref.Core.Services;
 using Xunit;
 
@@ -34,5 +35,42 @@ public class ExportServiceTests
         {
             Assert.Contains(encoder, new[] { "h264_nvenc", "h264_qsv", "h264_amf" });
         }
+    }
+
+    [Fact]
+    public void BuildFilterComplex_SingleSegment_CreatesSimpleTrim()
+    {
+        // Arrange
+        var service = new ExportService();
+        var segments = new SegmentList();
+
+        // Add single segment (entire video)
+        segments.KeptSegments.Add(new VideoSegment
+        {
+            SourceStart = TimeSpan.Zero,
+            SourceEnd = TimeSpan.FromMinutes(10)
+        });
+
+        var metadata = new VideoMetadata
+        {
+            FilePath = "test.mp4",
+            Duration = TimeSpan.FromMinutes(10),
+            Width = 1920,
+            Height = 1080,
+            FrameRate = 30,
+            CodecName = "h264",
+            PixelFormat = "yuv420p"
+        };
+
+        // Use reflection to call private method for testing
+        var method = typeof(ExportService).GetMethod("BuildFilterComplex",
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+        // Act
+        var filter = (string)method!.Invoke(service, new object[] { segments, metadata })!;
+
+        // Assert
+        Assert.Contains("trim=start=0", filter);
+        Assert.Contains("atrim=start=0", filter);
     }
 }
