@@ -61,5 +61,38 @@ arch -x86_64 ./src/Bref/bin/Debug/net8.0/osx-x64/publish/Bref
 - Ask before updating this file
 - No unrequested features
 
+## Today I Learned
+
+### Week 9: Export Service (January 2025)
+
+**FFmpeg Export Architecture:**
+- Use FFMpegCore for process execution and argument building
+- Build filter_complex commands for segment concatenation
+- Single segment: simple trim filter
+- Multiple segments: concat filter with PTS reset
+
+**Hardware Acceleration:**
+- Auto-detect NVENC (NVIDIA), Quick Sync (Intel), AMF (AMD)
+- Priority: NVENC > Quick Sync > AMF > libx264 (software)
+- Parse `ffmpeg -encoders` output to check availability
+- Fallback to software encoding if hardware unavailable
+
+**Progress Monitoring:**
+- Parse FFmpeg stderr for "frame=" progress lines
+- Calculate percentage from current frame / total frames
+- Estimate time remaining from elapsed time and percentage
+- Update UI every ~100ms during encoding
+
+**Cancellation:**
+- CancellationToken support for user cancellation
+- Kill FFmpeg process on cancellation
+- Report Cancelled stage to UI
+
+**Edge Cases:**
+- Validate source file exists
+- Validate at least one segment to export
+- Create output directory if needed
+- Warn on output file overwrite
+
 ## Never Again
 **Button State Hell:** RelayCommand CanExecute doesn't reliably update button states in Avalonia. Use simple observable properties (see pattern above). Hours wasted trying CanExecute variants - all failed.
