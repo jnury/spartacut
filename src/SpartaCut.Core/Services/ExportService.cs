@@ -208,6 +208,9 @@ public class ExportService : IExportService
 
         var args = new System.Text.StringBuilder();
 
+        // Overwrite output file without asking
+        args.Append("-y ");
+
         // Input file
         args.Append($"-i \"{options.SourceFilePath}\" ");
 
