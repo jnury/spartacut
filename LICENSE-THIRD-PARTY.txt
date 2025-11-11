@@ -1,0 +1,138 @@
+THIRD-PARTY SOFTWARE LICENSES
+==============================
+
+Sparta Cut includes or depends on the following third-party software components:
+
+================================================================================
+LibVLC (VideoLAN)
+================================================================================
+
+License: GNU Lesser General Public License v2.1 or later (LGPL-2.1+)
+Copyright: VideoLAN and the VideoLAN development team
+Source Code: https://code.videolan.org/videolan/vlc
+Website: https://www.videolan.org/vlc/libvlc.html
+
+LibVLC is a modular multimedia framework for video playback, streaming, and
+encoding. Sparta Cut uses LibVLC dynamically linked for video playback.
+
+Full license text: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+
+IMPORTANT NOTE: Some VLC codec modules may be licensed under GPL v2, which is
+more restrictive than LGPL. The modules bundled with Sparta Cut use LGPL-
+compatible codecs only.
+
+================================================================================
+LibVLCSharp
+================================================================================
+
+License: GNU Lesser General Public License v2.1 or later (LGPL-2.1+)
+Copyright: VideoLAN and contributors
+Source Code: https://code.videolan.org/videolan/LibVLCSharp
+NuGet: https://www.nuget.org/packages/LibVLCSharp
+
+LibVLCSharp is a cross-platform .NET wrapper for LibVLC.
+
+Full license text: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+
+================================================================================
+Avalonia UI
+================================================================================
+
+License: MIT License
+Copyright: The Avalonia Project
+Source Code: https://github.com/AvaloniaUI/Avalonia
+Website: https://avaloniaui.net/
+
+Avalonia is a cross-platform XAML-based UI framework.
+
+MIT License:
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+================================================================================
+FFMpegCore
+================================================================================
+
+License: MIT License
+Copyright: Vlad Jerca and contributors
+Source Code: https://github.com/rosenbjerg/FFMpegCore
+NuGet: https://www.nuget.org/packages/FFMpegCore
+
+FFMpegCore is a .NET wrapper for FFmpeg.
+
+Full license: See MIT License text above.
+
+================================================================================
+NAudio
+================================================================================
+
+License: MIT License (Ms-PL for legacy versions)
+Copyright: Mark Heath and contributors
+Source Code: https://github.com/naudio/NAudio
+Website: https://github.com/naudio/NAudio
+
+NAudio is an audio library for .NET used for waveform generation.
+
+Full license: See MIT License text above.
+
+================================================================================
+CommunityToolkit.Mvvm
+================================================================================
+
+License: MIT License
+Copyright: .NET Foundation and Contributors
+Source Code: https://github.com/CommunityToolkit/dotnet
+NuGet: https://www.nuget.org/packages/CommunityToolkit.Mvvm
+
+MVVM toolkit for modern .NET applications.
+
+Full license: See MIT License text above.
+
+================================================================================
+Serilog
+================================================================================
+
+License: Apache License 2.0
+Copyright: Serilog Contributors
+Source Code: https://github.com/serilog/serilog
+Website: https://serilog.net/
+
+Serilog is a diagnostic logging library for .NET.
+
+Full license text: https://www.apache.org/licenses/LICENSE-2.0
+
+================================================================================
+SkiaSharp
+================================================================================
+
+License: MIT License
+Copyright: Microsoft Corporation
+Source Code: https://github.com/mono/SkiaSharp
+Website: https://github.com/mono/SkiaSharp
+
+SkiaSharp is a cross-platform 2D graphics API based on Google's Skia Graphics Library.
+
+Full license: See MIT License text above.
+
+================================================================================
+
+For the complete and most up-to-date license information for each component,
+please visit the respective project websites and source code repositories
+listed above.
+
+Last updated: January 2025
