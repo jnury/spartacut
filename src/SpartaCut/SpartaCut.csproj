@@ -33,10 +33,9 @@
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
     </PackageReference>
 
-    <!-- LibVLC for video playback (platform-specific) -->
+    <!-- LibVLC for video playback (cross-platform) -->
     <PackageReference Include="LibVLCSharp" Version="3.8.5" />
     <PackageReference Include="LibVLCSharp.Avalonia" Version="3.8.5" />
-    <PackageReference Include="VideoLAN.LibVLC.Mac" Version="3.1.2" />
 
     <!-- Logging -->
     <PackageReference Include="Serilog" Version="3.1.1" />
@@ -44,19 +43,16 @@
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
   </ItemGroup>
 
-  <!-- Copy VLC libraries from system installation on macOS -->
-  <Target Name="CopyVlcLibraries" AfterTargets="Build" Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">
-    <PropertyGroup>
-      <VlcLibPath>/Applications/VLC.app/Contents/MacOS/lib</VlcLibPath>
-      <VlcPluginPath>/Applications/VLC.app/Contents/MacOS/plugins</VlcPluginPath>
-    </PropertyGroup>
-    <ItemGroup>
-      <VlcLibFiles Include="$(VlcLibPath)/*.dylib" />
-      <VlcPluginFiles Include="$(VlcPluginPath)/**/*.*" />
-    </ItemGroup>
-    <Copy SourceFiles="@(VlcLibFiles)" DestinationFolder="$(OutputPath)/lib" SkipUnchangedFiles="true" />
-    <Copy SourceFiles="@(VlcPluginFiles)" DestinationFiles="@(VlcPluginFiles->'$(OutputPath)/plugins/%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
-    <Message Importance="high" Text="Copied VLC libraries from $(VlcLibPath) to $(OutputPath)/lib" />
-    <Message Importance="high" Text="Copied VLC plugins from $(VlcPluginPath) to $(OutputPath)/plugins" />
-  </Target>
+  <!-- Platform-specific LibVLC packages (bundled, no system installation required) -->
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+    <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.20" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('OSX'))">
+    <PackageReference Include="VideoLAN.LibVLC.Mac" Version="3.1.3.1" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+    <PackageReference Include="VideoLAN.LibVLC.Linux" Version="3.0.20" />
+  </ItemGroup>
 </Project>
