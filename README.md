@@ -1,8 +1,8 @@
 # Sparta Cut
 
-**A fast, focused video editor for removing unwanted segments from videos.**
+**A very, very simple video editor for removing unwanted segments from videos.**
 
-Sparta Cut is a Windows desktop application designed for quickly trimming videos by removing unwanted segments. Perfect for cleaning up Teams meeting recordings, screen captures, and other MP4 videos.
+Sparta Cut is a cross-platform desktop application designed for quickly trimming videos by removing unwanted segments. Perfect for cleaning up Teams meeting recordings, screen captures, and other MP4 videos.
 
 ## Features
 
@@ -15,51 +15,61 @@ Sparta Cut is a Windows desktop application designed for quickly trimming videos
 
 ## Technology Stack
 
-**UI Framework:** Avalonia UI 11.x
-- Cross-platform .NET UI framework
+**UI Framework:** Avalonia UI 11.3.6
+- Cross-platform .NET UI framework (Windows, macOS, Linux)
 - GPU-accelerated rendering
 - XAML-based MVVM architecture
 
 **Runtime:** .NET 8.0
 - C# 12 language features
-- Windows 11+ target platform
+- Cross-platform support
 
-**Video Processing:** FFmpeg 7.x
-- Hardware-accelerated encoding/decoding
-- Industry-standard video manipulation
+**Video Playback:** LibVLC 3.0+
+- Bundled via LibVLCSharp (no system installation required)
+- Hardware-accelerated decoding
+- Cross-platform support
+
+**Video Export:** FFmpeg 7.x
+- Hardware-accelerated encoding (NVENC, Quick Sync, AMF)
+- Automatic codec detection and fallback
 
 **Key Libraries:**
-- `FFmpeg.AutoGen` - Low-level FFmpeg bindings
-- `FFMpegCore` - High-level FFmpeg wrapper
-- `NAudio` - Audio waveform generation
-- `CommunityToolkit.Mvvm` - MVVM helpers
+- `LibVLCSharp` (LGPL-2.1+) - Video playback integration
+- `FFMpegCore` (MIT) - Export processing wrapper
+- `NAudio` (MIT) - Audio waveform generation
+- `CommunityToolkit.Mvvm` (MIT) - MVVM helpers
+- `Serilog` (Apache-2.0) - Diagnostic logging
+- `SkiaSharp` (MIT) - 2D graphics rendering
 
 ## Repository Structure
 
 ```
 SpartaCut/
-├── docs/
-│   ├── stack-analysis.md              # Technology evaluation research
-│   └── plans/                     # Design documentation
-│       ├── architecture.md
-│       ├── user-flow.md
-│       ├── technical-specification.md
-│       └── mvp-scope-roadmap.md
+├── docs/                          # Design documentation and plans
+├── media/                         # Original design files (icons, logos)
 ├── src/
-│   ├── SpartaCut/                 # Main application
-│   └── SpartaCut.Tests/           # Unit tests
-├── assets/                         # Icons, FFmpeg binaries (to be created)
-
-├── claude.md                       # Claude Code context reference
-└── README.md                       # This file
+│   ├── SpartaCut/                 # Main Avalonia UI application
+│   │   └── Assets/                # Application icons (icns, ico)
+│   ├── SpartaCut.Core/            # Cross-platform business logic
+│   └── SpartaCut.Tests/           # Unit and integration tests
+├── LICENSE.md                     # MIT License
+├── LICENSE-THIRD-PARTY.txt        # Third-party component licenses
+├── CLAUDE.md                      # Development context and patterns
+└── README.md                      # This file
 ```
 
 ## Development Status
 
-**Current Phase:** Design Complete ✅
-**Next Phase:** Week 1 - Project Setup & POC
+**Current Version:** 0.12.0
+**Status:** ✅ Feature-complete with export functionality
 
-See `docs/plans/2025-11-01-mvp-scope-roadmap.md` for detailed timeline.
+**Recent Updates:**
+- ✅ LibVLC integration for video playback (Week 7-8)
+- ✅ Export service with hardware acceleration (Week 9)
+- ✅ Complete UI with timeline, waveforms, and thumbnails
+- ✅ Full undo/redo system (50 levels)
+- ✅ Application icons and branding
+- ✅ Cross-platform support (Windows, macOS, Linux)
 
 ## MVP Scope (v1.0)
 
@@ -69,7 +79,6 @@ See `docs/plans/2025-11-01-mvp-scope-roadmap.md` for detailed timeline.
 - Timeline with waveform and thumbnails
 - Instant preview and undo/redo
 - Auto-optimal export with hardware acceleration
-- Save/load project sessions
 
 **Deferred to Post-MVP:**
 - Multiple format support (AVI, MOV, MKV)
@@ -104,29 +113,30 @@ dotnet test
 3. **Non-Destructive** - Original video never modified
 4. **Iterative Workflow** - Instant feedback on all operations
 
-## Target Platform
+## Target Platforms
 
-- **OS:** Windows 11
-- **Architecture:** 64-bit only
+- **OS:** Windows 10/11, macOS 10.15+, Linux
+- **Architecture:** 64-bit (x64)
 - **RAM:** 8GB minimum, 16GB recommended
 - **GPU:** NVIDIA/Intel/AMD for hardware encoding (optional)
 
 ## Distribution
 
-**Microsoft Store** (MSIX package)
-- Automatic updates
-- Clean install/uninstall
+**Windows:** Microsoft Store (MSIX package)
+**macOS/Linux:** Direct download packages (coming soon)
+
+- Bundled dependencies (LibVLC included)
+- No system VLC installation required
 - ~100MB download size
 
 ## License
 
-TBD
+MIT License - see [LICENSE.md](LICENSE.md) for details.
 
-## Contributing
+Sparta Cut uses third-party open-source components under various licenses (MIT, LGPL-2.1+, Apache-2.0). See [LICENSE-THIRD-PARTY.txt](LICENSE-THIRD-PARTY.txt) for complete attribution and license information.
 
-TBD
+## Vibe coding
 
----
+This application was entirely vibe coded with [Claude Code](https://www.claude.com/product/claude-code) with the addition of the [Claude Superpowers plugin](https://github.com/obra/superpowers).
 
-**Built with:** Avalonia UI + C# + FFmpeg
-**Developed with:** Claude Code assistance
+Logo generated by Chat GPT 5.0 and modified with Affinity.
