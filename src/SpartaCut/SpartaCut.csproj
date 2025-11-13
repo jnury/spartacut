@@ -14,7 +14,27 @@
     <AssemblyVersion>0.12.0</AssemblyVersion>
     <FileVersion>0.12.0</FileVersion>
     <InformationalVersion>0.12.0</InformationalVersion>
+
+    <!-- Application Icons -->
+    <ApplicationIcon Condition="$([MSBuild]::IsOSPlatform('Windows'))">SpartaCut.ico</ApplicationIcon>
+    <CFBundleIconFile Condition="$([MSBuild]::IsOSPlatform('OSX'))">SpartaCut.icns</CFBundleIconFile>
   </PropertyGroup>
+
+  <!-- Include generated icon files in build -->
+  <ItemGroup>
+    <None Include="SpartaCut.icns" Condition="Exists('SpartaCut.icns')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>SpartaCut.icns</Link>
+    </None>
+    <None Include="Assets.car" Condition="Exists('Assets.car')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>Assets.car</Link>
+    </None>
+    <None Include="SpartaCut.ico" Condition="Exists('SpartaCut.ico')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>SpartaCut.ico</Link>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <!-- Reference to cross-platform core library -->

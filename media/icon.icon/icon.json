@@ -3,7 +3,7 @@
     {
       "value" : {
         "linear-gradient" : [
-          "display-p3:0.79322,0.42358,0.21261,1.00000",
+          "display-p3:0.84107,0.44671,0.21481,1.00000",
           "display-p3:0.84107,0.44671,0.21481,1.00000"
         ],
         "orientation" : {
@@ -22,8 +22,8 @@
       "appearance" : "dark",
       "value" : {
         "linear-gradient" : [
-          "display-p3:0.37027,0.19432,0.09591,1.00000",
-          "display-p3:0.43605,0.23285,0.11688,1.00000"
+          "display-p3:0.84107,0.44671,0.21481,1.00000",
+          "display-p3:0.84107,0.44671,0.21481,1.00000"
         ],
         "orientation" : {
           "start" : {
@@ -40,31 +40,17 @@
   ],
   "groups" : [
     {
+      "blend-mode" : "normal",
+      "hidden" : false,
       "layers" : [
         {
-          "blend-mode-specializations" : [
-            {
-              "appearance" : "tinted",
-              "value" : "normal"
-            }
-          ],
-          "fill-specializations" : [
-            {
-              "appearance" : "tinted",
-              "value" : "none"
-            }
-          ],
+          "blend-mode" : "normal",
+          "fill" : "none",
           "glass" : false,
-          "image-name" : "icon.png",
-          "name" : "icon",
-          "opacity-specializations" : [
-            {
-              "appearance" : "tinted",
-              "value" : 1
-            }
-          ],
+          "image-name" : "logo.png",
+          "name" : "logo",
           "position" : {
-            "scale" : 1.15,
+            "scale" : 1.2,
             "translation-in-points" : [
               0,
               0
@@ -72,20 +58,21 @@
           }
         }
       ],
+      "lighting" : "individual",
       "shadow" : {
-        "kind" : "neutral",
+        "kind" : "none",
         "opacity" : 0.5
       },
+      "specular" : false,
       "translucency" : {
-        "enabled" : true,
+        "enabled" : false,
         "value" : 0.5
       }
     }
   ],
   "supported-platforms" : {
-    "circles" : [
-      "watchOS"
-    ],
-    "squares" : "shared"
+    "squares" : [
+      "macOS"
+    ]
   }
 }

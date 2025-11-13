@@ -25,6 +25,10 @@ bld/
 [Ll]og/
 [Ll]ogs/
 
+# macOS .app bundles
+build/
+*.app
+
 # Visual Studio cache/options
 .vs/
 .vscode/
@@ -118,3 +122,7 @@ pids
 
 # Sample videos
 samples/*
+
+# Icons and asset catalogs
+*.icns
+*.car
