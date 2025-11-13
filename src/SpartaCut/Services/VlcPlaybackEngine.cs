@@ -270,7 +270,6 @@ public class VlcPlaybackEngine : IPlaybackEngine
         if (timeSinceLastSeek < SeekThrottleMs)
         {
             // Too soon - skip this seek
-            Log.Debug("Seek throttled");
             return;
         }
 
@@ -284,8 +283,6 @@ public class VlcPlaybackEngine : IPlaybackEngine
 
         // Clear seeking flag after 150ms to give VLC time to complete the seek
         System.Threading.Tasks.Task.Delay(150).ContinueWith(_ => _isSeeking = false);
-
-        Log.Debug("Seeked to {Time}", position);
     }
 
     private void OnPositionMonitorTick(object? sender, ElapsedEventArgs e)

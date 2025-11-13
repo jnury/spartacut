@@ -13,8 +13,10 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -27,6 +29,20 @@ public partial class MainWindow : Window
     private VlcPlayerControl? _vlcPlayer;
     private string? _currentVideoPath;
     private double _lastRegenerationWidth = 0;
+    private bool _isVideoLoaded = false;
+
+    // Menu item references for state management
+    private NativeMenuItem? _nativeSaveAsMenuItem;
+    private NativeMenuItem? _nativeUndoMenuItem;
+    private NativeMenuItem? _nativeRedoMenuItem;
+    private MenuItem? _windowsSaveAsMenuItem;
+    private MenuItem? _windowsUndoMenuItem;
+    private MenuItem? _windowsRedoMenuItem;
+
+    /// <summary>
+    /// Public accessor for ViewModel (for menu handlers in App.axaml.cs)
+    /// </summary>
+    public MainWindowViewModel? ViewModel => _viewModel;
 
     public MainWindow()
     {
@@ -53,6 +69,9 @@ public partial class MainWindow : Window
         // Set save file dialog callback
         _viewModel.ShowSaveFileDialogCallback = ShowSaveFileDialogAsync;
 
+        // Subscribe to ViewModel property changes for menu state updates
+        _viewModel.PropertyChanged += OnViewModelPropertyChanged;
+
         // Wire timeline ViewModel
         if (TimelineControl != null)
         {
@@ -66,8 +85,125 @@ public partial class MainWindow : Window
             };
         }
 
+        // Wire up Windows menu item click handlers and store references
+        WireUpMenuHandlers();
+
+        // Get references to native menu items for state management
+        StoreNativeMenuReferences();
+
+        // Hide in-window menu on macOS (use native menu bar instead)
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            var windowsMenu = this.FindControl<Menu>("WindowsMenu");
+            if (windowsMenu != null)
+            {
+                windowsMenu.IsVisible = false;
+            }
+        }
+
+        // Initialize menu item states (all disabled until video loaded)
+        UpdateMenuStates();
+
         // FFMpegCore automatically locates ffmpeg binary - no initialization needed
         Log.Information("MainWindow initialized");
+    }
+
+    private void WireUpMenuHandlers()
+    {
+        var menuItemOpen = this.FindControl<MenuItem>("MenuItemOpen");
+        _windowsSaveAsMenuItem = this.FindControl<MenuItem>("MenuItemSaveAs");
+        var menuItemExit = this.FindControl<MenuItem>("MenuItemExit");
+        _windowsUndoMenuItem = this.FindControl<MenuItem>("MenuItemUndo");
+        _windowsRedoMenuItem = this.FindControl<MenuItem>("MenuItemRedo");
+        var menuItemAbout = this.FindControl<MenuItem>("MenuItemAbout");
+
+        if (menuItemOpen != null)
+            menuItemOpen.Click += (s, e) => OpenVideoMenuItem_Click(s, EventArgs.Empty);
+
+        if (_windowsSaveAsMenuItem != null)
+            _windowsSaveAsMenuItem.Click += (s, e) => SaveAsMenuItem_Click(s, EventArgs.Empty);
+
+        if (menuItemExit != null)
+            menuItemExit.Click += (s, e) => QuitMenuItem_Click(s, EventArgs.Empty);
+
+        if (_windowsUndoMenuItem != null)
+            _windowsUndoMenuItem.Click += (s, e) => UndoMenuItem_Click(s, EventArgs.Empty);
+
+        if (_windowsRedoMenuItem != null)
+            _windowsRedoMenuItem.Click += (s, e) => RedoMenuItem_Click(s, EventArgs.Empty);
+
+        if (menuItemAbout != null)
+            menuItemAbout.Click += (s, e) => AboutMenuItem_Click(s, EventArgs.Empty);
+    }
+
+    private void StoreNativeMenuReferences()
+    {
+        // Get native menu items from MainWindow's NativeMenu
+        if (NativeMenu.GetMenu(this) is NativeMenu nativeMenu)
+        {
+            foreach (var item in nativeMenu.Items)
+            {
+                if (item is NativeMenuItem menuItem)
+                {
+                    if (menuItem.Header?.ToString() == "File" && menuItem.Menu != null)
+                    {
+                        foreach (var subItem in menuItem.Menu.Items)
+                        {
+                            if (subItem is NativeMenuItem sub && sub.Header?.ToString() == "Export...")
+                            {
+                                _nativeSaveAsMenuItem = sub;
+                                break;
+                            }
+                        }
+                    }
+                    else if (menuItem.Header?.ToString() == "Edit" && menuItem.Menu != null)
+                    {
+                        foreach (var subItem in menuItem.Menu.Items)
+                        {
+                            if (subItem is NativeMenuItem sub)
+                            {
+                                if (sub.Header?.ToString() == "Undo")
+                                    _nativeUndoMenuItem = sub;
+                                else if (sub.Header?.ToString() == "Redo")
+                                    _nativeRedoMenuItem = sub;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(MainWindowViewModel.UndoEnabled) ||
+            e.PropertyName == nameof(MainWindowViewModel.RedoEnabled))
+        {
+            UpdateMenuStates();
+        }
+    }
+
+    private void UpdateMenuStates()
+    {
+        var undoEnabled = _viewModel?.UndoEnabled ?? false;
+        var redoEnabled = _viewModel?.RedoEnabled ?? false;
+        var videoLoaded = _isVideoLoaded;
+
+        // Update native menu items (macOS)
+        if (_nativeSaveAsMenuItem != null)
+            _nativeSaveAsMenuItem.IsEnabled = videoLoaded;
+        if (_nativeUndoMenuItem != null)
+            _nativeUndoMenuItem.IsEnabled = undoEnabled;
+        if (_nativeRedoMenuItem != null)
+            _nativeRedoMenuItem.IsEnabled = redoEnabled;
+
+        // Update Windows menu items
+        if (_windowsSaveAsMenuItem != null)
+            _windowsSaveAsMenuItem.IsEnabled = videoLoaded;
+        if (_windowsUndoMenuItem != null)
+            _windowsUndoMenuItem.IsEnabled = undoEnabled;
+        if (_windowsRedoMenuItem != null)
+            _windowsRedoMenuItem.IsEnabled = redoEnabled;
     }
 
     private async void OnWindowPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
@@ -90,8 +226,12 @@ public partial class MainWindow : Window
     {
         base.OnClosing(e);
 
-        // VLC cleanup handled by VlcPlaybackEngine disposal
-        _viewModel?.Dispose();
+        // Unsubscribe from events to prevent memory leaks
+        if (_viewModel != null)
+        {
+            _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
+            _viewModel.Dispose();
+        }
 
         Log.Information("MainWindow closing");
     }
@@ -189,6 +329,10 @@ public partial class MainWindow : Window
 
                     // Timeline DataContext already set in constructor, just show it
                     TimelineControl.IsVisible = true;
+
+                    // Mark video as loaded and enable menu items
+                    _isVideoLoaded = true;
+                    UpdateMenuStates();
                 }
 
                 // VLC handles video display automatically
@@ -409,5 +553,332 @@ public partial class MainWindow : Window
             _viewModel.ToggleMute();
             e.Handled = true;
         }
+    }
+
+    /// <summary>
+    /// Public method to show About dialog (called from App.axaml.cs for macOS menu)
+    /// </summary>
+    public void ShowAboutDialogPublic()
+    {
+        ShowAboutDialog();
+    }
+
+    /// <summary>
+    /// Menu item handler for About dialog
+    /// </summary>
+    private void AboutMenuItem_Click(object? sender, EventArgs e)
+    {
+        ShowAboutDialog();
+    }
+
+    /// <summary>
+    /// Show About dialog
+    /// </summary>
+    private async void ShowAboutDialog()
+    {
+        var aboutDialog = new Window
+        {
+            Title = "About Sparta Cut",
+            Width = 520,
+            Height = 650,
+            CanResize = false,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#1E1E1E"))
+        };
+
+        var scrollViewer = new ScrollViewer
+        {
+            HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled,
+            VerticalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Auto
+        };
+
+        var content = new StackPanel
+        {
+            Margin = new Thickness(20),
+            Spacing = 12
+        };
+
+        // App title
+        content.Children.Add(new TextBlock
+        {
+            Text = "Sparta Cut",
+            FontSize = 32,
+            FontWeight = Avalonia.Media.FontWeight.Bold,
+            Foreground = Avalonia.Media.Brushes.White,
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center
+        });
+
+        // Version
+        content.Children.Add(new TextBlock
+        {
+            Text = "Version 0.12.0",
+            FontSize = 14,
+            Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#CCCCCC")),
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center
+        });
+
+        content.Children.Add(new Border
+        {
+            Height = 1,
+            Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#333333")),
+            Margin = new Thickness(0, 10, 0, 10)
+        });
+
+        // Description
+        content.Children.Add(new TextBlock
+        {
+            Text = "Fast video editor for removing unwanted segments",
+            FontSize = 12,
+            Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#AAAAAA")),
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+            TextWrapping = Avalonia.Media.TextWrapping.Wrap,
+            TextAlignment = Avalonia.Media.TextAlignment.Center
+        });
+
+        // GitHub link
+        var githubLink = CreateHyperlink("View on GitHub", "https://github.com/jnury/spartacut");
+        content.Children.Add(githubLink);
+
+        // Third-Party Licenses
+        content.Children.Add(new TextBlock
+        {
+            Text = "Third-Party Software Licenses",
+            FontSize = 13,
+            FontWeight = Avalonia.Media.FontWeight.Bold,
+            Foreground = Avalonia.Media.Brushes.White,
+            Margin = new Thickness(0, 15, 0, 5)
+        });
+
+        content.Children.Add(new TextBlock
+        {
+            Text = "Sparta Cut uses the following open-source components:",
+            FontSize = 10,
+            Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#AAAAAA")),
+            TextWrapping = Avalonia.Media.TextWrapping.Wrap,
+            Margin = new Thickness(0, 0, 0, 8)
+        });
+
+        // LibVLC
+        AddDependency(content, "LibVLC", "LGPL-2.1+", "VideoLAN",
+            "Video playback framework. Dynamically linked.",
+            "https://code.videolan.org/videolan/vlc");
+
+        // LibVLCSharp
+        AddDependency(content, "LibVLCSharp", "LGPL-2.1+", "VideoLAN",
+            "Cross-platform .NET wrapper for LibVLC.",
+            "https://code.videolan.org/videolan/LibVLCSharp");
+
+        // Avalonia UI
+        AddDependency(content, "Avalonia UI", "MIT", "The Avalonia Project",
+            "Cross-platform XAML-based UI framework.",
+            "https://github.com/AvaloniaUI/Avalonia");
+
+        // FFMpegCore
+        AddDependency(content, "FFMpegCore", "MIT", "Vlad Jerca and contributors",
+            ".NET wrapper for FFmpeg.",
+            "https://github.com/rosenbjerg/FFMpegCore");
+
+        // NAudio
+        AddDependency(content, "NAudio", "MIT", "Mark Heath and contributors",
+            "Audio library for .NET (waveform generation).",
+            "https://github.com/naudio/NAudio");
+
+        // CommunityToolkit.Mvvm
+        AddDependency(content, "CommunityToolkit.Mvvm", "MIT", ".NET Foundation",
+            "MVVM toolkit for modern .NET applications.",
+            "https://github.com/CommunityToolkit/dotnet");
+
+        // Serilog
+        AddDependency(content, "Serilog", "Apache-2.0", "Serilog Contributors",
+            "Diagnostic logging library for .NET.",
+            "https://github.com/serilog/serilog");
+
+        // SkiaSharp
+        AddDependency(content, "SkiaSharp", "MIT", "Microsoft Corporation",
+            "Cross-platform 2D graphics API.",
+            "https://github.com/mono/SkiaSharp");
+
+        // License files
+        content.Children.Add(new TextBlock
+        {
+            Text = "License Information",
+            FontSize = 13,
+            FontWeight = Avalonia.Media.FontWeight.Bold,
+            Foreground = Avalonia.Media.Brushes.White,
+            Margin = new Thickness(0, 15, 0, 5)
+        });
+
+        var licensesLink = CreateHyperlink("View Full Third-Party Licenses", "https://github.com/jnury/spartacut/blob/main/LICENSE-THIRD-PARTY.txt");
+        content.Children.Add(licensesLink);
+
+        var lgplLink = CreateHyperlink("LGPL-2.1 License", "https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html");
+        content.Children.Add(lgplLink);
+
+        content.Children.Add(new Border
+        {
+            Height = 1,
+            Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#333333")),
+            Margin = new Thickness(0, 15, 0, 10)
+        });
+
+        // Copyright
+        content.Children.Add(new TextBlock
+        {
+            Text = $"© {DateTime.Now.Year} Sparta Cut\nBuilt with Avalonia UI + C# + LibVLC",
+            FontSize = 10,
+            Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#888888")),
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+            TextAlignment = Avalonia.Media.TextAlignment.Center,
+            LineHeight = 14
+        });
+
+        // Close button
+        var closeButton = new Button
+        {
+            Content = "Close",
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+            Padding = new Thickness(30, 8),
+            Margin = new Thickness(0, 15, 0, 0)
+        };
+        closeButton.Click += (sender, args) => aboutDialog.Close();
+        content.Children.Add(closeButton);
+
+        scrollViewer.Content = content;
+        aboutDialog.Content = scrollViewer;
+        await aboutDialog.ShowDialog(this);
+    }
+
+    private void AddDependency(StackPanel parent, string name, string license, string copyright, string description, string sourceUrl)
+    {
+        // Dependency name and license
+        var nameText = new TextBlock
+        {
+            Text = $"{name} ({license})",
+            FontSize = 10,
+            FontWeight = Avalonia.Media.FontWeight.Bold,
+            Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#CCCCCC")),
+            Margin = new Thickness(0, 6, 0, 2)
+        };
+        parent.Children.Add(nameText);
+
+        // Copyright and description
+        var descText = new TextBlock
+        {
+            Text = $"© {copyright}\n{description}",
+            FontSize = 9,
+            Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#999999")),
+            TextWrapping = Avalonia.Media.TextWrapping.Wrap,
+            LineHeight = 12
+        };
+        parent.Children.Add(descText);
+
+        // Source code link
+        var link = CreateHyperlink("Source Code", sourceUrl, 9);
+        link.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left;
+        link.Margin = new Thickness(0, 2, 0, 0);
+        parent.Children.Add(link);
+    }
+
+    private StackPanel CreateHyperlink(string text, string url, int fontSize = 11)
+    {
+        var panel = new StackPanel
+        {
+            Orientation = Avalonia.Layout.Orientation.Horizontal,
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+            Spacing = 5
+        };
+
+        var button = new Button
+        {
+            Content = text,
+            Foreground = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#007ACC")),
+            Background = Avalonia.Media.Brushes.Transparent,
+            BorderThickness = new Thickness(0),
+            Padding = new Thickness(2),
+            Cursor = new Avalonia.Input.Cursor(Avalonia.Input.StandardCursorType.Hand),
+            FontSize = fontSize
+        };
+
+        button.Click += (sender, args) =>
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = url,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Failed to open URL: {Url}", url);
+            }
+        };
+
+        // Add underline on hover effect
+        button.PointerEntered += (s, e) =>
+        {
+            if (button.Content is string content)
+            {
+                var textBlock = new TextBlock
+                {
+                    Text = content,
+                    TextDecorations = Avalonia.Media.TextDecorations.Underline
+                };
+                button.Content = textBlock;
+            }
+        };
+
+        button.PointerExited += (s, e) =>
+        {
+            if (button.Content is TextBlock textBlock)
+            {
+                button.Content = textBlock.Text;
+            }
+        };
+
+        panel.Children.Add(button);
+        return panel;
+    }
+
+    /// <summary>
+    /// Menu item handler for Undo
+    /// </summary>
+    private void UndoMenuItem_Click(object? sender, EventArgs e)
+    {
+        if (_viewModel?.UndoCommand.CanExecute(null) == true)
+        {
+            _viewModel.UndoCommand.Execute(null);
+        }
+    }
+
+    /// <summary>
+    /// Menu item handler for Redo
+    /// </summary>
+    private void RedoMenuItem_Click(object? sender, EventArgs e)
+    {
+        if (_viewModel?.RedoCommand.CanExecute(null) == true)
+        {
+            _viewModel.RedoCommand.Execute(null);
+        }
+    }
+
+    /// <summary>
+    /// Menu item handler for Export...
+    /// </summary>
+    private void SaveAsMenuItem_Click(object? sender, EventArgs e)
+    {
+        if (_viewModel?.ExportCommand.CanExecute(null) == true)
+        {
+            _viewModel.ExportCommand.Execute(null);
+        }
+    }
+
+    /// <summary>
+    /// Menu item handler for Quit/Exit
+    /// </summary>
+    private void QuitMenuItem_Click(object? sender, EventArgs e)
+    {
+        Close();
     }
 }

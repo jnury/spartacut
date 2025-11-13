@@ -285,6 +285,36 @@ public partial class TimelineViewModel : ObservableObject
     }
 
     /// <summary>
+    /// Create a selection between two specific times (for click-to-playhead feature).
+    /// </summary>
+    public void CreateSelection(TimeSpan startTime, TimeSpan endTime)
+    {
+        Selection.StartSelection(startTime);
+        Selection.UpdateSelection(endTime);
+        OnPropertyChanged(nameof(Selection));
+        OnPropertyChanged(nameof(SelectionStartPixel));
+        OnPropertyChanged(nameof(SelectionEndPixel));
+        OnPropertyChanged(nameof(SelectionWidth));
+        OnPropertyChanged(nameof(SelectionNormalizedStartPixel));
+        OnPropertyChanged(nameof(CanDeleteSelection));
+    }
+
+    /// <summary>
+    /// Resize selection by dragging an edge (for edge dragging feature).
+    /// </summary>
+    public void ResizeSelection(TimeSpan fixedEdgeTime, TimeSpan draggedEdgeTime)
+    {
+        Selection.StartSelection(fixedEdgeTime);
+        Selection.UpdateSelection(draggedEdgeTime);
+        OnPropertyChanged(nameof(Selection));
+        OnPropertyChanged(nameof(SelectionStartPixel));
+        OnPropertyChanged(nameof(SelectionEndPixel));
+        OnPropertyChanged(nameof(SelectionWidth));
+        OnPropertyChanged(nameof(SelectionNormalizedStartPixel));
+        OnPropertyChanged(nameof(CanDeleteSelection));
+    }
+
+    /// <summary>
     /// Loads video metadata and thumbnails.
     /// </summary>
     public void LoadVideo(VideoMetadata metadata, List<ThumbnailData> thumbnails)

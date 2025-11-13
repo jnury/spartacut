@@ -11,32 +11,62 @@
         Width="800" Height="600"
         Background="#1E1E1E">
 
-    <!-- macOS menu bar - File menu -->
+    <!-- macOS Native Menu Bar - File and Edit menus -->
     <NativeMenu.Menu>
         <NativeMenu>
+            <!-- File menu -->
             <NativeMenuItem Header="File">
                 <NativeMenu>
-                    <NativeMenuItem Header="Open Video..." Gesture="Cmd+O" Click="OpenVideoMenuItem_Click" />
+                    <NativeMenuItem Header="Open..." Gesture="Cmd+O" Click="OpenVideoMenuItem_Click" />
+                    <NativeMenuItem Header="Export..." Gesture="Cmd+S" Click="SaveAsMenuItem_Click" />
+                    <NativeMenuItemSeparator />
+                    <NativeMenuItem Header="Quit" Gesture="Cmd+Q" Click="QuitMenuItem_Click" />
+                </NativeMenu>
+            </NativeMenuItem>
+
+            <!-- Edit menu -->
+            <NativeMenuItem Header="Edit">
+                <NativeMenu>
+                    <NativeMenuItem Header="Undo" Gesture="Cmd+Z" Click="UndoMenuItem_Click" />
+                    <NativeMenuItem Header="Redo" Gesture="Shift+Cmd+Z" Click="RedoMenuItem_Click" />
                 </NativeMenu>
             </NativeMenuItem>
         </NativeMenu>
     </NativeMenu.Menu>
 
-    <Grid Margin="20">
+    <Grid Margin="0">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/> <!-- Load Button and Toolbar -->
+            <RowDefinition Height="Auto"/> <!-- Windows Menu Bar -->
+            <RowDefinition Height="Auto"/> <!-- Toolbar -->
             <RowDefinition Height="*"/>    <!-- Video Player -->
             <RowDefinition Height="Auto"/> <!-- Export Progress -->
             <RowDefinition Height="Auto"/> <!-- Timeline -->
         </Grid.RowDefinitions>
 
-        <!-- Load Video Button and Edit Toolbar -->
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="10" Margin="0,0,0,20">
-            <Button Name="LoadVideoButton"
-                    Content="Load MP4 Video"
-                    Padding="20,10"
-                    FontSize="16"
-                    Click="LoadVideoButton_Click"/>
+        <!-- Windows In-Window Menu Bar -->
+        <Menu Grid.Row="0" x:Name="WindowsMenu">
+            <!-- File Menu -->
+            <MenuItem Header="_File">
+                <MenuItem Header="_Open..." InputGesture="Ctrl+O" x:Name="MenuItemOpen"/>
+                <MenuItem Header="_Export..." InputGesture="Ctrl+S" x:Name="MenuItemSaveAs"/>
+                <Separator/>
+                <MenuItem Header="E_xit" x:Name="MenuItemExit"/>
+            </MenuItem>
+
+            <!-- Edit Menu -->
+            <MenuItem Header="_Edit">
+                <MenuItem Header="_Undo" InputGesture="Ctrl+Z" x:Name="MenuItemUndo"/>
+                <MenuItem Header="_Redo" InputGesture="Ctrl+Y" x:Name="MenuItemRedo"/>
+            </MenuItem>
+
+            <!-- Help Menu -->
+            <MenuItem Header="_Help">
+                <MenuItem Header="_About" x:Name="MenuItemAbout"/>
+            </MenuItem>
+        </Menu>
+
+        <!-- Playback and Edit Toolbar -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="10" Margin="20,10,20,20">
 
             <!-- Playback Controls -->
             <Button Name="PlayButton"
@@ -80,44 +110,19 @@
                     HotKey="Delete"
                     Padding="15,10"
                     FontSize="14"/>
-
-            <Button Name="UndoButton"
-                    Content="Undo"
-                    Command="{Binding UndoCommand}"
-                    IsEnabled="{Binding UndoEnabled}"
-                    HotKey="Ctrl+Z"
-                    Padding="15,10"
-                    FontSize="14"/>
-
-            <Button Name="RedoButton"
-                    Content="Redo"
-                    Command="{Binding RedoCommand}"
-                    IsEnabled="{Binding RedoEnabled}"
-                    HotKey="Ctrl+Y"
-                    Padding="15,10"
-                    FontSize="14"/>
-
-            <!-- Export Button -->
-            <Button Name="ExportButton"
-                    Content="Export"
-                    Command="{Binding ExportCommand}"
-                    IsEnabled="{Binding !IsExporting}"
-                    Padding="15,10"
-                    FontSize="14"
-                    ToolTip.Tip="Export edited video"/>
         </StackPanel>
 
         <!-- VLC Video Player -->
         <controls:VlcPlayerControl x:Name="VlcPlayer"
-                                   Grid.Row="1"
-                                   Margin="0,0,0,20" />
+                                   Grid.Row="2"
+                                   Margin="20,0,20,20" />
 
         <!-- Export Progress Panel -->
-        <Border Grid.Row="2"
+        <Border Grid.Row="3"
                 IsVisible="{Binding IsExporting}"
                 Background="#2D2D30"
                 Padding="16"
-                Margin="0,0,0,8">
+                Margin="20,0,20,8">
             <StackPanel>
                 <TextBlock Text="{Binding ExportMessage}"
                            FontSize="14"
@@ -138,10 +143,10 @@
         </Border>
 
         <!-- Timeline Control -->
-        <controls:TimelineControl Grid.Row="3"
+        <controls:TimelineControl Grid.Row="4"
                                   Name="TimelineControl"
                                   Height="150"
-                                  Margin="0,0,0,0"
+                                  Margin="20,0,20,20"
                                   IsVisible="False"/>
     </Grid>
 </Window>

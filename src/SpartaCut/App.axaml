@@ -5,9 +5,10 @@
              RequestedThemeVariant="Default">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
+    <!-- macOS Native Menu Bar - Root level menus -->
     <NativeMenu.Menu>
         <NativeMenu>
-            <!-- Application menu - About Sparta Cut -->
+            <!-- Application menu items (shown under "Sparta Cut" menu on macOS) -->
             <NativeMenuItem Header="About Sparta Cut" Click="AboutMenuItem_Click" />
         </NativeMenu>
     </NativeMenu.Menu>

@@ -22,11 +22,31 @@ public partial class TimelineControl : UserControl
     private bool _isDragging;
     private Point? _pointerDownPosition;
     private const double DragThreshold = 5.0; // pixels
+    private const double EdgeHitZone = 10.0; // pixels - hit zone for selection edges
+    private bool _isRulerDrag; // Track if dragging in ruler area
+    private bool _isDraggingStartEdge; // Track if dragging selection start edge
+    private bool _isDraggingEndEdge; // Track if dragging selection end edge
+    private TimeSpan _fixedEdgeTime; // Store the non-dragged edge time during resize
 
     public TimelineControl()
     {
         InitializeComponent();
         DataContextChanged += OnDataContextChanged;
+    }
+
+    /// <summary>
+    /// Check if a Y coordinate is in the ruler (time markers) area
+    /// </summary>
+    private bool IsInRulerArea(double y)
+    {
+        if (Bounds.Height == 0) return false;
+
+        // Ruler is the bottom 20% of the timeline
+        var waveformHeight = Bounds.Height * 0.25;
+        var thumbnailHeight = Bounds.Height * 0.55;
+        var rulerStart = waveformHeight + thumbnailHeight;
+
+        return y >= rulerStart;
     }
 
     private void OnDataContextChanged(object? sender, EventArgs e)
@@ -83,7 +103,41 @@ public partial class TimelineControl : UserControl
 
         var point = e.GetPosition(this);
         _pointerDownPosition = point;
-        _isDragging = false; // Don't start dragging yet
+        _isDragging = false;
+        _isDraggingStartEdge = false;
+        _isDraggingEndEdge = false;
+        _isRulerDrag = IsInRulerArea(point.Y);
+
+        // If in ruler area, immediately seek to position
+        if (_isRulerDrag)
+        {
+            _viewModel.SeekToPixel(point.X);
+            _viewModel.ClearSelectionCommand.Execute(null);
+        }
+        else if (_viewModel.Selection.IsActive)
+        {
+            // Check if clicking on selection edges for resizing
+            var startPixel = _viewModel.SelectionNormalizedStartPixel;
+            var endPixel = startPixel + _viewModel.SelectionWidth;
+
+            var distanceToStart = Math.Abs(point.X - startPixel);
+            var distanceToEnd = Math.Abs(point.X - endPixel);
+
+            if (distanceToStart <= EdgeHitZone)
+            {
+                // Dragging start edge
+                _isDraggingStartEdge = true;
+                _fixedEdgeTime = _viewModel.Selection.NormalizedEnd; // Fix the end
+            }
+            else if (distanceToEnd <= EdgeHitZone)
+            {
+                // Dragging end edge
+                _isDraggingEndEdge = true;
+                _fixedEdgeTime = _viewModel.Selection.NormalizedStart; // Fix the start
+            }
+            // Otherwise, will handle as normal click/drag in OnPointerMoved/Released
+        }
+
         e.Handled = true;
     }
 
@@ -96,21 +150,46 @@ public partial class TimelineControl : UserControl
         {
             var point = e.GetPosition(this);
 
-            // Check if moved beyond threshold (selection drag vs. seek click)
-            var distance = Math.Abs(point.X - _pointerDownPosition.Value.X);
-
-            if (!_isDragging && distance > DragThreshold)
+            if (_isDraggingStartEdge || _isDraggingEndEdge)
             {
-                // Start selection
-                _isDragging = true;
-                _viewModel.StartSelectionCommand.Execute(_pointerDownPosition.Value.X);
+                // Dragging selection edge - resize selection and update playhead for preview
+                var metrics = _viewModel.Metrics;
+                if (metrics != null)
+                {
+                    var draggedTime = metrics.PixelToTime(point.X);
+
+                    // Resize selection with fixed and dragged edges
+                    _viewModel.ResizeSelection(_fixedEdgeTime, draggedTime);
+
+                    // Seek playhead to dragged position for preview
+                    _viewModel.SeekToPixel(point.X);
+                    InvalidateVisual();
+                }
             }
-
-            if (_isDragging)
+            else if (_isRulerDrag)
             {
-                // Update selection
-                _viewModel.UpdateSelectionCommand.Execute(point.X);
+                // Dragging in ruler area - update playhead position
+                _viewModel.SeekToPixel(point.X);
                 InvalidateVisual();
+            }
+            else
+            {
+                // Dragging in main timeline area - create/update selection
+                var distance = Math.Abs(point.X - _pointerDownPosition.Value.X);
+
+                if (!_isDragging && distance > DragThreshold)
+                {
+                    // Start selection
+                    _isDragging = true;
+                    _viewModel.StartSelectionCommand.Execute(_pointerDownPosition.Value.X);
+                }
+
+                if (_isDragging)
+                {
+                    // Update selection
+                    _viewModel.UpdateSelectionCommand.Execute(point.X);
+                    InvalidateVisual();
+                }
             }
 
             e.Handled = true;
@@ -127,27 +206,84 @@ public partial class TimelineControl : UserControl
             return;
 
         var point = e.GetPosition(this);
-        var distance = Math.Abs(point.X - _pointerDownPosition.Value.X);
 
-        if (distance <= DragThreshold)
+        if (_isDraggingStartEdge || _isDraggingEndEdge)
         {
-            // Single click - seek to position
-            _viewModel.SeekToPixel(point.X);
-            _viewModel.ClearSelectionCommand.Execute(null);
+            // Edge dragging completed - check if edges met (cancel if so)
+            var selectionWidth = _viewModel.SelectionWidth;
+            if (selectionWidth < DragThreshold)
+            {
+                // Edges met - cancel selection
+                _viewModel.ClearSelectionCommand.Execute(null);
+            }
+            // Otherwise keep the resized selection
         }
-        else if (_viewModel.Selection.IsValid)
+        else if (_isRulerDrag)
         {
-            // Valid selection completed
-            // Selection remains active for Delete operation
+            // Ruler drag completed - playhead already moved during drag
+            // Just cleanup
         }
         else
         {
-            // Invalid selection (too small)
-            _viewModel.ClearSelectionCommand.Execute(null);
+            // Click or drag in main timeline area
+            var distance = Math.Abs(point.X - _pointerDownPosition.Value.X);
+
+            if (distance <= DragThreshold)
+            {
+                // Single click
+                var playheadPixel = _viewModel.PlayheadPosition;
+                var clickX = point.X;
+
+                // Check if clicking exactly on playhead (within threshold)
+                if (Math.Abs(clickX - playheadPixel) <= DragThreshold)
+                {
+                    // Click on playhead - do nothing
+                }
+                else if (playheadPixel <= 1.0) // Playhead at position 0
+                {
+                    // Playhead at 0 - seek to click position
+                    _viewModel.SeekToPixel(clickX);
+                    _viewModel.ClearSelectionCommand.Execute(null);
+                }
+                else if (clickX < playheadPixel)
+                {
+                    // Click left of playhead - create selection from 0 to playhead
+                    var metrics = _viewModel.Metrics;
+                    if (metrics != null)
+                    {
+                        var playheadTime = metrics.PixelToTime(playheadPixel);
+                        _viewModel.CreateSelection(TimeSpan.Zero, playheadTime);
+                    }
+                }
+                else // clickX > playheadPixel
+                {
+                    // Click right of playhead - create selection from playhead to end
+                    var metrics = _viewModel.Metrics;
+                    if (metrics != null)
+                    {
+                        var playheadTime = metrics.PixelToTime(playheadPixel);
+                        var endTime = metrics.TotalDuration;
+                        _viewModel.CreateSelection(playheadTime, endTime);
+                    }
+                }
+            }
+            else if (_viewModel.Selection.IsValid)
+            {
+                // Valid selection drag completed
+                // Selection remains active for Delete operation
+            }
+            else
+            {
+                // Invalid selection (too small)
+                _viewModel.ClearSelectionCommand.Execute(null);
+            }
         }
 
         _pointerDownPosition = null;
         _isDragging = false;
+        _isDraggingStartEdge = false;
+        _isDraggingEndEdge = false;
+        _isRulerDrag = false;
         InvalidateVisual();
         e.Handled = true;
     }
@@ -402,11 +538,16 @@ public partial class TimelineControl : UserControl
             if (!viewModel.Selection.IsActive)
                 return;
 
+            // Calculate selection height (exclude ruler area at bottom)
+            var waveformHeight = height * 0.25f;
+            var thumbnailHeight = height * 0.55f;
+            var selectionHeight = waveformHeight + thumbnailHeight; // Don't cover ruler
+
             var selectionRect = new SKRect(
                 (float)viewModel.SelectionNormalizedStartPixel,
                 0,
                 (float)(viewModel.SelectionNormalizedStartPixel + viewModel.SelectionWidth),
-                height
+                selectionHeight
             );
 
             // Semi-transparent blue overlay
@@ -417,7 +558,7 @@ public partial class TimelineControl : UserControl
             };
             canvas.DrawRect(selectionRect, selectionPaint);
 
-            // Selection border
+            // Selection border (thin like playhead)
             using var borderPaint = new SKPaint
             {
                 Color = new SKColor(100, 150, 255, 200), // Light blue, 80% opacity
@@ -425,21 +566,6 @@ public partial class TimelineControl : UserControl
                 StrokeWidth = 2
             };
             canvas.DrawRect(selectionRect, borderPaint);
-
-            // Draw handles (for visual clarity)
-            DrawSelectionHandle(canvas, selectionRect.Left, height);
-            DrawSelectionHandle(canvas, selectionRect.Right, height);
-        }
-
-        private void DrawSelectionHandle(SKCanvas canvas, float x, float height)
-        {
-            var handleRect = new SKRect(x - 5, 0, x + 5, height);
-            using var handlePaint = new SKPaint
-            {
-                Color = new SKColor(100, 150, 255, 255),
-                Style = SKPaintStyle.Fill
-            };
-            canvas.DrawRect(handleRect, handlePaint);
         }
 
         private void RenderPlayhead(SKCanvas canvas, TimelineViewModel viewModel, float height)
@@ -454,21 +580,6 @@ public partial class TimelineControl : UserControl
                 IsAntialias = true
             };
             canvas.DrawLine(x, 0, x, height, linePaint);
-
-            // Draw playhead handle (triangle at top)
-            using var handlePaint = new SKPaint
-            {
-                Color = SKColor.Parse("#FF0000"),
-                Style = SKPaintStyle.Fill,
-                IsAntialias = true
-            };
-
-            using var handlePath = new SKPath();
-            handlePath.MoveTo(x, 0);
-            handlePath.LineTo(x - 8, 15);
-            handlePath.LineTo(x + 8, 15);
-            handlePath.Close();
-            canvas.DrawPath(handlePath, handlePaint);
         }
     }
 }
