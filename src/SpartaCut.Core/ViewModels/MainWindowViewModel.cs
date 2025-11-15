@@ -403,7 +403,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private void Skip10SecondsBackward()
     {
-        if (!_playbackEngine.CanPlay) return;
+        if (_playbackEngine?.CanPlay != true) return;
 
         var currentTime = _playbackEngine.CurrentTime;
         var targetTime = currentTime - TimeSpan.FromSeconds(10);
@@ -418,17 +418,24 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
             var sourceTime = targetTime;
             var virtualTime = Timeline.SourceToVirtualTime(sourceTime);
 
-            // If target is in deleted region, find previous visible frame
+            // If target is in deleted region, find the closest visible point before it
             if (virtualTime == null)
             {
                 var segments = _segmentManager.CurrentSegments.KeptSegments;
+                // Find the last segment that ends at or before our target
                 for (int i = segments.Count - 1; i >= 0; i--)
                 {
                     if (segments[i].SourceEnd <= sourceTime)
                     {
+                        // Seek to end of this segment
                         targetTime = segments[i].SourceEnd;
                         break;
                     }
+                }
+                // If no segment ends before target, seek to start of first segment
+                if (segments.Count > 0 && targetTime < segments[0].SourceStart)
+                {
+                    targetTime = segments[0].SourceStart;
                 }
             }
         }
@@ -443,7 +450,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private void Skip10SecondsForward()
     {
-        if (!_playbackEngine.CanPlay || Timeline?.VideoMetadata == null) return;
+        if (_playbackEngine?.CanPlay != true || Timeline?.VideoMetadata == null) return;
 
         var currentTime = _playbackEngine.CurrentTime;
         var targetTime = currentTime + TimeSpan.FromSeconds(10);
