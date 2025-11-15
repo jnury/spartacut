@@ -1,0 +1,107 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SpartaCut.Core.ViewModels"
+             x:Class="SpartaCut.Controls.PlayerControlsOverlay"
+             x:DataType="vm:MainWindowViewModel"
+             x:CompileBindings="False">
+
+    <!-- Semi-transparent dark overlay at bottom -->
+    <Border VerticalAlignment="Bottom"
+            Height="64"
+            Background="#CC000000"
+            Name="ControlsContainer"
+            Opacity="1">
+
+        <Grid Margin="16,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/> <!-- Play/Pause -->
+                <ColumnDefinition Width="Auto"/> <!-- Stop -->
+                <ColumnDefinition Width="Auto"/> <!-- Skip Back -->
+                <ColumnDefinition Width="Auto"/> <!-- Skip Forward -->
+                <ColumnDefinition Width="*"/>    <!-- Spacer -->
+                <ColumnDefinition Width="Auto"/> <!-- Timecode -->
+                <ColumnDefinition Width="Auto"/> <!-- Mute -->
+                <ColumnDefinition Width="Auto"/> <!-- Volume Slider -->
+            </Grid.ColumnDefinitions>
+
+            <!-- Play/Pause Button -->
+            <Button Grid.Column="0"
+                    Width="48" Height="48"
+                    Margin="0,0,8,0"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Command="{Binding PlayCommand}"
+                    IsVisible="{Binding !IsPlaying}">
+                <TextBlock Text="▶" FontSize="28" Foreground="White"/>
+            </Button>
+
+            <Button Grid.Column="0"
+                    Width="48" Height="48"
+                    Margin="0,0,8,0"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Command="{Binding PauseCommand}"
+                    IsVisible="{Binding IsPlaying}">
+                <TextBlock Text="⏸" FontSize="28" Foreground="White"/>
+            </Button>
+
+            <!-- Stop Button -->
+            <Button Grid.Column="1"
+                    Width="48" Height="48"
+                    Margin="0,0,8,0"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Command="{Binding StopCommand}">
+                <TextBlock Text="⏹" FontSize="28" Foreground="White"/>
+            </Button>
+
+            <!-- Skip Back 10s -->
+            <Button Grid.Column="2"
+                    Width="48" Height="48"
+                    Margin="0,0,8,0"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Command="{Binding Skip10SecondsBackwardCommand}">
+                <TextBlock Text="⏪" FontSize="28" Foreground="White"/>
+            </Button>
+
+            <!-- Skip Forward 10s -->
+            <Button Grid.Column="3"
+                    Width="48" Height="48"
+                    Margin="0,0,8,0"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Command="{Binding Skip10SecondsForwardCommand}">
+                <TextBlock Text="⏩" FontSize="28" Foreground="White"/>
+            </Button>
+
+            <!-- Timecode Display -->
+            <TextBlock Grid.Column="5"
+                       Text="{Binding CurrentTimeDisplay}"
+                       FontFamily="Consolas,Courier New,monospace"
+                       FontSize="14"
+                       Foreground="White"
+                       VerticalAlignment="Center"
+                       Margin="0,0,16,0"/>
+
+            <!-- Mute Button -->
+            <Button Grid.Column="6"
+                    Width="40" Height="40"
+                    Margin="0,0,8,0"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Command="{Binding ToggleMuteCommand}">
+                <TextBlock Text="{Binding IsMuted, Converter={StaticResource MuteIconConverter}}"
+                           FontSize="20" Foreground="White"/>
+            </Button>
+
+            <!-- Volume Slider -->
+            <Slider Grid.Column="7"
+                    Width="120"
+                    Minimum="0"
+                    Maximum="1"
+                    Value="{Binding Volume, Mode=TwoWay}"
+                    VerticalAlignment="Center"/>
+        </Grid>
+    </Border>
+</UserControl>
