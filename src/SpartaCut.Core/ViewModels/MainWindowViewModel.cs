@@ -34,8 +34,14 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private bool _redoEnabled = false;
 
+    [ObservableProperty]
+    private string _currentTimeDisplay = "00:00:00";
+
     private double _volume = 1.0;
     private double _volumeBeforeMute = 1.0;
+    private bool _isMutedInternal = false;
+
+    [ObservableProperty]
     private bool _isMuted = false;
 
     /// <summary>
@@ -56,13 +62,14 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     /// <summary>
     /// Toggle mute state
     /// </summary>
-    public void ToggleMute()
+    [RelayCommand]
+    private void ToggleMute()
     {
-        if (_isMuted)
+        if (_isMutedInternal)
         {
             // Unmute - restore previous volume
             Volume = _volumeBeforeMute;
-            _isMuted = false;
+            _isMutedInternal = false;
             Log.Debug("Audio unmuted, volume restored to {Volume}", _volumeBeforeMute);
         }
         else
@@ -70,8 +77,26 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
             // Mute - save current volume and set to 0
             _volumeBeforeMute = Volume;
             Volume = 0.0;
-            _isMuted = true;
+            _isMutedInternal = true;
             Log.Debug("Audio muted, previous volume: {Volume}", _volumeBeforeMute);
+        }
+
+        IsMuted = _isMutedInternal;
+    }
+
+    /// <summary>
+    /// Update current time display from playback position
+    /// </summary>
+    private void UpdateCurrentTimeDisplay()
+    {
+        if (_playbackEngine?.CurrentTime != null)
+        {
+            var time = _playbackEngine.CurrentTime;
+            CurrentTimeDisplay = time.ToString(@"hh\:mm\:ss");
+        }
+        else
+        {
+            CurrentTimeDisplay = "00:00:00";
         }
     }
 
@@ -178,6 +203,9 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
                 {
                     // Update timeline current time
                     Timeline.CurrentTime = time;
+
+                    // Update current time display
+                    UpdateCurrentTimeDisplay();
                 }
                 finally
                 {
@@ -192,6 +220,9 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
             try
             {
                 Timeline.CurrentTime = time;
+
+                // Update current time display
+                UpdateCurrentTimeDisplay();
             }
             finally
             {
