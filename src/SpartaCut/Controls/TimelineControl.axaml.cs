@@ -27,6 +27,10 @@ public partial class TimelineControl : UserControl
     private bool _isDraggingStartEdge; // Track if dragging selection start edge
     private bool _isDraggingEndEdge; // Track if dragging selection end edge
     private TimeSpan _fixedEdgeTime; // Store the non-dragged edge time during resize
+    private bool _isHoveringDeleteIcon; // Track if hovering over delete icon
+    private const double DeleteIconSize = 20.0; // pixels
+    private const double DeleteIconHitZone = 24.0; // pixels - slightly larger for easier clicking
+    private Point? _currentPointerPosition; // Track current pointer position for hover detection
 
     public TimelineControl()
     {
@@ -47,6 +51,83 @@ public partial class TimelineControl : UserControl
         var rulerStart = waveformHeight + thumbnailHeight;
 
         return y >= rulerStart;
+    }
+
+    /// <summary>
+    /// Get the center position of the delete icon for the current selection.
+    /// Smart positioning: outside selection by default, inside when too close to timeline edges.
+    /// </summary>
+    private Point? GetDeleteIconPosition()
+    {
+        if (_viewModel?.Selection.IsActive != true || _viewModel.Metrics == null) return null;
+
+        const double iconRadius = 10.0; // Half of DeleteIconSize (20px)
+        const double borderPadding = 10.0; // Minimum distance from timeline border
+        const double selectionPadding = 10.0; // Distance from selection edge
+
+        var timelineWidth = Bounds.Width;
+        var selectionLeftX = _viewModel.SelectionNormalizedStartPixel;
+        var selectionRightX = selectionLeftX + _viewModel.SelectionWidth;
+
+        // Determine if selection is in left or right half of video
+        var selectionStartTime = _viewModel.Selection.NormalizedStart;
+        var videoMidpoint = _viewModel.Metrics.TotalDuration.Ticks / 2.0;
+        var isLeftHalf = selectionStartTime.Ticks < videoMidpoint;
+
+        double iconX;
+
+        if (isLeftHalf)
+        {
+            // Selection in left half - prefer icon on RIGHT of selection (outside)
+            var preferredX = selectionRightX + selectionPadding + iconRadius;
+            var maxAllowedX = timelineWidth - borderPadding - iconRadius;
+
+            if (preferredX > maxAllowedX)
+            {
+                // Too close to right edge - switch to inside left of selection
+                iconX = selectionRightX - selectionPadding - iconRadius;
+            }
+            else
+            {
+                iconX = preferredX;
+            }
+        }
+        else
+        {
+            // Selection in right half - prefer icon on LEFT of selection (outside)
+            var preferredX = selectionLeftX - selectionPadding - iconRadius;
+            var minAllowedX = borderPadding + iconRadius;
+
+            if (preferredX < minAllowedX)
+            {
+                // Too close to left edge - switch to inside right of selection
+                iconX = selectionLeftX + selectionPadding + iconRadius;
+            }
+            else
+            {
+                iconX = preferredX;
+            }
+        }
+
+        // Icon position: top of timeline
+        var iconY = iconRadius + 5.0; // 5px from top edge
+
+        return new Point(iconX, iconY);
+    }
+
+    /// <summary>
+    /// Check if a point is within the delete icon hit zone
+    /// </summary>
+    private bool IsPointInDeleteIcon(Point point)
+    {
+        var iconPosition = GetDeleteIconPosition();
+        if (iconPosition == null) return false;
+
+        var dx = point.X - iconPosition.Value.X;
+        var dy = point.Y - iconPosition.Value.Y;
+        var distance = Math.Sqrt(dx * dx + dy * dy);
+
+        return distance <= (DeleteIconHitZone / 2);
     }
 
     private void OnDataContextChanged(object? sender, EventArgs e)
@@ -102,6 +183,16 @@ public partial class TimelineControl : UserControl
             return;
 
         var point = e.GetPosition(this);
+
+        // Check if clicking on delete icon first
+        if (_viewModel.Selection.IsActive && IsPointInDeleteIcon(point))
+        {
+            // Raise delete requested event for MainWindow to handle
+            _viewModel.RaiseDeleteRequested();
+            e.Handled = true;
+            return;
+        }
+
         _pointerDownPosition = point;
         _isDragging = false;
         _isDraggingStartEdge = false;
@@ -143,12 +234,27 @@ public partial class TimelineControl : UserControl
 
     private void OnPointerMoved(object? sender, PointerEventArgs e)
     {
-        if (_pointerDownPosition == null || _viewModel?.VideoMetadata == null)
+        if (_viewModel?.VideoMetadata == null)
             return;
 
         try
         {
             var point = e.GetPosition(this);
+            _currentPointerPosition = point;
+
+            // Update hover state for delete icon
+            var wasHovering = _isHoveringDeleteIcon;
+            _isHoveringDeleteIcon = _viewModel.Selection.IsActive && IsPointInDeleteIcon(point);
+
+            // Invalidate if hover state changed
+            if (wasHovering != _isHoveringDeleteIcon)
+            {
+                InvalidateVisual();
+            }
+
+            // Only handle drag if pointer was pressed
+            if (_pointerDownPosition == null)
+                return;
 
             if (_isDraggingStartEdge || _isDraggingEndEdge)
             {
@@ -156,13 +262,21 @@ public partial class TimelineControl : UserControl
                 var metrics = _viewModel.Metrics;
                 if (metrics != null)
                 {
-                    var draggedTime = metrics.PixelToTime(point.X);
+                    // Clamp pointer X to timeline bounds BEFORE converting to time
+                    // This prevents selection from expanding when dragging outside timeline
+                    var clampedX = Math.Clamp(point.X, 0, Bounds.Width);
+
+                    var draggedTime = metrics.PixelToTime(clampedX);
+
+                    // Additional time-based clamping for safety
+                    var maxDuration = metrics.TotalDuration;
+                    draggedTime = TimeSpan.FromTicks(Math.Clamp(draggedTime.Ticks, 0, maxDuration.Ticks));
 
                     // Resize selection with fixed and dragged edges
                     _viewModel.ResizeSelection(_fixedEdgeTime, draggedTime);
 
                     // Seek playhead to dragged position for preview
-                    _viewModel.SeekToPixel(point.X);
+                    _viewModel.SeekToPixel(clampedX);
                     InvalidateVisual();
                 }
             }
@@ -179,15 +293,17 @@ public partial class TimelineControl : UserControl
 
                 if (!_isDragging && distance > DragThreshold)
                 {
-                    // Start selection
+                    // Start selection - clamp to timeline bounds
                     _isDragging = true;
-                    _viewModel.StartSelectionCommand.Execute(_pointerDownPosition.Value.X);
+                    var clampedStartX = Math.Clamp(_pointerDownPosition.Value.X, 0, Bounds.Width);
+                    _viewModel.StartSelectionCommand.Execute(clampedStartX);
                 }
 
                 if (_isDragging)
                 {
-                    // Update selection
-                    _viewModel.UpdateSelectionCommand.Execute(point.X);
+                    // Update selection - clamp to timeline bounds
+                    var clampedX = Math.Clamp(point.X, 0, Bounds.Width);
+                    _viewModel.UpdateSelectionCommand.Execute(clampedX);
                     InvalidateVisual();
                 }
             }
@@ -296,18 +412,20 @@ public partial class TimelineControl : UserControl
             return;
 
         var renderBounds = new Rect(0, 0, Bounds.Width, Bounds.Height);
-        context.Custom(new TimelineRenderOperation(renderBounds, _viewModel));
+        context.Custom(new TimelineRenderOperation(renderBounds, _viewModel, _isHoveringDeleteIcon));
     }
 
     private class TimelineRenderOperation : ICustomDrawOperation
     {
         private readonly Rect _bounds;
         private readonly TimelineViewModel _viewModel;
+        private readonly bool _isHoveringDeleteIcon;
 
-        public TimelineRenderOperation(Rect bounds, TimelineViewModel viewModel)
+        public TimelineRenderOperation(Rect bounds, TimelineViewModel viewModel, bool isHoveringDeleteIcon)
         {
             _bounds = bounds;
             _viewModel = viewModel;
+            _isHoveringDeleteIcon = isHoveringDeleteIcon;
         }
 
         public void Dispose() { }
@@ -361,8 +479,127 @@ public partial class TimelineControl : UserControl
             // Render selection highlight
             RenderSelection(canvas, viewModel, height);
 
+            // Render delete icon (on top of selection)
+            if (viewModel.Selection.IsActive)
+            {
+                RenderDeleteIcon(canvas, viewModel, height);
+            }
+
             // Render playhead
             RenderPlayhead(canvas, viewModel, height);
+        }
+
+        private static SKTypeface? _fontAwesomeTypeface;
+
+        private static SKTypeface GetFontAwesomeTypeface()
+        {
+            if (_fontAwesomeTypeface == null)
+            {
+                try
+                {
+                    // Load Font Awesome from embedded resource
+                    var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+                    var resourceName = "avares://SpartaCut/Assets/Fonts/fa-solid-900.ttf";
+
+                    using var stream = Avalonia.Platform.AssetLoader.Open(new Uri(resourceName));
+                    _fontAwesomeTypeface = SKTypeface.FromStream(stream);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Failed to load Font Awesome font");
+                    // Fallback to default font
+                    _fontAwesomeTypeface = SKTypeface.Default;
+                }
+            }
+            return _fontAwesomeTypeface;
+        }
+
+        private void RenderDeleteIcon(SKCanvas canvas, TimelineViewModel viewModel, float height)
+        {
+            if (!viewModel.Selection.IsActive || viewModel.Metrics == null) return;
+
+            const float iconRadius = 10f; // Half of DeleteIconSize (20px)
+            const float borderPadding = 10f; // Minimum distance from timeline border
+            const float selectionPadding = 10f; // Distance from selection edge
+
+            var timelineWidth = (float)viewModel.TimelineWidth;
+            var selectionLeftX = (float)viewModel.SelectionNormalizedStartPixel;
+            var selectionRightX = selectionLeftX + (float)viewModel.SelectionWidth;
+
+            // Determine if selection is in left or right half of video
+            var selectionStartTime = viewModel.Selection.NormalizedStart;
+            var videoMidpoint = viewModel.Metrics.TotalDuration.Ticks / 2.0;
+            var isLeftHalf = selectionStartTime.Ticks < videoMidpoint;
+
+            float iconCenterX;
+
+            if (isLeftHalf)
+            {
+                // Selection in left half - prefer icon on RIGHT of selection (outside)
+                var preferredX = selectionRightX + selectionPadding + iconRadius;
+                var maxAllowedX = timelineWidth - borderPadding - iconRadius;
+
+                if (preferredX > maxAllowedX)
+                {
+                    // Too close to right edge - switch to inside left of selection
+                    iconCenterX = selectionRightX - selectionPadding - iconRadius;
+                }
+                else
+                {
+                    iconCenterX = preferredX;
+                }
+            }
+            else
+            {
+                // Selection in right half - prefer icon on LEFT of selection (outside)
+                var preferredX = selectionLeftX - selectionPadding - iconRadius;
+                var minAllowedX = borderPadding + iconRadius;
+
+                if (preferredX < minAllowedX)
+                {
+                    // Too close to left edge - switch to inside right of selection
+                    iconCenterX = selectionLeftX + selectionPadding + iconRadius;
+                }
+                else
+                {
+                    iconCenterX = preferredX;
+                }
+            }
+
+            // Icon position: top of timeline
+            var iconCenterY = iconRadius + 5f; // 5px from top edge
+
+            // Draw circular background
+            using var bgPaint = new SKPaint
+            {
+                IsAntialias = true,
+                Style = SKPaintStyle.Fill,
+                Color = _isHoveringDeleteIcon
+                    ? SKColor.Parse("#D7641C") // Orange on hover
+                    : SKColor.Parse("#888888")  // Grey default
+            };
+            canvas.DrawCircle(iconCenterX, iconCenterY, iconRadius, bgPaint);
+
+            // Draw trash icon using Font Awesome
+            var typeface = GetFontAwesomeTypeface();
+            using var iconPaint = new SKPaint
+            {
+                IsAntialias = true,
+                Color = SKColors.Black,
+                TextSize = 12f,
+                Typeface = typeface,
+                TextAlign = SKTextAlign.Center
+            };
+
+            // Font Awesome trash-can icon unicode
+            const string trashIcon = "\uf2ed";
+
+            // Draw icon text centered
+            var textBounds = new SKRect();
+            iconPaint.MeasureText(trashIcon, ref textBounds);
+            var textY = iconCenterY - textBounds.MidY;
+
+            canvas.DrawText(trashIcon, iconCenterX, textY, iconPaint);
         }
 
         private void RenderWaveform(SKCanvas canvas, TimelineViewModel viewModel, float y, float height, float width)

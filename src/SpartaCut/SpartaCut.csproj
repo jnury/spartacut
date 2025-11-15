@@ -36,6 +36,11 @@
     </None>
   </ItemGroup>
 
+  <!-- Include Font Awesome font as embedded resource -->
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\Fonts\**" />
+  </ItemGroup>
+
   <ItemGroup>
     <!-- Reference to cross-platform core library -->
     <ProjectReference Include="..\SpartaCut.Core\SpartaCut.Core.csproj" />

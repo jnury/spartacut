@@ -46,6 +46,19 @@ public partial class TimelineViewModel : ObservableObject
     /// </summary>
     public event EventHandler? SegmentsChanged;
 
+    /// <summary>
+    /// Event raised when user clicks delete icon on timeline.
+    /// </summary>
+    public event EventHandler? DeleteRequested;
+
+    /// <summary>
+    /// Raise the DeleteRequested event
+    /// </summary>
+    public void RaiseDeleteRequested()
+    {
+        DeleteRequested?.Invoke(this, EventArgs.Empty);
+    }
+
     partial void OnCurrentTimeChanged(TimeSpan value)
     {
         CurrentTimeChanged?.Invoke(this, value);
@@ -289,6 +302,11 @@ public partial class TimelineViewModel : ObservableObject
     /// </summary>
     public void CreateSelection(TimeSpan startTime, TimeSpan endTime)
     {
+        // Clamp both times to valid range [0, TotalDuration]
+        var maxDuration = Metrics?.TotalDuration ?? TimeSpan.Zero;
+        startTime = TimeSpan.FromTicks(Math.Clamp(startTime.Ticks, 0, maxDuration.Ticks));
+        endTime = TimeSpan.FromTicks(Math.Clamp(endTime.Ticks, 0, maxDuration.Ticks));
+
         Selection.StartSelection(startTime);
         Selection.UpdateSelection(endTime);
         OnPropertyChanged(nameof(Selection));
@@ -304,6 +322,11 @@ public partial class TimelineViewModel : ObservableObject
     /// </summary>
     public void ResizeSelection(TimeSpan fixedEdgeTime, TimeSpan draggedEdgeTime)
     {
+        // Clamp both times to valid range [0, TotalDuration]
+        var maxDuration = Metrics?.TotalDuration ?? TimeSpan.Zero;
+        fixedEdgeTime = TimeSpan.FromTicks(Math.Clamp(fixedEdgeTime.Ticks, 0, maxDuration.Ticks));
+        draggedEdgeTime = TimeSpan.FromTicks(Math.Clamp(draggedEdgeTime.Ticks, 0, maxDuration.Ticks));
+
         Selection.StartSelection(fixedEdgeTime);
         Selection.UpdateSelection(draggedEdgeTime);
         OnPropertyChanged(nameof(Selection));

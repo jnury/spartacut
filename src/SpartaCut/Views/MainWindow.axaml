@@ -102,14 +102,6 @@
                            Width="40"
                            ToolTip.Tip="Volume Percentage"/>
             </StackPanel>
-
-            <!-- Edit Controls -->
-            <Button Name="DeleteButton"
-                    Content="Delete Selection"
-                    Command="{Binding DeleteSelectionCommand}"
-                    HotKey="Delete"
-                    Padding="15,10"
-                    FontSize="14"/>
         </StackPanel>
 
         <!-- VLC Video Player -->

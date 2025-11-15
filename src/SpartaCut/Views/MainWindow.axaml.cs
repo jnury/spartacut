@@ -327,6 +327,9 @@ public partial class MainWindow : Window
                     _viewModel.Timeline.LoadVideo(metadata, thumbnails);
                     _timelineViewModel = _viewModel.Timeline;
 
+                    // Subscribe to delete requested event from timeline
+                    _timelineViewModel.DeleteRequested += OnTimelineDeleteRequested;
+
                     // Timeline DataContext already set in constructor, just show it
                     TimelineControl.IsVisible = true;
 
@@ -880,5 +883,14 @@ public partial class MainWindow : Window
     private void QuitMenuItem_Click(object? sender, EventArgs e)
     {
         Close();
+    }
+
+    private void OnTimelineDeleteRequested(object? sender, EventArgs e)
+    {
+        // Handle delete request from timeline icon
+        if (_viewModel?.DeleteSelectionCommand.CanExecute(null) == true)
+        {
+            _viewModel.DeleteSelectionCommand.Execute(null);
+        }
     }
 }
