@@ -378,9 +378,104 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     [RelayCommand]
     public void Stop()
     {
-        _playbackEngine.Pause();
-        _playbackEngine.Seek(TimeSpan.Zero);
-        Timeline.CurrentTime = TimeSpan.Zero;
+        _playbackEngine?.Pause();
+
+        // Find first visible frame
+        var firstVisibleTime = TimeSpan.Zero;
+
+        if (_segmentManager != null)
+        {
+            var segments = _segmentManager.CurrentSegments.KeptSegments;
+            if (segments.Count > 0)
+            {
+                // If start is deleted, use first segment's start (in source time)
+                firstVisibleTime = segments[0].SourceStart;
+            }
+        }
+
+        Timeline.CurrentTime = firstVisibleTime;
+        _playbackEngine?.Seek(firstVisibleTime);
+    }
+
+    /// <summary>
+    /// Skip 10 seconds backward with segment awareness
+    /// </summary>
+    [RelayCommand]
+    private void Skip10SecondsBackward()
+    {
+        if (!_playbackEngine.CanPlay) return;
+
+        var currentTime = _playbackEngine.CurrentTime;
+        var targetTime = currentTime - TimeSpan.FromSeconds(10);
+
+        // Clamp to valid range
+        if (targetTime < TimeSpan.Zero)
+            targetTime = TimeSpan.Zero;
+
+        // If we have segment manager, ensure we land on a visible frame
+        if (_segmentManager != null)
+        {
+            var sourceTime = targetTime;
+            var virtualTime = Timeline.SourceToVirtualTime(sourceTime);
+
+            // If target is in deleted region, find previous visible frame
+            if (virtualTime == null)
+            {
+                var segments = _segmentManager.CurrentSegments.KeptSegments;
+                for (int i = segments.Count - 1; i >= 0; i--)
+                {
+                    if (segments[i].SourceEnd <= sourceTime)
+                    {
+                        targetTime = segments[i].SourceEnd;
+                        break;
+                    }
+                }
+            }
+        }
+
+        _playbackEngine.Seek(targetTime);
+        Timeline.CurrentTime = targetTime;
+    }
+
+    /// <summary>
+    /// Skip 10 seconds forward with segment awareness
+    /// </summary>
+    [RelayCommand]
+    private void Skip10SecondsForward()
+    {
+        if (!_playbackEngine.CanPlay || Timeline?.VideoMetadata == null) return;
+
+        var currentTime = _playbackEngine.CurrentTime;
+        var targetTime = currentTime + TimeSpan.FromSeconds(10);
+        var maxDuration = Timeline.VideoMetadata.Duration;
+
+        // Clamp to valid range
+        if (targetTime > maxDuration)
+            targetTime = maxDuration;
+
+        // If we have segment manager, ensure we land on a visible frame
+        if (_segmentManager != null)
+        {
+            var sourceTime = targetTime;
+            var virtualTime = Timeline.SourceToVirtualTime(sourceTime);
+
+            // If target is in deleted region, find next visible frame
+            if (virtualTime == null)
+            {
+                var segments = _segmentManager.CurrentSegments.KeptSegments;
+                for (int i = 0; i < segments.Count; i++)
+                {
+                    if (segments[i].SourceStart >= sourceTime)
+                    {
+                        targetTime = segments[i].SourceStart;
+                        break;
+                    }
+                }
+            }
+        }
+
+        _playbackEngine.Seek(targetTime);
+        Timeline.CurrentTime = targetTime;
     }
 
     [ObservableProperty]
