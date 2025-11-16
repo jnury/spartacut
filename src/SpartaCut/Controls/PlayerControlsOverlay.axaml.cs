@@ -30,7 +30,7 @@ public partial class PlayerControlsOverlay : UserControl
         this.PointerExited += OnPointerExited;
     }
 
-    private void OnPointerMoved(object? sender, PointerEventArgs e)
+    public void OnPointerMoved(object? sender, PointerEventArgs e)
     {
         // Reset fade timer on mouse movement
         SetActiveOpacity();

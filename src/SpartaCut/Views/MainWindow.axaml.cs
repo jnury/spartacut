@@ -903,8 +903,8 @@ public partial class MainWindow : Window
         var playerControls = this.FindControl<PlayerControlsOverlay>("PlayerControls");
         if (playerControls != null)
         {
-            // Trigger overlay's pointer moved handler to reset fade timer
-            playerControls.RaiseEvent(e);
+            // Call method directly to avoid event bubbling loop
+            playerControls.OnPointerMoved(sender, e);
         }
     }
 }
