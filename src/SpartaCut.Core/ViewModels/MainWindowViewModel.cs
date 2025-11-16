@@ -39,7 +39,6 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
 
     private double _volume = 1.0;
     private double _volumeBeforeMute = 1.0;
-    private bool _isMutedInternal = false;
 
     [ObservableProperty]
     private bool _isMuted = false;
@@ -65,11 +64,11 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private void ToggleMute()
     {
-        if (_isMutedInternal)
+        if (IsMuted)
         {
             // Unmute - restore previous volume
             Volume = _volumeBeforeMute;
-            _isMutedInternal = false;
+            IsMuted = false;
             Log.Debug("Audio unmuted, volume restored to {Volume}", _volumeBeforeMute);
         }
         else
@@ -77,11 +76,9 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
             // Mute - save current volume and set to 0
             _volumeBeforeMute = Volume;
             Volume = 0.0;
-            _isMutedInternal = true;
+            IsMuted = true;
             Log.Debug("Audio muted, previous volume: {Volume}", _volumeBeforeMute);
         }
-
-        IsMuted = _isMutedInternal;
     }
 
     /// <summary>
@@ -89,7 +86,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     /// </summary>
     private void UpdateCurrentTimeDisplay()
     {
-        if (_playbackEngine?.CurrentTime != null)
+        if (_playbackEngine != null)
         {
             var time = _playbackEngine.CurrentTime;
             CurrentTimeDisplay = time.ToString(@"hh\:mm\:ss");

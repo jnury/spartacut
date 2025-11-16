@@ -425,11 +425,11 @@ public class SelectionAndDeletionIntegrationTests
         viewModel.Volume = 0.8;
 
         // Act - Mute
-        viewModel.ToggleMute();
+        viewModel.ToggleMuteCommand.Execute(null);
         Assert.Equal(0.0, viewModel.Volume);
 
         // Act - Unmute
-        viewModel.ToggleMute();
+        viewModel.ToggleMuteCommand.Execute(null);
 
         // Assert - Volume restored
         Assert.Equal(0.8, viewModel.Volume);
