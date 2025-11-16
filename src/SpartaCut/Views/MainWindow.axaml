@@ -37,7 +37,6 @@
     <Grid Margin="0">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/> <!-- Windows Menu Bar -->
-            <RowDefinition Height="Auto"/> <!-- Toolbar -->
             <RowDefinition Height="*"/>    <!-- Video Player -->
             <RowDefinition Height="Auto"/> <!-- Export Progress -->
             <RowDefinition Height="Auto"/> <!-- Timeline -->
@@ -65,52 +64,14 @@
             </MenuItem>
         </Menu>
 
-        <!-- Playback and Edit Toolbar -->
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="10" Margin="20,10,20,20">
-
-            <!-- Playback Controls -->
-            <Button Name="PlayButton"
-                    Content="▶ Play"
-                    Command="{Binding PlayCommand}"
-                    Padding="15,10"
-                    FontSize="14"/>
-
-            <Button Name="PauseButton"
-                    Content="⏸ Pause"
-                    Command="{Binding PauseCommand}"
-                    Padding="15,10"
-                    FontSize="14"/>
-
-            <Button Name="StopButton"
-                    Content="⏹ Stop"
-                    Command="{Binding StopCommand}"
-                    Padding="15,10"
-                    FontSize="14"/>
-
-            <!-- Volume Control -->
-            <StackPanel Orientation="Horizontal" Spacing="8" Margin="16,0,0,0">
-                <TextBlock Text="🔊" VerticalAlignment="Center" FontSize="16"/>
-                <Slider Name="VolumeSlider"
-                        Value="{Binding Volume, Mode=TwoWay}"
-                        Minimum="0"
-                        Maximum="1"
-                        Width="100"
-                        VerticalAlignment="Center"
-                        ToolTip.Tip="Volume (M to mute)"/>
-                <TextBlock Text="{Binding Volume, StringFormat={}{0:P0}}"
-                           VerticalAlignment="Center"
-                           Width="40"
-                           ToolTip.Tip="Volume Percentage"/>
-            </StackPanel>
-        </StackPanel>
-
-        <!-- VLC Video Player -->
-        <controls:VlcPlayerControl x:Name="VlcPlayer"
-                                   Grid.Row="2"
-                                   Margin="20,0,20,20" />
+        <!-- Video Player with Overlay Controls -->
+        <Grid Grid.Row="1" Margin="20,0,20,20">
+            <controls:VlcPlayerControl x:Name="VlcPlayer" />
+            <controls:PlayerControlsOverlay DataContext="{Binding}" />
+        </Grid>
 
         <!-- Export Progress Panel -->
-        <Border Grid.Row="3"
+        <Border Grid.Row="2"
                 IsVisible="{Binding IsExporting}"
                 Background="#2D2D30"
                 Padding="16"
@@ -135,7 +96,7 @@
         </Border>
 
         <!-- Timeline Control -->
-        <controls:TimelineControl Grid.Row="4"
+        <controls:TimelineControl Grid.Row="3"
                                   Name="TimelineControl"
                                   Height="150"
                                   Margin="20,0,20,20"
