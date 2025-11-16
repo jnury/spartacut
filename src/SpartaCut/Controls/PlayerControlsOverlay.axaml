@@ -11,6 +11,11 @@
             Background="#CC000000"
             Name="ControlsContainer"
             Opacity="1">
+        <Border.Transitions>
+            <Transitions>
+                <DoubleTransition Property="Opacity" Duration="0:0:0.3"/>
+            </Transitions>
+        </Border.Transitions>
 
         <Grid Margin="16,12">
             <Grid.ColumnDefinitions>

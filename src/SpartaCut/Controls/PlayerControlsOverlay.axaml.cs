@@ -1,9 +1,6 @@
 using System;
-using Avalonia;
-using Avalonia.Animation;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Styling;
 using Avalonia.Threading;
 
 namespace SpartaCut.Controls;
@@ -75,24 +72,6 @@ public partial class PlayerControlsOverlay : UserControl
 
     private void AnimateOpacity(Border target, double toOpacity)
     {
-        var animation = new Avalonia.Animation.Animation
-        {
-            Duration = TimeSpan.FromMilliseconds(300),
-            Children =
-            {
-                new KeyFrame
-                {
-                    Cue = new Cue(0.0),
-                    Setters = { new Setter(OpacityProperty, target.Opacity) }
-                },
-                new KeyFrame
-                {
-                    Cue = new Cue(1.0),
-                    Setters = { new Setter(OpacityProperty, toOpacity) }
-                }
-            }
-        };
-
-        animation.RunAsync(target);
+        target.Opacity = toOpacity;
     }
 }
