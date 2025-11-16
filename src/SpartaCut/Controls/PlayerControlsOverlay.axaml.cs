@@ -60,6 +60,7 @@ public partial class PlayerControlsOverlay : UserControl
         if (this.FindControl<Border>("ControlsContainer") is Border container)
         {
             AnimateOpacity(container, ACTIVE_OPACITY);
+            container.IsHitTestVisible = true; // Enable clicks when visible
         }
     }
 
@@ -68,6 +69,7 @@ public partial class PlayerControlsOverlay : UserControl
         if (this.FindControl<Border>("ControlsContainer") is Border container)
         {
             AnimateOpacity(container, IDLE_OPACITY);
+            container.IsHitTestVisible = false; // Allow clicks through when faded
         }
     }
 
