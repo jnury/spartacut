@@ -1,22 +1,30 @@
 #!/bin/bash
 # SpartaCut macOS Run Script
-# Runs the built executable directly (no bundle)
+# Runs the app bundle (required for native menus to work)
 
 set -e  # Exit on error
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 SRC_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-EXECUTABLE="$SRC_DIR/SpartaCut/bin/Debug/net8.0/osx-x64/publish/SpartaCut"
+BUILD_DIR="$SRC_DIR/../build"
+APP_BUNDLE="$BUILD_DIR/SpartaCut.app"
 
-# Check if executable exists
-if [ ! -f "$EXECUTABLE" ]; then
-    echo "ERROR: Executable not found at $EXECUTABLE"
-    echo "Run ./build-macos.sh first to build the application"
-    exit 1
+# Check if bundle exists and is newer than source
+BUNDLE_EXISTS=false
+if [ -d "$APP_BUNDLE" ]; then
+    BUNDLE_EXISTS=true
 fi
 
-echo "🚀 Running SpartaCut via Rosetta 2..."
+# If bundle doesn't exist, create it
+if [ "$BUNDLE_EXISTS" = false ]; then
+    echo "📦 App bundle not found, creating it..."
+    "$SCRIPT_DIR/bundle-macos.sh"
+fi
+
+echo "🚀 Running SpartaCut.app via Rosetta 2..."
+echo "   (File menu will appear in macOS menu bar at top of screen)"
 echo ""
 
 # Run via Rosetta 2 (required for LibVLC on Apple Silicon)
-arch -x86_64 "$EXECUTABLE"
+# Note: Use 'open' to run as proper macOS app (enables native menus)
+arch -x86_64 open "$APP_BUNDLE"
