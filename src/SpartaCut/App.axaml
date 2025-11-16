@@ -1,5 +1,6 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="using:SpartaCut.Converters"
              x:Class="SpartaCut.App"
              Name="Sparta Cut"
              RequestedThemeVariant="Default">
@@ -12,6 +13,10 @@
             <NativeMenuItem Header="About Sparta Cut" Click="AboutMenuItem_Click" />
         </NativeMenu>
     </NativeMenu.Menu>
+
+    <Application.Resources>
+        <converters:MuteIconConverter x:Key="MuteIconConverter"/>
+    </Application.Resources>
 
     <Application.Styles>
         <FluentTheme />
