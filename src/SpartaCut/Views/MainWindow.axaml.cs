@@ -893,4 +893,18 @@ public partial class MainWindow : Window
             _viewModel.DeleteSelectionCommand.Execute(null);
         }
     }
+
+    /// <summary>
+    /// Propagate mouse movement from video player area to overlay for fade behavior
+    /// </summary>
+    private void OnPlayerPointerMoved(object? sender, PointerEventArgs e)
+    {
+        // Get PlayerControls reference if needed
+        var playerControls = this.FindControl<PlayerControlsOverlay>("PlayerControls");
+        if (playerControls != null)
+        {
+            // Trigger overlay's pointer moved handler to reset fade timer
+            playerControls.RaiseEvent(e);
+        }
+    }
 }
