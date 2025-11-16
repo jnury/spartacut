@@ -24,7 +24,8 @@ public partial class PlayerControlsOverlay : UserControl
         _fadeTimer.Tick += OnFadeTimerTick;
 
         // Track mouse movement
-        this.PointerMoved += OnPointerMoved;
+        // Note: PointerMoved events are propagated from parent MainWindow
+        // Don't subscribe to self to avoid infinite event loop
         this.PointerEntered += OnPointerEntered;
         this.PointerExited += OnPointerExited;
     }
