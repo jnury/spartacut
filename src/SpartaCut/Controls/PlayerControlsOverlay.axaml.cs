@@ -8,7 +8,7 @@ namespace SpartaCut.Controls;
 public partial class PlayerControlsOverlay : UserControl
 {
     private DispatcherTimer? _fadeTimer;
-    private const double IDLE_OPACITY = 0.5;
+    private const double IDLE_OPACITY = 0.0;  // Completely hide when idle (like YouTube)
     private const double ACTIVE_OPACITY = 1.0;
     private const int FADE_DELAY_MS = 2000;
 
