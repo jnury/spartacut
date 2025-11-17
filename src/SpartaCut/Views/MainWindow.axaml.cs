@@ -894,17 +894,4 @@ public partial class MainWindow : Window
         }
     }
 
-    /// <summary>
-    /// Propagate mouse movement from video player area to overlay for fade behavior
-    /// </summary>
-    private void OnPlayerPointerMoved(object? sender, PointerEventArgs e)
-    {
-        // Get PlayerControls reference if needed
-        var playerControls = this.FindControl<PlayerControlsOverlay>("PlayerControls");
-        if (playerControls != null)
-        {
-            // Call method directly to avoid event bubbling loop
-            playerControls.OnPointerMoved(sender, e);
-        }
-    }
 }

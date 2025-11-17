@@ -38,6 +38,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/> <!-- Windows Menu Bar -->
             <RowDefinition Height="*"/>    <!-- Video Player -->
+            <RowDefinition Height="Auto"/> <!-- Player Controls -->
             <RowDefinition Height="Auto"/> <!-- Export Progress -->
             <RowDefinition Height="Auto"/> <!-- Timeline -->
         </Grid.RowDefinitions>
@@ -64,16 +65,19 @@
             </MenuItem>
         </Menu>
 
-        <!-- Video Player with Overlay Controls -->
-        <Grid Grid.Row="1"
-              Margin="20,0,20,20"
-              PointerMoved="OnPlayerPointerMoved">
-            <controls:VlcPlayerControl x:Name="VlcPlayer" ZIndex="0" />
-            <controls:PlayerControlsOverlay x:Name="PlayerControls" DataContext="{Binding}" ZIndex="100" />
-        </Grid>
+        <!-- Video Player -->
+        <controls:VlcPlayerControl Grid.Row="1"
+                                    x:Name="VlcPlayer"
+                                    Margin="20,0,20,0" />
+
+        <!-- Player Controls Bar -->
+        <controls:PlayerControlsOverlay Grid.Row="2"
+                                         x:Name="PlayerControls"
+                                         DataContext="{Binding}"
+                                         Margin="20,0,20,20" />
 
         <!-- Export Progress Panel -->
-        <Border Grid.Row="2"
+        <Border Grid.Row="3"
                 IsVisible="{Binding IsExporting}"
                 Background="#2D2D30"
                 Padding="16"
@@ -98,7 +102,7 @@
         </Border>
 
         <!-- Timeline Control -->
-        <controls:TimelineControl Grid.Row="3"
+        <controls:TimelineControl Grid.Row="4"
                                   Name="TimelineControl"
                                   Height="150"
                                   Margin="20,0,20,20"

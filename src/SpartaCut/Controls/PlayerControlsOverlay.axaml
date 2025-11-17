@@ -5,18 +5,10 @@
              x:DataType="vm:MainWindowViewModel"
              x:CompileBindings="False">
 
-    <!-- Semi-transparent dark overlay at bottom -->
-    <Border VerticalAlignment="Bottom"
-            Height="64"
-            Background="#CC000000"
-            Name="ControlsContainer"
-            Opacity="1">
-        <Border.Transitions>
-            <Transitions>
-                <DoubleTransition Property="Opacity" Duration="0:0:0.3"/>
-            </Transitions>
-        </Border.Transitions>
-
+    <!-- Player Controls Bar -->
+    <Border Height="64"
+            Background="#2D2D30"
+            Name="ControlsContainer">
         <Grid Margin="16,12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/> <!-- Play/Pause -->
