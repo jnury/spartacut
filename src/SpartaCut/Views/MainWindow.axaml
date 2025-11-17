@@ -69,7 +69,7 @@
               Margin="20,0,20,20"
               PointerMoved="OnPlayerPointerMoved">
             <controls:VlcPlayerControl x:Name="VlcPlayer" ZIndex="0" />
-            <controls:PlayerControlsOverlay x:Name="PlayerControls" DataContext="{Binding}" ZIndex="1" />
+            <controls:PlayerControlsOverlay x:Name="PlayerControls" DataContext="{Binding}" ZIndex="100" />
         </Grid>
 
         <!-- Export Progress Panel -->
