@@ -10,7 +10,7 @@
     <Border Height="48"
             Background="#2D2D30"
             Name="ControlsContainer">
-        <Grid Margin="12,8">
+        <Grid Margin="12" VerticalAlignment="Center">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/> <!-- Play/Pause -->
                 <ColumnDefinition Width="Auto"/> <!-- Stop -->
