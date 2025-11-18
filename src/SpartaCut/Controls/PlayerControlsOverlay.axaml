@@ -35,6 +35,14 @@
                 <Style Selector="Button.player-control:pointerover /template/ ContentPresenter">
                     <Setter Property="Background" Value="#D7641C"/>
                 </Style>
+
+                <!-- Volume slider styling -->
+                <Style Selector="Slider.volume-slider /template/ Thumb">
+                    <Setter Property="Background" Value="Black"/>
+                </Style>
+                <Style Selector="Border.volume-container:pointerover Slider.volume-slider /template/ Thumb">
+                    <Setter Property="Background" Value="#D7641C"/>
+                </Style>
             </Grid.Styles>
 
             <!-- Play/Pause Button -->
@@ -87,13 +95,16 @@
             <Border Grid.Column="5"
                     Background="#888888"
                     CornerRadius="4"
-                    Padding="8,6"
+                    Height="36"
                     Margin="0,0,12,0"
                     VerticalAlignment="Center">
                 <TextBlock Text="{Binding CurrentTimeDisplay}"
                            FontFamily="Consolas,Courier New,monospace"
                            FontSize="13"
-                           Foreground="Black"/>
+                           Foreground="Black"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Margin="8,0"/>
             </Border>
 
             <!-- Mute Button -->
@@ -108,14 +119,17 @@
 
             <!-- Volume Slider -->
             <Border Grid.Column="7"
+                    Classes="volume-container"
                     Background="#888888"
                     CornerRadius="4"
-                    Padding="8,6"
+                    Height="36"
                     VerticalAlignment="Center">
-                <Slider Width="100"
+                <Slider Classes="volume-slider"
+                        Width="100"
                         Minimum="0"
                         Maximum="1"
-                        Value="{Binding Volume, Mode=TwoWay}"/>
+                        Value="{Binding Volume, Mode=TwoWay}"
+                        VerticalAlignment="Center"/>
             </Border>
         </Grid>
     </Border>
