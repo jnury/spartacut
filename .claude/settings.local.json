@@ -132,7 +132,15 @@
       "Bash(defaults read:*)",
       "Bash(./compile-assets-macos.sh)",
       "Bash(codesign:*)",
-      "Bash(assetutil:*)"
+      "Bash(assetutil:*)",
+      "Bash(./scripts/build-and-test.sh:*)",
+      "Bash(curl:*)",
+      "Bash(./src/scripts/build-macos.sh:*)",
+      "Bash(./src/scripts/run-macos.sh:*)",
+      "Bash(./src/scripts/build-and-test.sh:*)",
+      "Bash(vlc:*)",
+      "Bash(mdfind:*)",
+      "Bash(./src/scripts/bundle-macos.sh:*)"
     ],
     "deny": [],
     "ask": []
