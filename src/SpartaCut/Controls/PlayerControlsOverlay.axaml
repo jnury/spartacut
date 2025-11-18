@@ -32,7 +32,7 @@
                     <Setter Property="CornerRadius" Value="4"/>
                     <Setter Property="Padding" Value="0"/>
                 </Style>
-                <Style Selector="Button.player-control:pointerover">
+                <Style Selector="Button.player-control:pointerover /template/ ContentPresenter">
                     <Setter Property="Background" Value="#D7641C"/>
                 </Style>
             </Grid.Styles>
