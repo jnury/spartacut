@@ -68,13 +68,13 @@
         <!-- Video Player -->
         <controls:VlcPlayerControl Grid.Row="1"
                                     x:Name="VlcPlayer"
-                                    Margin="20,0,20,0" />
+                                    Margin="20,20,20,0" />
 
         <!-- Player Controls Bar -->
         <controls:PlayerControlsOverlay Grid.Row="2"
                                          x:Name="PlayerControls"
                                          DataContext="{Binding}"
-                                         Margin="20,0,20,20" />
+                                         Margin="20,0,20,0" />
 
         <!-- Export Progress Panel -->
         <Border Grid.Row="3"

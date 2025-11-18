@@ -61,6 +61,7 @@
     <!-- LibVLC for video playback (cross-platform) -->
     <PackageReference Include="LibVLCSharp" Version="3.8.5" />
     <PackageReference Include="LibVLCSharp.Avalonia" Version="3.8.5" />
+    <PackageReference Include="Material.Icons.Avalonia" Version="2.4.1" />
 
     <!-- Logging -->
     <PackageReference Include="Serilog" Version="3.1.1" />
