@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using Avalonia.Data.Converters;
+using Material.Icons;
 
 namespace SpartaCut.Converters;
 
@@ -10,9 +11,9 @@ public class MuteIconConverter : IValueConverter
     {
         if (value is bool isMuted)
         {
-            return isMuted ? "🔇" : "🔊";
+            return isMuted ? MaterialIconKind.VolumeOff : MaterialIconKind.VolumeHigh;
         }
-        return "🔊";
+        return MaterialIconKind.VolumeHigh;
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
