@@ -84,13 +84,17 @@
             </Button>
 
             <!-- Timecode Display -->
-            <TextBlock Grid.Column="5"
-                       Text="{Binding CurrentTimeDisplay}"
-                       FontFamily="Consolas,Courier New,monospace"
-                       FontSize="13"
-                       Foreground="White"
-                       VerticalAlignment="Center"
-                       Margin="0,0,12,0"/>
+            <Border Grid.Column="5"
+                    Background="#888888"
+                    CornerRadius="4"
+                    Padding="8,6"
+                    Margin="0,0,12,0"
+                    VerticalAlignment="Center">
+                <TextBlock Text="{Binding CurrentTimeDisplay}"
+                           FontFamily="Consolas,Courier New,monospace"
+                           FontSize="13"
+                           Foreground="Black"/>
+            </Border>
 
             <!-- Mute Button -->
             <Button Grid.Column="6"
@@ -103,12 +107,16 @@
             </Button>
 
             <!-- Volume Slider -->
-            <Slider Grid.Column="7"
-                    Width="100"
-                    Minimum="0"
-                    Maximum="1"
-                    Value="{Binding Volume, Mode=TwoWay}"
-                    VerticalAlignment="Center"/>
+            <Border Grid.Column="7"
+                    Background="#888888"
+                    CornerRadius="4"
+                    Padding="8,6"
+                    VerticalAlignment="Center">
+                <Slider Width="100"
+                        Minimum="0"
+                        Maximum="1"
+                        Value="{Binding Volume, Mode=TwoWay}"/>
+            </Border>
         </Grid>
     </Border>
 </UserControl>
