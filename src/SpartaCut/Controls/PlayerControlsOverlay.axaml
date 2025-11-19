@@ -12,12 +12,13 @@
             Name="ControlsContainer">
         <Grid Margin="12" VerticalAlignment="Center">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/> <!-- Play/Pause -->
                 <ColumnDefinition Width="Auto"/> <!-- Stop -->
                 <ColumnDefinition Width="Auto"/> <!-- Skip Back -->
+                <ColumnDefinition Width="Auto"/> <!-- Play/Pause -->
                 <ColumnDefinition Width="Auto"/> <!-- Skip Forward -->
                 <ColumnDefinition Width="*"/>    <!-- Spacer -->
                 <ColumnDefinition Width="Auto"/> <!-- Timecode -->
+                <ColumnDefinition Width="*"/>    <!-- Spacer -->
                 <ColumnDefinition Width="Auto"/> <!-- Mute -->
                 <ColumnDefinition Width="Auto"/> <!-- Volume Slider -->
             </Grid.ColumnDefinitions>
@@ -25,8 +26,8 @@
             <Grid.Styles>
                 <!-- Consistent button style matching timeline trash icon -->
                 <Style Selector="Button.player-control">
-                    <Setter Property="Width" Value="36"/>
-                    <Setter Property="Height" Value="36"/>
+                    <Setter Property="Width" Value="30"/>
+                    <Setter Property="Height" Value="30"/>
                     <Setter Property="Background" Value="#888888"/>
                     <Setter Property="BorderThickness" Value="0"/>
                     <Setter Property="CornerRadius" Value="4"/>
@@ -39,33 +40,17 @@
                 <!-- Volume slider styling -->
                 <Style Selector="Slider.volume-slider /template/ Thumb">
                     <Setter Property="Background" Value="Black"/>
+                    <Setter Property="Margin" Value="0"/>
+                    <Setter Property="Height" Value="10"/>
+                    <Setter Property="Width" Value="20"/>
                 </Style>
                 <Style Selector="Border.volume-container:pointerover Slider.volume-slider /template/ Thumb">
                     <Setter Property="Background" Value="#D7641C"/>
                 </Style>
             </Grid.Styles>
 
-            <!-- Play/Pause Button -->
-            <Button Grid.Column="0"
-                    Classes="player-control"
-                    Margin="0,0,4,0"
-                    Command="{Binding PlayCommand}"
-                    IsVisible="{Binding !IsPlaying}"
-                    ToolTip.Tip="Play">
-                <icons:MaterialIcon Kind="Play" Width="20" Height="20" Foreground="Black"/>
-            </Button>
-
-            <Button Grid.Column="0"
-                    Classes="player-control"
-                    Margin="0,0,4,0"
-                    Command="{Binding PauseCommand}"
-                    IsVisible="{Binding IsPlaying}"
-                    ToolTip.Tip="Pause">
-                <icons:MaterialIcon Kind="Pause" Width="20" Height="20" Foreground="Black"/>
-            </Button>
-
             <!-- Stop Button -->
-            <Button Grid.Column="1"
+            <Button Grid.Column="0"
                     Classes="player-control"
                     Margin="0,0,4,0"
                     Command="{Binding StopCommand}"
@@ -74,12 +59,31 @@
             </Button>
 
             <!-- Skip Back 10s -->
-            <Button Grid.Column="2"
+            <Button Grid.Column="1"
                     Classes="player-control"
                     Margin="0,0,4,0"
                     Command="{Binding Skip10SecondsBackwardCommand}"
                     ToolTip.Tip="Skip 10s Back">
                 <icons:MaterialIcon Kind="Undo" Width="20" Height="20" Foreground="Black"/>
+            </Button>
+
+            <!-- Play/Pause Button -->
+            <Button Grid.Column="2"
+                    Classes="player-control"
+                    Margin="0,0,4,0"
+                    Command="{Binding PlayCommand}"
+                    IsVisible="{Binding !IsPlaying}"
+                    ToolTip.Tip="Play">
+                <icons:MaterialIcon Kind="Play" Width="20" Height="20" Foreground="Black"/>
+            </Button>
+
+            <Button Grid.Column="2"
+                    Classes="player-control"
+                    Margin="0,0,4,0"
+                    Command="{Binding PauseCommand}"
+                    IsVisible="{Binding IsPlaying}"
+                    ToolTip.Tip="Pause">
+                <icons:MaterialIcon Kind="Pause" Width="20" Height="20" Foreground="Black"/>
             </Button>
 
             <!-- Skip Forward 10s -->
@@ -95,7 +99,7 @@
             <Border Grid.Column="5"
                     Background="#888888"
                     CornerRadius="4"
-                    Height="36"
+                    Height="30"
                     Margin="0,0,12,0"
                     VerticalAlignment="Center">
                 <TextBlock Text="{Binding CurrentTimeDisplay}"
@@ -108,7 +112,7 @@
             </Border>
 
             <!-- Mute Button -->
-            <Button Grid.Column="6"
+            <Button Grid.Column="7"
                     Classes="player-control"
                     Margin="0,0,4,0"
                     Command="{Binding ToggleMuteCommand}"
@@ -118,18 +122,22 @@
             </Button>
 
             <!-- Volume Slider -->
-            <Border Grid.Column="7"
+            <Border Grid.Column="8"
                     Classes="volume-container"
                     Background="#888888"
                     CornerRadius="4"
-                    Height="36"
+                    Height="30"
+                    Padding="5,0,5,5"
                     VerticalAlignment="Center">
                 <Slider Classes="volume-slider"
+                        Padding="0"
                         Width="100"
+                        Height="20"
                         Minimum="0"
                         Maximum="1"
                         Value="{Binding Volume, Mode=TwoWay}"
-                        VerticalAlignment="Center"/>
+                        VerticalAlignment="Center"
+                        />
             </Border>
         </Grid>
     </Border>
